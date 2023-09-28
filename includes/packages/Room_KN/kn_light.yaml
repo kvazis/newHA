@@ -1,0 +1,675 @@
+kn_light:
+
+    recorder:
+      include:
+        entities:
+           - binary_sensor.0x54ef44100042e226_presence
+           - binary_sensor.0x54ef44100042e226_occupancy
+
+    homeassistant:
+      customize:
+
+        light.kn_ceiling_light:
+          friendly_name: Кухня люстра
+          icon: phu:ceiling-being
+          
+        light.gateway_light_7811dc64f4c8:
+          friendly_name: Кухня шлюз
+          icon: phu:aqara-hub-n15-g2
+          
+        switch.0x54ef4410000f4741_right:
+          friendly_name: Кухня люстра, питание
+        switch.0x54ef4410000f4741_left:
+          friendly_name: Кухня Aqara E1 на входе, реле слева
+        sensor.0x54ef4410000f4741_action:
+          friendly_name: Кухня Aqara E1 на входе
+        sensor.0x54ef4410000f4741_device_temperature:
+          friendly_name: Кухня Aqara E1, температура
+          icon: mdi:thermometer-check
+          
+        sensor.0x04cf8cdf3c794209_action:
+          friendly_name: Кухня Aqara Opple на входе
+        sensor.0x04cf8cdf3c794209_battery:
+          friendly_name: Кухня Aqara Opple на входе
+          
+        sensor.0x04cf8cdf3c772379_illuminance_lux:
+          friendly_name: Кухня освещенность
+        sensor.0x04cf8cdf3c772379_battery:
+          friendly_name: Кухня освещенность
+
+        binary_sensor.0x00158d0001ab3350_occupancy:
+          friendly_name: Кухня движение 1
+        sensor.0x00158d0001ab3350_battery:
+          friendly_name: Кухня движение 1
+
+        binary_sensor.0x54ef441000118375_occupancy:
+          friendly_name: Кухня движение 2
+        sensor.0x54ef441000118375_battery:
+          friendly_name: Кухня движение 2
+          
+        binary_sensor.0x54ef44100042e226_presence:
+          friendly_name: Кухня FP1 presence
+        binary_sensor.0x54ef44100042e226_occupancy:
+          friendly_name: Кухня FP1 движение       
+        sensor.0x54ef44100042e226_presence_event:
+          friendly_name: Кухня FP1, событие
+          
+        # binary_sensor.reolink_e1_zoom_motion:
+        #   friendly_name: Кухня движение камера
+          
+        binary_sensor.kn_occupancy:
+          friendly_name: Кухня присутствие
+          
+        binary_sensor.kn_night:
+          friendly_name: Кухня ночной режим
+          icon: mdi:weather-night
+
+        automation.kn_gateway_reload:
+          friendly_name: Кухня - перезагрузка шлюза xiaomi
+          icon: mdi:reload
+
+        automation.kn_gateway_block_off_reload:
+          friendly_name: Кухня - отключение блокировки перезагрузки шлюза xiaomi
+          icon: mdi:lock-off
+
+        automation.kn_ceiling_reboot:
+          friendly_name: Кухня - перезагрузка зависшей люстры
+          icon: mdi:reload
+
+        automation.kn_ceiling_manual_control:
+          friendly_name: Кухня - ручное управление освещением
+          icon: phu:ceiling-being
+
+        automation.kn_ceiling_auto_light_on:
+          friendly_name: Кухня - автоматическое включение освещения
+          icon: phu:aqara-motion
+
+        automation.kn_ceiling_auto_light_off:
+          friendly_name: Кухня - автоматическое выключение освещения
+          icon: phu:aqara-motion
+
+        automation.kn_ceiling_alt_light_off:
+          friendly_name: Кухня - альтернативное выключение освещения
+          icon: phu:ceiling-being
+          
+        automation.kn_ceiling_turn_on_control:
+          friendly_name: Кухня - контроль включения люстры
+          icon: mdi:check-bold
+
+        automation.kn_ceiling_auto_long:
+          friendly_name: Кухня - переключение на основное освещение если дежурный свет включен более 10 минут
+          icon: phu:ceiling-being
+          
+    # Виртуальный светильник, для управления в интерфейсе
+    light:
+      - platform: template
+        lights:
+          kn_ceiling_virtual:
+            unique_id: kn_ceiling_virtual
+            friendly_name: "Кухня виртуальная люстра"
+            value_template: >-
+              {{ is_state('light.kn_ceiling_light', 'on')  
+              }}
+            icon_template: >-
+              {% if is_state("light.kn_ceiling_virtual", "on") %}
+              phu:ceiling-being
+              {% else %}
+              phu:ceiling-being
+              {% endif %}
+            turn_on:
+              service: input_button.press
+              target:
+                entity_id: input_button.kn_ceiling_light
+            turn_off:
+              service: light.turn_off
+              target:
+                entity_id: light.kn_ceiling_light
+            level_template: >-
+                {{ state_attr('light.kn_ceiling_light', 'brightness') | int }}
+            set_level:
+              service: light.turn_on
+              entity_id: light.kn_ceiling_light
+              data_template:
+                brightness: "{{ brightness }}"
+            temperature_template: >-
+                {{ state_attr('light.kn_ceiling_light', 'color_temp') | int }}
+            set_temperature:
+              service: light.turn_on
+              entity_id: light.kn_ceiling_light
+              data_template:
+                color_temp: "{{ color_temp }}"
+
+    template:
+
+    # Сенсор работающий 5 секунд после включения люстры
+      - trigger:
+    # Виртуальная кнопка для интерфейса
+        - platform: state
+          entity_id: input_button.kn_ceiling_light
+    # Выключатель на входе в кухню - правая кнопка
+        - platform: state
+          entity_id: sensor.0x54ef4410000f4741_action
+          to: 'single_right'
+    # 6 клавишник на входе
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c794209_action
+          to: 'button_1_single'
+    # 4 клавишник на комоде
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c7942ca_action
+          to: 'button_4_single'
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_5_single'
+        binary_sensor:
+          - name: kn_ceiling_on
+            auto_off: 5
+            state: "true"
+            
+    # Сенсор работающий 15 секунд после выключения люстры
+      - trigger:
+    # Выключение люстры
+        - platform: state
+          entity_id: light.kn_ceiling_light
+          from: 'on'
+          to: 'off'
+        binary_sensor:
+          - name: kn_ceiling_off
+            auto_off: 15
+            state: "true"
+
+      - binary_sensor:
+
+    # Сенсор определения движения на Aqara FP1
+          - name: '0x54ef44100042e226_occupancy'
+            unique_id: '0x54ef44100042e226_occupancy'
+            state: >
+              {{not is_state("sensor.0x54ef44100042e226_presence_event", "leave")}}
+            device_class: occupancy
+
+
+    # Сенсор определения включения яркого света
+          - name: kn_full_light
+            unique_id: kn_full_light
+            state: >
+                {{ is_state('light.kn_ceiling_light', 'on') and
+                   state_attr('light.kn_ceiling_light', 'brightness') == 255 }}
+            device_class: light
+
+    # Свет включен более 30 секунд назад
+          - name: kn_auto_light_delay
+            unique_id: kn_auto_light_delay
+            state: >
+             {{ is_state('light.kn_ceiling_light', 'on') }}
+            delay_on: 00:00:30
+            device_class: light
+
+    # Сборный сенсор присутствия
+          - name: kn_occupancy
+            unique_id: kn_occupancy
+            state: >
+              {{ is_state('binary_sensor.0x00158d0001ab3350_raw_occupancy', 'on')  
+                 or is_state('binary_sensor.0x54ef441000118375_raw_occupancy', 'on')
+                 or is_state('binary_sensor.0x54ef44100042e226_presence', 'on')
+                 or is_state('binary_sensor.kn_tv_work', 'on')
+              }}
+            delay_off: 
+                minutes: 3
+            device_class: presence
+
+    # Сенсор определения забытой люстры, включенной вручную
+          - name: kn_ceiling_long_work
+            unique_id: kn_ceiling_long_work
+            state: >
+              {{ is_state('binary_sensor.kn_occupancy', 'off')  
+                 and is_state('binary_sensor.kn_full_light', 'on')
+              }}
+            delay_on: 
+                minutes: 15
+            device_class: light
+
+
+    # Сенсор определяющий недоступность люстры
+          - name: kn_ceiling_unavailable
+            unique_id: kn_ceiling_unavailable
+            state: >
+              {{ is_state('light.kn_ceiling_light', 'unavailable')  
+                 and states('sensor.count_light_unavailable')|int < 3 }}
+            delay_on: 
+                minutes: 3
+            device_class: problem
+
+
+    # Сенсор включающий полный свет через 10 минут активности в кухне
+          - name: kn_ceiling_auto_long
+            unique_id: kn_ceiling_auto_long
+            state: >
+              {{ is_state('binary_sensor.kn_occupancy', 'on')  
+                 and is_state('light.kn_ceiling_light', 'on')
+                 and is_state('binary_sensor.kn_full_light', 'off')
+              }}
+            delay_on: 
+                minutes: 10
+            device_class: light
+
+
+    input_button:
+
+      kn_gateway_reset:
+        name: Перезагрузка шлюза
+        icon: mdi:reload
+          
+    input_boolean:
+    
+      kn_xiaomi_gateway:
+        name: Предохранитель, кухня шлюз
+        icon: mdi:lightbulb-off-outline
+
+    binary_sensor:
+
+    # Интервал для пониженной яркости в ночное время 
+      - platform: tod
+        name: kn_night
+        after: '23:00'
+        before: '05:00'
+
+    automation:
+
+#################### ПЕРЕЗАГРУЗКА ШЛЮЗА ####################
+
+      - alias: kn_gateway_reload
+        id: kn_gateway_reload
+        description: Кухня - перезагрузка шлюза xiaomi
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.kn_gateway_reset
+    # Проверка раз в 10 минут
+        - platform: time_pattern
+          minutes: '/10'
+        condition:
+    # Шлюз недоступен
+        - condition: state
+          entity_id: light.gateway_light_7811dc64f4c8
+          state: 'unavailable'
+    # Предохранитель
+        - condition: state
+          entity_id: input_boolean.kn_xiaomi_gateway
+          state: 'off'
+        action:  
+        - service: switch.turn_off
+          entity_id:
+            - switch.0x00158d000114a1e1
+        - delay: 00:00:03
+        - service: switch.turn_on
+          entity_id:
+            - switch.0x00158d000114a1e1
+        - delay: 00:00:15 
+ 
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            device_id: 4063f2da86f527b793ff4d1e9790782e
+        - wait_template: "{{ not is_state('light.gateway_light_7811dc64f4c8', 'unavailable') }}"
+          timeout: 10
+        - if:
+             - "{{ not wait.completed }}"
+          then:
+             - service: telegram_bot.send_message
+               data_template:
+                 target:
+                     - !secret chat_id_group_tech
+                 message: | 
+                      Внимание!
+                      Шлюз кухня недоступен, перезагрузка не имела успеха
+    # Включение предохранителя
+             - service: input_boolean.turn_on
+               entity_id: input_boolean.kn_xiaomi_gateway
+
+      - alias: kn_gateway_block_off_reload
+        id: kn_gateway_block_off_reload
+        description: Кухня - отключение блокировки перезагрузки шлюза xiaomi
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: light.gateway_light_7811dc64f4c8
+          from: 'unavailable'
+        action:                
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.kn_xiaomi_gateway
+
+#################### ПЕРЕЗАГРУЗКА ЛЮСТРЫ ####################
+               
+
+      - alias: kn_ceiling_reboot
+        id: kn_ceiling_reboot
+        description: Кухня - перезагрузка зависшей люстры
+        initial_state: true
+        trigger:
+    # Проверка раз в 5 минут, перезагрузка если люстра недоступна
+        - platform: time_pattern
+          minutes: '/5'
+        condition:
+    # Сенсор определяющий недоступность люстры
+        - condition: state
+          entity_id: binary_sensor.kn_ceiling_unavailable
+          state: 'on'
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Перезагрузка по питанию
+        - service: switch.turn_off
+          entity_id: switch.0x54ef4410000f4741_right
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x54ef4410000f4741_right
+
+#################### ПЕРЕЗАГРУЗКА ВЫКЛЮЧАТЕЛЯ ####################
+
+      - alias: kn_switch_ceiling_reload
+        id: kn_switch_ceiling_reload
+        description: Кухня -  перезагрузка выключателя
+        initial_state: true
+        trigger:
+    # Проверка раз в 10 минут
+        - platform: time_pattern
+          minutes: '/10'
+        condition:
+    # Сервер
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Только днем
+        - condition: state
+          entity_id: binary_sensor.night_time
+          state: 'off'
+    # Выключатель недоступен
+        - condition: state
+          entity_id: switch.0x54ef4410000f4741_right
+          state: 'unavailable'
+        action:
+        - service: light.turn_on
+          entity_id:
+            - light.kn_ceiling_light
+          data_template:
+            brightness_pct: 30
+            kelvin: 4000
+        - delay: 00:00:03
+        - service: light.turn_off
+          entity_id:
+           - light.kn_ceiling_light
+        - service: telegram_bot.send_message
+          data_template:
+            target:
+                - !secret chat_id_log
+            message: | 
+                 {{"\U0001F916"}} Кухня -  перезагрузка выключателя {{ states('sensor.time_date') }} 
+
+#################### ВКЛЮЧЕНИЕ СВЕТА ####################
+
+      - alias: kn_ceiling_manual_control
+        id: kn_ceiling_manual_control
+        description: Кухня - ручное управление освещением
+        initial_state: true
+        trigger:
+    # Переключатель ручного управления
+        - platform: state
+          entity_id: binary_sensor.kn_ceiling_on
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+    # Свет выключен - включаем на полную яркость
+              - conditions:
+                  - condition: state
+                    entity_id: light.kn_ceiling_light
+                    state: 'off'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.kn_ceiling_light
+                    data_template:
+                      brightness_pct: 100
+                      kelvin: 4000
+    # Свет включен на на полную яркость - выключение люстры
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.kn_full_light
+                    state: 'on'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.kn_ceiling_light
+    # Свет включен в автоматическом режиме в течении 30 секунд - включаем на полную яркость
+              - conditions:
+                  - condition: state
+                    entity_id: light.kn_ceiling_light
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.kn_auto_light_delay
+                    state: 'off'
+                  - condition: state
+                    entity_id: binary_sensor.kn_full_light
+                    state: 'off'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.kn_ceiling_light
+                    data_template:
+                      brightness_pct: 100
+                      kelvin: 4000
+    # Свет включен в автоматическом режиме более 30 секунд - выключение люстры
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.kn_auto_light_delay
+                    state: 'on'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.kn_ceiling_light
+
+      - alias: kn_ceiling_auto_light_on
+        id: kn_ceiling_auto_light_on
+        description: Кухня - автоматическое включение освещения
+        initial_state: true
+        trigger:
+    # Сработка любого из сенсоров движения, они обновляются быстрее сенсора присутствия
+        - platform: state
+          entity_id: binary_sensor.0x00158d0001ab3350_raw_occupancy
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: binary_sensor.0x54ef441000118375_raw_occupancy
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: binary_sensor.0x54ef44100042e226_occupancy
+          from: 'off'
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Cенсор ручного управления выключен
+        - condition: state
+          entity_id: binary_sensor.kn_ceiling_on
+          state: 'off'
+    # Люстра выключена
+        - condition: state
+          entity_id: light.kn_ceiling_light
+          state: 'off'
+    # Люстра выключена более 30 секунд назад
+        - condition: state
+          entity_id: binary_sensor.kn_ceiling_off
+          state: 'off'          
+    # Уровень освещенности ниже 100
+        - condition: numeric_state
+          entity_id: sensor.0x04cf8cdf3c772379_illuminance_lux
+          below: 100
+        action:
+            - choose:
+    # Включение люстры в дневное время - проверка сенсора time of day
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.kn_night
+                    state: 'off'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.kn_ceiling_light
+                    data_template:
+                      brightness_pct: 70
+                      kelvin: 3000
+    # Включение люстры в ночное время - проверка сенсора time of day
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.kn_night
+                    state: 'on'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.kn_ceiling_light
+                    data_template:
+                      brightness_pct: 5
+                      kelvin: 3000
+             
+      - alias: kn_ceiling_auto_light_off
+        id: kn_ceiling_auto_light_off
+        description: Кухня - автоматическое выключение освещения
+        initial_state: true
+        trigger:
+    # Отключение сенсора присутствия
+        - platform: state
+          entity_id: binary_sensor.kn_occupancy
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Сенсор полного освещения
+        - condition: state
+          entity_id: binary_sensor.kn_full_light
+          state: 'off'
+    # Люстра работает
+        - condition: state
+          entity_id: light.kn_ceiling_light
+          state: 'on'
+        action:
+    # Выключение люстры
+        - service: light.turn_off
+          entity_id: 
+           - light.kn_ceiling_light
+           
+      - alias: kn_ceiling_alt_light_off
+        id: kn_ceiling_alt_light_off
+        description: Кухня - дополнительное управление
+        initial_state: true
+        trigger:
+    # Сенсор определения забытой люстры
+        - platform: state
+          entity_id: binary_sensor.kn_ceiling_long_work
+          to: 'on'
+          id: Long work
+    # 6 клавишник на входе
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c794209_action
+          to: 'button_2_single'
+          id: button 2_1
+    # 6 клавишник на входе
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c794209_action
+          to: 'button_1_double'
+          id: button 1_2
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: Long work
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.kn_ceiling_light            
+              - conditions:
+                  - condition: trigger
+                    id: button 2_1
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.kn_ceiling_light
+              - conditions:
+                  - condition: trigger
+                    id: button 1_2
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.kn_ceiling_light
+                    data_template:
+                      brightness_pct: 100
+                      kelvin: 4000
+
+      - alias: kn_ceiling_turn_on_control
+        id: kn_ceiling_turn_on_control
+        description: Кухня - контроль включения люстры
+        initial_state: true
+        trigger:
+    # Отслеживание включения люстры
+        - platform: state
+          entity_id: light.kn_ceiling_light
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Сенсор ручного включения выключен
+        - condition: state
+          entity_id: binary_sensor.kn_ceiling_on
+          state: 'off'
+    # Сенсор присутствия выключен
+        - condition: state
+          entity_id: binary_sensor.kn_occupancy
+          state: 'off'
+        action:
+    # Выключение люстры
+        - service: light.turn_off
+          entity_id:
+            - light.kn_ceiling_light
+
+      - alias: kn_ceiling_auto_long
+        id: kn_ceiling_auto_long
+        description: Кухня - переключение на основное освещение если дежурный свет включен более 10 минут
+        initial_state: true
+        trigger:
+    # Кто-то есть в кухнее более 10 минут
+        - platform: state
+          entity_id: binary_sensor.kn_ceiling_auto_long
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.turn_on
+          entity_id:
+            - light.kn_ceiling_light
+          data_template:
+            brightness_pct: 100
+            kelvin: 4000
+

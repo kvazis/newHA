@@ -1,0 +1,127 @@
+lr_light_cinema:
+
+
+    # Виртуальный светильник, для управления в интерфейсе
+    light:
+      - platform: template
+        lights:
+          lr_light_cinema:
+            friendly_name: "Подсветка"
+            value_template: >-
+              {{ is_state('light.0xa4c138b72a314e97', 'on')  
+                 and is_state('light.lr_ceiling_light_1_ambilight', 'on')
+                 and is_state('light.lr_ceiling_light_2_ambilight', 'on')
+              }}
+            icon_template: >-
+              {% if is_state("light.lr_light_cinema", "on") %}
+              mdi:filmstrip-box
+              {% else %}
+              mdi:filmstrip-off
+              {% endif %}
+            turn_on:
+              service: input_button.press
+              target:
+                entity_id: input_button.lr_light_cinema
+            turn_off:
+              service: input_button.press
+              target:
+                entity_id: input_button.lr_light_cinema
+            level_template: >-
+                {{ state_attr('light.lr_ceiling_light_1_ambilight', 'brightness') | int }}
+            set_level:
+              service: light.turn_on
+              entity_id:
+              - light.lr_ceiling_light_1_ambilight
+              - light.lr_ceiling_light_2_ambilight
+              - light.0xa4c138b72a314e97
+              data_template:
+                brightness: "{{ brightness }}"
+            temperature_template: >-
+                {{ state_attr('light.lr_ceiling_light_1_ambilight', 'color_temp') | int }}
+            set_temperature:
+              service: light.turn_on
+              entity_id:
+              - light.lr_ceiling_light_1_ambilight
+              - light.lr_ceiling_light_2_ambilight
+              - light.0xa4c138b72a314e97
+              data_template:
+                color_temp: "{{ color_temp }}"
+            color_template: >-
+                {{ state_attr('light.lr_ceiling_light_1_ambilight', 'hs_color') }}
+            set_color:
+              service: light.turn_on
+              entity_id:
+              - light.lr_ceiling_light_1_ambilight
+              - light.lr_ceiling_light_2_ambilight
+              - light.0xa4c138b72a314e97
+              data_template:
+                hs_color: "[{{h}}, {{s}}]"
+            effect_list_template: "{{ state_attr('light.lr_ceiling_light_1_ambilight', 'effect_list') }}"
+            effect_template: Stop
+            set_effect:
+              service: light.turn_on
+              entity_id:
+              - light.lr_ceiling_light_1_ambilight
+              - light.lr_ceiling_light_2_ambilight
+              - light.0xa4c138b72a314e97
+              data_template:
+                effect: "{{ effect }}"
+
+
+    automation:
+    
+      - alias: lr_tv_cinema_light
+        id: lr_tv_cinema_light
+        description: Гостиная, подсветка для ТВ
+        initial_state: true
+        trigger:
+    ## Крутилка Moes
+        - platform: state
+          entity_id: sensor.0x70ac08fffe263e24_action
+          to: "double"
+    ## 6 кнопка Aqara Opple
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c79360a_action
+          to: 'button_6_single' 
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_light_cinema
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_6_single'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_light_cinema
+                    state: 'off'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.lr_table_lamp
+                      - light.lr_ceiling_light_1
+                      - light.lr_ceiling_light_2
+                      - light.0x00158d00062fbb54_left
+                  - service: light.turn_on
+                    entity_id:
+                      - light.lr_ceiling_light_1_ambilight
+                      - light.lr_ceiling_light_2_ambilight
+                      - light.0xa4c138b72a314e97
+                    data_template:
+                      brightness_pct: 100
+                      rgb_color: [169, 153, 255]
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_light_cinema
+                    state: 'on'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.lr_ceiling_light_1_ambilight
+                      - light.lr_ceiling_light_2_ambilight
+                      - light.0xa4c138b72a314e97

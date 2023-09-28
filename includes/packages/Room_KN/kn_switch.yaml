@@ -1,0 +1,228 @@
+kn_switch:
+
+    recorder:
+      include:
+        entities:
+           - sensor.0xa4c138d571b656c5_power
+           - sensor.0xa4c138d571b656c5_meter
+           - sensor.0xa4c138273b49e4d0_power
+           - sensor.0xa4c138273b49e4d0_meter
+           - sensor.0xa4c1385bcf7d00c9_power
+           - sensor.0xa4c1385bcf7d00c9_meter
+           - sensor.0xa4c138201dcb67f6_power
+           - sensor.0xa4c138201dcb67f6_meter
+           - sensor.0xa4c13874f3d1d1c0_power
+           - sensor.0xa4c13874f3d1d1c0_meter
+           - sensor.0x00158d0001fa2934_power
+           - sensor.0x00158d0001fa2934_meter
+           - sensor.0x00158d000114a1e1_power
+           - sensor.0x00158d000114a1e1_meter
+
+    homeassistant:
+      customize:
+
+        switch.0xa4c138d571b656c5:
+          friendly_name: Аэрогриль, питание
+          icon: mdi:pot
+        sensor.0xa4c138d571b656c5_power:
+          friendly_name: Аэрогриль, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c138d571b656c5_energy:
+          friendly_name: Аэрогриль, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c138d571b656c5_voltage:
+          friendly_name: Аэрогриль, напряжение
+        sensor.0xa4c138d571b656c5_current:
+          friendly_name: Аэрогриль, ток
+        sensor.0xa4c138d571b656c5_meter:
+          friendly_name: Аэрогриль
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0xa4c138273b49e4d0:
+          friendly_name: Микроволновка, питание
+          icon: mdi:microwave
+        sensor.0xa4c138273b49e4d0_power:
+          friendly_name: Микроволновка, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c138273b49e4d0_energy:
+          friendly_name: Микроволновка, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c138273b49e4d0_voltage:
+          friendly_name: Микроволновка, напряжение
+        sensor.0xa4c138273b49e4d0_current:
+          friendly_name: Микроволновка, ток
+        sensor.0xa4c138273b49e4d0_meter:
+          friendly_name: Микроволновка
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0xa4c1385bcf7d00c9:
+          friendly_name: Чайник, питание
+          icon: mdi:kettle-pour-over
+        sensor.0xa4c1385bcf7d00c9_power:
+          friendly_name: Чайник, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c1385bcf7d00c9_energy:
+          friendly_name: Чайник, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c1385bcf7d00c9_voltage:
+          friendly_name: Чайник, напряжение
+        sensor.0xa4c1385bcf7d00c9_meter:
+          friendly_name: Чайник
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0xa4c138201dcb67f6:
+          friendly_name: Электрогриль, питание
+          icon: mdi:grill
+        sensor.0xa4c138201dcb67f6_power:
+          friendly_name: Электрогриль, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c138201dcb67f6_energy:
+          friendly_name: Электрогриль, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c138201dcb67f6_voltage:
+          friendly_name: Электрогриль, напряжение
+        sensor.0xa4c138201dcb67f6_meter:
+          friendly_name: Электрогриль
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0xa4c13874f3d1d1c0:
+          friendly_name: Кофемашина, питание
+          icon: mdi:coffee-maker
+        sensor.0xa4c13874f3d1d1c0_power:
+          friendly_name: Кофемашина, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c13874f3d1d1c0_energy:
+          friendly_name: Кофемашина, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c13874f3d1d1c0_voltage:
+          friendly_name: Кофемашина, напряжение
+        sensor.0xa4c13874f3d1d1c0_meter:
+          friendly_name: Кофемашина
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+          
+        switch.0x00158d0001fa2934:
+          friendly_name: Холодильник, питание
+          icon: mdi:fridge-variant
+        sensor.0x00158d0001fa2934_power:
+          friendly_name: Холодильник, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x00158d0001fa2934_energy:
+          friendly_name: Холодильник, энергия
+          icon: mdi:chart-line
+        sensor.0x00158d0001fa2934_device_temperature:
+          friendly_name: Холодильник, температура
+          icon: mdi:thermometer-check
+        sensor.0x00158d0001fa2934_meter:
+          friendly_name: Холодильник
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+          
+        switch.0x00158d000114a1e1:
+          friendly_name: Кухня, питание шлюза
+          icon: phu:aqara-hub-n15-g2
+        sensor.0x00158d000114a1e1_power:
+          friendly_name: Кухня, питание шлюза, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x00158d000114a1e1_energy:
+          friendly_name: Кухня, питание шлюза, энергия
+          icon: mdi:chart-line
+        sensor.0x00158d000114a1e1_device_temperature:
+          friendly_name: Кухня, питание шлюза, температура
+          icon: mdi:thermometer-check
+        sensor.0x00158d000114a1e1_meter:
+          friendly_name: Кухня, питание шлюза
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+    utility_meter:
+
+      0xa4c138d571b656c5_meter:
+        source: sensor.0xa4c138d571b656c5_energy
+        unique_id: 0xa4c138d571b656c5
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+
+      0xa4c138273b49e4d0_meter:
+        source: sensor.0xa4c138273b49e4d0_energy
+        unique_id: 0xa4c138273b49e4d0
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+      0xa4c1385bcf7d00c9_meter:
+        source: sensor.0xa4c1385bcf7d00c9_energy
+        unique_id: 0xa4c1385bcf7d00c9
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+      0xa4c138201dcb67f6_meter:
+        source: sensor.0xa4c138201dcb67f6_energy
+        unique_id: 0xa4c138201dcb67f6
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+      0xa4c13874f3d1d1c0_meter:
+        source: sensor.0xa4c13874f3d1d1c0_energy
+        unique_id: 0xa4c13874f3d1d1c0
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+      0x00158d0001fa2934_meter:
+        source: sensor.0x00158d0001fa2934_energy
+        unique_id: 0x00158d0001fa2934
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+      0x00158d000114a1e1_meter:
+        source: sensor.0x00158d000114a1e1_energy
+        unique_id: 0x00158d000114a1e1
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+
+      0x00158d0001291d12_meter:
+        source: sensor.0x00158d0001291d12_energy
+        unique_id: 0x00158d0001291d12
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0

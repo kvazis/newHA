@@ -1,0 +1,18 @@
+auto_start:
+
+    automation:
+
+      - alias: auto_start
+        id: auto_start
+        description: Автозапуск
+        initial_state: true
+        trigger:
+          - platform: homeassistant
+            event: start
+        action:  
+          - delay: 00:01:00
+## Ручное обновление тарифов
+          - service: input_button.press
+            target:
+              entity_id: input_button.select_tariff
+

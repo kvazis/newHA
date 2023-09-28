@@ -1,0 +1,41 @@
+bt_switch:
+
+    recorder:
+      include:
+        entities:
+           - switch.0x540f57fffe78ba20
+           - sensor.0x540f57fffe78ba20_power
+           - sensor.0x540f57fffe78ba20_voltage
+           - sensor.0x540f57fffe78ba20_meter
+           
+    homeassistant:
+      customize:
+        
+        switch.0x540f57fffe78ba20:
+          friendly_name: Ванная розетка
+          icon: mdi:power-plug
+        sensor.0x540f57fffe78ba20_power:
+          friendly_name: Ванная розетка мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x540f57fffe78ba20_energy:
+          friendly_name: Ванная розетка энергия
+        sensor.0x540f57fffe78ba20_voltage:
+          friendly_name: Ванная розетка напряжение
+        sensor.0x540f57fffe78ba20_meter:
+          friendly_name: Ванная розетка
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+          
+    utility_meter:
+
+      0x540f57fffe78ba20_meter:
+        source: sensor.0x540f57fffe78ba20_energy
+        unique_id: 0x540f57fffe78ba20
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+

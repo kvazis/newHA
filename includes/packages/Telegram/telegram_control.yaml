@@ -1,0 +1,1056 @@
+telegram_control:
+
+    automation:
+
+    # ## Стартовая автоматизация для запуска меню
+    #   - id: Вызов меню управления телеграм
+    #     alias: telegram_menu_start
+    #     initial_state: true
+    #     trigger:
+    #       - platform: event
+    #         event_type: telegram_command
+    #         event_data:
+    #           command: '/go'
+    #     condition:
+    #       - condition: state
+    #         entity_id: switch.control_mode
+    #         state: 'on'
+    #     action:
+    #       - service: telegram_bot.send_message
+    #         data:
+    #           target: "{{ trigger.event.data.user_id }}"
+    #           message: |
+    #             {{'\U0001F527'}} Выбрать комнату для управления :
+    #           inline_keyboard: 
+    #           - '{{''\U0001F6B6''}} Вход:/en_control , {{''\U0001F6C0''}} Санузел:/bt_control'
+    #           - '{{''\U0001F3E2''}} Гостиная:/lr_control , {{''\U0001F374''}} Кухня:/kn_control'
+    #           - '{{''\U0001F6B9''}} Детская Д:/dd_control , {{''\U0001F6BA''}} Детская А:/da_control'
+    #           - '{{''\U0001F6AB''}} Убрать меню:/menu_hide'
+
+    # ## Автоматизация управления главным меню
+      - id: Главное меню управления телеграм
+        alias: telegram_menu_control
+        initial_state: true
+        trigger:
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/menu_hide'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}' 
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/menu_back'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: "{{ trigger.event.data.chat_id }}"
+                      message: |
+                        {{'\U0001F527'}} *Управление умным домом*
+                        * *
+                        {{'\U0001F4BB'}} *CPU* - {{ states('sensor.processor_use') }} %, {{'\U0001F321'}} - {{ states('sensor.processor_temperature') }} °C
+                      inline_keyboard: 
+                      - '{{''\U00002328''}} Телеметрия:/telemetry'
+                      - '{{''\U0001F6B6''}} Вход:/en_control , {{''\U0001F6C0''}} Санузел:/bt_control'
+                      - '{{''\U0001F3E2''}} Гостиная:/lr_control , {{''\U0001F374''}} Кухня:/kn_control'
+                      - '{{''\U0001F6B9''}} Детская Д:/dd_control , {{''\U0001F6BA''}} Детская А:/da_control'
+                      - '{{''\U0001F6AB''}} Убрать меню:/menu_hide'
+
+
+    ## Управление прихожая, коридор
+      - id: Прихожая и коридор меню управления телеграм
+        alias: telegram_en_menu_control
+        initial_state: true
+        trigger: 
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/en_control'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: &msg_en |
+                        {{'\U0001F6B6'}} *Управление прихожая, коридор :*
+                        {{'\U0001F6AA'}} Входная дверь - {% if is_state('binary_sensor.0x00158d000119378d_contact', 'on') %} Открыта {% else %} Закрыта {% endif %}
+                        {{'\U0001F6AD'}} Датчик дыма - {% if is_state('binary_sensor.0x00158d000149d28b_smoke', 'on') %} {{'\U000026A0'}} *Обнаружено* {% else %} {{'\U0001F197'}} {% endif %}
+                        *Прихожая :*
+                        {{'\U0001F6B6'}} - {% if is_state('binary_sensor.0x00158d00013f7894_occupancy', 'on') %} Движение {% else %} Нет движения {% endif %} 
+                        {{'\U0001F321'}} - {{ states('sensor.0x54ef44100001b68d_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x54ef44100001b68d_humidity') }} %
+                        *Коридор :*
+                        {{'\U0001F6B6'}} - {% if is_state('binary_sensor.0x00158d00010f8920_occupancy', 'on') %} Движение {% else %} Нет движения {% endif %}
+                        {{'\U0001F321'}} - {{ states('sensor.0x00124b0022659c04_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x00124b0022659c04_humidity') }} %
+                      inline_keyboard: &keyb_en
+                        - '{{''\U0001F4A1''}} Лампочка - {% if is_state(''light.0x00158d0003e74c31'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_en_bulb_light , {{''\U0001F4A1''}} Люстра - {% if is_state(''light.cr_ceiling_light'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_cr_ceiling_light'
+                        - '{{''\U000021A9''}} Вернуться:/menu_back , {{''\U000021AA''}} Обновить:/en_control' 
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_en_bulb_light'' }}'
+                sequence:
+                  - service: light.toggle
+                    entity_id: light.0x00158d0003e74c31
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Лампочка в прихожей - {% if is_state('light.0x00158d0003e74c31', 'on') %} Включена {% else %} Выключена {% endif %} 
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_en
+                      inline_keyboard: *keyb_en
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_cr_ceiling_light'' }}'
+                sequence:
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.cr_ceiling_light
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра коридор - {% if is_state('light.cr_ceiling_light', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_en
+                      inline_keyboard: *keyb_en
+
+    ## Управление санузел
+      - id: Туалет, прачечная, ванная меню управления телеграм
+        alias: telegram_bt_menu_control
+        initial_state: true
+        trigger: 
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/bt_control'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: &msg_bt |
+                        {{'\U0001F6C0'}} Управление туалет, прачечная, ванная :
+                        Туалет - 
+                        {{'\U0001F321'}} - {{ states('sensor.0xec1bbdfffe6f3394_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0xec1bbdfffe6f3394_humidity') }} %
+                        Прачечная -
+                        {{'\U0001F6B6'}} - {% if is_state('binary_sensor.0x00158d0001e16204_occupancy', 'on') %} Движение {% else %} Нет движения {% endif %}
+                        {{'\U0001F321'}} - {{ states('sensor.0xec1bbdfffe8d6ac9_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0xec1bbdfffe8d6ac9_humidity') }} %
+                        Ванная -
+                        {{'\U0001F6B6'}} - {% if is_state('binary_sensor.0x00158d0001e547a3_occupancy', 'on') %} Движение {% else %} Нет движения {% endif %} {{'\U0001F6AA'}} Дверь - {% if is_state('binary_sensor.0x00158d00054495dc_contact', 'on') %} Открыта {% else %} Закрыта {% endif %}
+                        {{'\U0001F6B1'}} - Раковина - {% if is_state('binary_sensor.0x00158d0001d72fa2_water_leak', 'on') %} Протечка {% else %} Сухо {% endif %} {{'\U0001F6B1'}} - Душевая - {% if is_state('binary_sensor.0x00158d0001bb60c2_water_leak', 'on') %} Протечка {% else %} Сухо {% endif %}
+                        {{'\U0001F321'}} - {{ states('sensor.0x00158d0001dcd47e_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x00158d0001dcd47e_humidity') }} %
+                      inline_keyboard: &keyb_bt
+                        - '{{''\U0001F4A1''}} Туалет - {% if is_state(''light.tt_ceiling_virtual'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_tt_ceiling_light , {{''\U0001F4A1''}} Прачечная - {% if is_state(''light.0x00158d00014a1a55'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_ln_ceiling_light'
+                        - '{{''\U0001F4A1''}} Ванная - {% if is_state(''light.bt_ceiling_light'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_bt_ceiling_light , {{''\U0001F300''}} Вентилятор - {% if is_state(''switch.0x00158d0001117040_left'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_bt_fan'
+                        - '{{''\U00002668''}} Нагрев воды - {% if is_state(''switch.heater_mode'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_bt_boiler_mode , {{''\U0001F50C''}} Бойлер - {% if is_state(''switch.0x00158d0003584401'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_bt_boiler'
+                        - '{{''\U000021A9''}} Вернуться:/menu_back , {{''\U000021AA''}} Обновить:/bt_control' 
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_tt_ceiling_light'' }}'
+                sequence:
+                  - service: light.toggle
+                    entity_id: light.tt_ceiling_virtual
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра туалет - {% if is_state('light.tt_ceiling_virtual', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_bt
+                      inline_keyboard: *keyb_bt
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_ln_ceiling_light'' }}'
+                sequence:
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.ln_light
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра прачечная - {% if is_state('light.0x00158d00014a1a55', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_bt
+                      inline_keyboard: *keyb_bt
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_bt_ceiling_light'' }}'
+                sequence:
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.bt_ceiling_light
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра ванная - {% if is_state('light.bt_ceiling_light', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_bt
+                      inline_keyboard: *keyb_bt
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_bt_fan'' }}'
+                sequence:
+                  - service: switch.toggle
+                    entity_id: switch.0x00158d0001117040_left
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Вентилятор ванная - {% if is_state('switch.0x00158d0001117040_left', 'on') %} Включен {% else %} Выключен {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_bt
+                      inline_keyboard: *keyb_bt
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_bt_boiler_mode'' }}'
+                sequence:
+                  - service: switch.toggle
+                    entity_id: switch.heater_mode
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Режим нагрева воды - {% if is_state('switch.heater_mode', 'on') %} Активирован {% else %} Деактивирован {% endif %}
+                      show_alert: true
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_bt
+                      inline_keyboard: *keyb_bt
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_bt_boiler'' }}'
+                sequence:
+                  - service: switch.toggle
+                    entity_id: switch.0x00158d0003584401
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Бойлер ванная - {% if is_state('switch.0x00158d0003584401', 'on') %} Включен {% else %} Выключен {% endif %}
+                      show_alert: true
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_bt
+                      inline_keyboard: *keyb_bt
+                        
+    ## Управление гостиной
+      - id: Гостиная меню управления телеграм
+        alias: telegram_lr_menu_control
+        initial_state: true
+        trigger: 
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/lr_control'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: &msg_lr |
+                        {{'\U0001F3E2'}} Управление гостиной :
+                        Гостиная -
+                        {{'\U0001F6B6'}} - {% if is_state('binary_sensor.0x00158d0005414857_occupancy', 'on') %} Движение {% else %} Нет движения {% endif %} {{'\U0001F9D1'}} - {% if is_state('binary_sensor.0x54ef44100042e226_presence', 'on') %} Кто-то есть {% else %} Никого нет {% endif %}
+                        {{'\U0001FA9F'}} 1 - {% if is_state('binary_sensor.0x00158d00013ed373_contact', 'on') %} Открыто {% else %} Закрыто {% endif %}  {{'\U0001FA9F'}} 2 - {% if is_state('binary_sensor.0xec1bbdfffedf6a6a_contact', 'on') %} Открыто {% else %} Закрыто {% endif %} 
+                        {{'\U0001F321'}} - {{ states('sensor.0x00158d00015aebb6_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x00158d00015aebb6_humidity') }} %
+                        Балкон -
+                        {{'\U0001F6AA'}} - {% if is_state('binary_sensor.0x00158d000445206b_contact', 'on') %} Открыта {% else %} Закрыта {% endif %} 
+                      inline_keyboard: &keyb_lr
+                        - '{{''\U0001F525''}} Отопление - {% if is_state(''switch.lr_radiator_mode'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_lr_heat'
+                        - '{{''\U0001F4A1''}} Люстра 1 - {% if is_state(''light.lr_ceiling_light_1'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_lr_ceiling_light_1 , {{''\U0001F4A1''}} Люстра 2 - {% if is_state(''light.lr_ceiling_light_2'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_lr_ceiling_light_2'
+                        - '{{''\U0001F4A1''}} Свет на стене - {% if is_state(''light.0x00158d00015723f1_left'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_0x00158d00015723f1_left , {{''\U0001F4A1''}} Настольная - {% if is_state(''light.lr_table_lamp'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_lr_table_lamp'
+                        - '{{''\U0001F4FA''}} Телевизор - {% if is_state(''binary_sensor.lr_tv_work'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_lr_tv_work , {{''\U0001F39E''}} Подсветка кино - {% if is_state(''light.lr_light_cinema'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_lr_light_cinema'
+                        - '{{''\U0001F4A1''}} Люстра на балконе - {% if is_state(''light.lr_balcony_light_virtual'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_lr_balcony_ceiling_light'
+                        - '{{''\U000021A9''}} Вернуться:/menu_back , {{''\U000021AA''}} Обновить:/lr_control' 
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_lr_heat'' }}'
+                sequence:              
+                  - service: switch.toggle
+                    entity_id: switch.lr_radiator_mode
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Режим отопления - {% if is_state('switch.lr_radiator_mode', 'on') %} Активирован {% else %} Деактивирован {% endif %}
+                      show_alert: true
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr
+                      inline_keyboard: *keyb_lr
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_lr_ceiling_light_1'' }}'
+                sequence:              
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.lr_ceiling_1
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра 1 - {% if is_state('light.lr_ceiling_light_1', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr
+                      inline_keyboard: *keyb_lr
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_lr_ceiling_light_2'' }}'
+                sequence:              
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.lr_ceiling_2
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра 2 - {% if is_state('light.lr_ceiling_light_2', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr
+                      inline_keyboard: *keyb_lr
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_0x00158d00015723f1_left'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.0x00158d00015723f1_left
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Светильник на стене - {% if is_state('light.0x00158d00015723f1_left', 'on') %} Включен {% else %} Выключен {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr
+                      inline_keyboard: *keyb_lr
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_lr_table_lamp'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.lr_table_lamp
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Настольная лампа - {% if is_state('light.lr_table_lamp', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr
+                      inline_keyboard: *keyb_lr
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_lr_tv_work'' }}'
+                sequence:              
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.lr_tv_control
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Отправлена команда на телевизор
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr
+                      inline_keyboard: *keyb_lr
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_lr_light_cinema'' }}'
+                sequence:              
+                  - service: light.toggle
+                    target:
+                        entity_id: light.lr_light_cinema
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Подсветка для кино - {% if is_state('light.lr_light_cinema', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr
+                      inline_keyboard: *keyb_lr
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_lr_balcony_ceiling_light'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.lr_balcony_light_virtual
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра на балконе - {% if is_state('light.lr_balcony_light_virtual', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr
+                      inline_keyboard: *keyb_lr                        
+    ## Управление кухней
+      - id: Кухня меню управления телеграм
+        alias: telegram_kn_menu_control
+        initial_state: true
+        trigger: 
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/kn_control'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: &msg_kn |
+                        {{'\U0001F374'}} Управление кухней :
+                        Кухня -
+                        {{'\U0001F6B1'}} - Раковина - {% if is_state('binary_sensor.0xec1bbdfffe8f1e42_water_leak', 'on') %} Протечка {% else %} Сухо {% endif %} 
+                        {{'\U0001F9D1'}} - {% if is_state('binary_sensor.kn_occupancy', 'on') %} Кто-то есть {% else %} Никого нет {% endif %} {{'\U0001FA9F'}} - {% if is_state('binary_sensor.0x00158d0001a99562_contact', 'on') %} Открыто {% else %} Закрыто {% endif %} 
+                        {{'\U0001F321'}} - {{ states('sensor.0x00158d0001581109_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x00158d0001581109_humidity') }} %
+                        Балкон -
+                        {{'\U0001F6B6'}} - {% if is_state('binary_sensor.0xec1bbdfffe302df1_occupancy', 'on') %} Движение {% else %} Нет движения {% endif %}
+                        {{'\U0001F6AA'}} - {% if is_state('binary_sensor.0x00158d0001a20885_contact', 'on') %} Открыта {% else %} Закрыта {% endif %} {{'\U0001FA9F'}} - {% if is_state('binary_sensor.0x00158d0001a4a394_contact', 'on') %} Открыто {% else %} Закрыто {% endif %} 
+                      inline_keyboard: &keyb_kn
+                        - '{{''\U0001F525''}} Отопление  - {% if is_state(''switch.kn_radiator_mode'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_kn_heat , {{''\U00002668''}} Нагрев воды - {% if is_state(''switch.kn_boiler_mode'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_kn_boiler_mode'
+                        - '{{''\U0001F4A1''}} Люстра - {% if is_state(''light.kn_ceiling_light'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_kn_ceiling_light , {{''\U0001F4FA''}} Телевизор - {% if is_state(''binary_sensor.kn_tv_work'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_kn_tv_work'
+                        - '{{''\U0001F50C''}} Бойлер - {% if is_state(''switch.0x00158d0001d35bc0'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_kn_boiler'
+                        - '{{''\U000021A9''}} Вернуться:/menu_back , {{''\U000021AA''}} Обновить:/kn_control' 
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_kn_heat'' }}'
+                sequence:              
+                  - service: switch.toggle
+                    entity_id: switch.kn_radiator_mode
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Режим отопления - {% if is_state('switch.kn_radiator_mode', 'on') %} Активирован {% else %} Деактивирован {% endif %}
+                      show_alert: true
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_kn
+                      inline_keyboard: *keyb_kn
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_kn_boiler_mode'' }}'
+                sequence:              
+                  - service: switch.toggle
+                    entity_id: switch.kn_boiler_mode
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Режим нагрева воды - {% if is_state('switch.kn_boiler_mode', 'on') %} Активирован {% else %} Деактивирован {% endif %}
+                      show_alert: true
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_kn
+                      inline_keyboard: *keyb_kn
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_kn_ceiling_light'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.kn_ceiling_virtual
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра - {% if is_state('light.kn_ceiling_virtual', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_kn
+                      inline_keyboard: *keyb_kn
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_kn_tv_work'' }}'
+                sequence:              
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.kn_tv_control
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Отправлена команда на телевизор
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_kn
+                      inline_keyboard: *keyb_kn
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_kn_boiler'' }}'
+                sequence:              
+                  - service: switch.toggle
+                    entity_id: switch.0x00158d0001d35bc0
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Бойлер - {% if is_state('switch.0x00158d0001d35bc0', 'on') %} Включен {% else %} Выключен {% endif %}
+                      show_alert: true                          
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_kn
+                      inline_keyboard: *keyb_kn
+
+    ## Управление Детской Д
+      - id: Детская Д меню управления телеграм
+        alias: telegram_dd_menu_control
+        initial_state: true
+        trigger: 
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/dd_control'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: &msg_dd |
+                        {{'\U0001F6B9'}} Управление Детской Д :
+                        Детская Д -
+                        {{'\U0001F6B6'}} - {% if is_state('binary_sensor.0x00158d0001a66222_occupancy', 'on') %} Движение {% else %} Нет движения {% endif %} {{'\U0001FA9F'}} - {% if is_state('binary_sensor.0x00158d0001193697_contact', 'on') %} Открыто {% else %} Закрыто {% endif %}
+                        {{'\U0001F321'}} - {{ states('sensor.0x00158d000156e92e_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x00158d000156e92e_humidity') }} %
+                        Балкон -
+                        {{'\U0001F6AA'}} - {% if is_state('binary_sensor.0x00158d00015843d4_contact', 'on') %} Открыта {% else %} Закрыта {% endif %} 
+                        {{'\U0001FA9F'}} 1 - {% if is_state('binary_sensor.0x00158d0001a65b68_contact', 'on') %} Открыто {% else %} Закрыто {% endif %}  {{'\U0001FA9F'}} 2 - {% if is_state('binary_sensor.0xec1bbdfffe3a653e_contact', 'on') %} Открыто {% else %} Закрыто {% endif %} 
+                        {{'\U0001F321'}} - {{ states('sensor.0x00158d0001fa8321_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x00158d0001fa8321_humidity') }} %
+                      inline_keyboard: &keyb_dd
+                        - '{{''\U0001F525''}} Отопление - {% if is_state(''switch.dd_radiator_mode'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_dd_heat , {{''\U0001F327''}} Увлажнение - {% if is_state(''switch.dd_humidifier_mode'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_dd_humidifier_mode'
+                        - '{{''\U0001F4A1''}} Люстра - {% if is_state(''light.dd_ceiling_light'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_dd_ceiling_light , {{''\U0001F4A1''}} Бра - {% if is_state(''light.0x00158d000420dbab'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_dd_bra'
+                        - '{{''\U0001F4A1''}} Адресная лента - {% if is_state(''light.dd_wled_light'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_dd_wled_light , {{''\U0001F4A1''}} Настольная - {% if is_state(''light.dd_table_lamp'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_dd_table_lamp'
+                        - '{{''\U0001F4A1''}} Свет на балконе - {% if is_state(''light.0x680ae2fffe71ae63'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_dd_balcony_light '
+                        - '{{''\U000021A9''}} Вернуться:/menu_back , {{''\U000021AA''}} Обновить:/dd_control' 
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_dd_heat'' }}'
+                sequence:              
+                  - service: switch.toggle
+                    entity_id: switch.dd_radiator_mode
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Режим отопления - {% if is_state('switch.dd_radiator_mode', 'on') %} Активирован {% else %} Деактивирован {% endif %}
+                      show_alert: true
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_dd
+                      inline_keyboard: *keyb_dd
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_dd_humidifier_mode'' }}'
+                sequence:              
+                  - service: switch.toggle
+                    entity_id: switch.dd_humidifier_mode
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Режим увлажнения - {% if is_state('switch.dd_humidifier_mode', 'on') %} Активирован {% else %} Деактивирован {% endif %} 
+                      show_alert: true
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_dd
+                      inline_keyboard: *keyb_dd
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_dd_ceiling_light'' }}'
+                sequence:              
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.dd_ceiling_light
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра - {% if is_state('light.dd_ceiling_light', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_dd
+                      inline_keyboard: *keyb_dd
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_dd_bra'' }}'
+                sequence:              
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.0x00158d000420dbab
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Бра - {% if is_state('light.0x00158d000420dbab', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_dd
+                      inline_keyboard: *keyb_dd
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_dd_wled_light'' }}'
+                sequence:              
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.dd_wled_light
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Адресная лента - {% if is_state('light.dd_wled_light', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_dd
+                      inline_keyboard: *keyb_dd
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_dd_table_lamp'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.dd_table_lamp
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Отправлена команда на настольную лампу
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_dd
+                      inline_keyboard: *keyb_dd 
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_dd_balcony_light'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.0x680ae2fffe71ae63
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Бра - {% if is_state('light.0x680ae2fffe71ae63', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_dd
+                      inline_keyboard: *keyb_dd 
+                      
+    ## Управление Детской А
+      - id: Детская А меню управления телеграм
+        alias: telegram_da_menu_control
+        initial_state: true
+        trigger: 
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/da_control'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: &msg_da |
+                        {{'\U0001F6B9'}} Управление Детской А :
+                        {{'\U0001F6B6'}} - {% if is_state('binary_sensor.0x00158d00016d56f5_occupancy', 'on') %} Движение {% else %} Нет движения {% endif %} {{'\U0001FA9F'}} - {% if is_state('binary_sensor.0x00158d0001583c7b_contact', 'on') %} Открыто {% else %} Закрыто {% endif %}
+                        {{'\U0001F321'}} - {{ states('sensor.0x00158d000159c7e6_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x00158d000159c7e6_humidity') }} %
+                      inline_keyboard: &keyb_da
+                        - '{{''\U0001F525''}} Отопление - {% if is_state(''switch.da_radiator_mode'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_da_heat , {{''\U0001F327''}} Увлажнение - {% if is_state(''switch.da_humidifier_mode'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_da_humidifier_mode'
+                        - '{{''\U0001F4A1''}} Люстра - {% if is_state(''light.da_ceiling_light'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_da_ceiling_light , {{''\U0001F31F''}} Проектор - {% if is_state(''light.da_projector'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_da_projector'
+                        - '{{''\U0001F4A1''}} LED лента - {% if is_state(''light.da_led_strip'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_da_led_strip , {{''\U0001F4A1''}} Настольная - {% if is_state(''light.smart_desk_lamp'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_da_table_lamp'
+                        - '{{''\U000021A9''}} Вернуться:/menu_back , {{''\U000021AA''}} Обновить:/da_control'
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_da_heat'' }}'
+                sequence:              
+                  - service: switch.toggle
+                    entity_id: switch.da_radiator_mode
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Режим отопления - {% if is_state('switch.da_radiator_mode', 'on') %} Активирован {% else %} Деактивирован {% endif %}
+                      show_alert: true
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_da
+                      inline_keyboard: *keyb_da
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_da_humidifier_mode'' }}'
+                sequence:              
+                  - service: switch.toggle
+                    entity_id: switch.da_humidifier_mode
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Режим увлажнения - {% if is_state('switch.da_humidifier_mode', 'on') %} Активирован {% else %} Деактивирован {% endif %} 
+                      show_alert: true
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_da
+                      inline_keyboard: *keyb_da
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_da_ceiling_light'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.da_ceiling_light
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Люстра - {% if is_state('light.da_ceiling_light', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_da
+                      inline_keyboard: *keyb_da
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_da_projector'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.da_projector
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Проектор - {% if is_state('light.da_projector', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_da
+                      inline_keyboard: *keyb_da 
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_da_led_strip'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.da_led_strip
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} LED лента - {% if is_state('light.da_led_strip', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_da
+                      inline_keyboard: *keyb_da
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_da_table_lamp'' }}'
+                sequence:              
+                  - service: light.toggle
+                    entity_id: light.smart_desk_lamp
+                  - delay:
+                      milliseconds: 500
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Настольная лампа - {% if is_state('light.smart_desk_lamp', 'on') %} Включена {% else %} Выключена {% endif %}
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_da
+                      inline_keyboard: *keyb_da 
+                      
+                      
+                      
+                      

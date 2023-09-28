@@ -1,0 +1,215 @@
+############################ Логика ############################
+title: Сеть
+icon: mdi:router-wireless
+cards:
+
+############################ Колонка 1 ############################
+    - type: vertical-stack
+      cards:
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #62eaff;
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Asus RT-88U**
+      
+            - type: entities
+              style: |
+                   ha-card {
+                     color: #62eaff;
+                     --paper-item-icon-color: #62eaff;
+                     --paper-item-icon-active-color: #62eaff;
+                     --switch-unchecked-button-color: #62eaff;
+                     --switch-checked-color: #65ff7c;
+                     --switch-checked-button-color: #62eaff;
+                     --switch-checked-track-color: #62eaff;
+                     font-weight: bold;
+                     font-size: 14px;
+                   }             
+              show_header_toggle: false
+              entities:
+
+              - entity: switch.0x00124b00246ef1a8
+                type: custom:multiple-entity-row
+                icon: mdi:fan
+                toggle: true
+                state_color: true
+                name: CPU
+                secondary_info: last-changed
+                state_header: Вентиляция
+                entities:
+                - entity: sensor.asus_rt_ac88u_cpu
+                  name: Загрузка
+                  unit: '%'
+                - entity: sensor.asus_rt_ac88u_temperature_cpu
+                  name: Температура
+                  unit: 'С'
+
+              - entity: sensor.asus_rt_ac88u_connected_devices
+                name: Подключенных устройств 
+
+              - entity: sensor.asus_rt_ac88u_wan_download_speed
+                type: custom:multiple-entity-row
+                name: WAN
+                state_header: Download
+                entities:
+                  - entity: sensor.asus_rt_ac88u_wan_upload_speed
+                    name: Upload
+
+              - entity: sensor.rt_ac88u_wired_download_speed
+                type: custom:multiple-entity-row
+                name: Wired
+                state_header: Download
+                entities:
+                  - entity: sensor.rt_ac88u_wired_upload_speed
+                    name: Upload
+
+              - entity: sensor.rt_ac88u_5_ghz_download_speed
+                type: custom:multiple-entity-row
+                name: 5 GHz
+                state_header: Download
+                entities:
+                  - entity: sensor.rt_ac88u_5_ghz_upload_speed
+                    name: Upload
+
+              - entity: sensor.rt_ac88u_2_4_ghz_download_speed
+                type: custom:multiple-entity-row
+                name: 2.4 GHz
+                state_header: Download
+                entities:
+                  - entity: sensor.rt_ac88u_2_4_ghz_upload_speed
+                    name: Upload
+
+
+        - type: custom:mini-graph-card
+          entities:
+           - entity: sensor.asus_rt_ac88u_temperature_cpu
+             name: Температура
+          color_thresholds:
+            - value: 50
+              color: "#63ff70"
+            - value: 70
+              color: "#fff960"
+            - value: 80
+              color: "#ec6d00"
+            - value: 90
+              color: "#ff351b"
+          animate: true
+          line_width: 2
+          hour24: true
+          points_per_hour: 1
+          group_by: hour
+          hours_to_show: 36
+
+    - type: vertical-stack
+      cards:
+
+
+              
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #e089ff;
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Asus RT-68U**
+      
+            - type: entities
+              style: |
+                   ha-card {
+                     color: #e089ff;
+                     --paper-item-icon-color: #e089ff;
+                     --paper-item-icon-active-color: #e089ff;
+                     --switch-unchecked-button-color: #e089ff;
+                     --switch-checked-color: #65ff7c;
+                     --switch-checked-button-color: #e089ff;
+                     --switch-checked-track-color: #e089ff;
+                     font-weight: bold;
+                     font-size: 14px;
+                   }             
+              show_header_toggle: false
+              entities:
+
+              - entity: switch.0x00124b00246fd93e
+                type: custom:multiple-entity-row
+                icon: mdi:fan
+                toggle: true
+                state_color: true
+                name: CPU
+                secondary_info: last-changed
+                state_header: Вентиляция
+                entities:
+                - entity: binary_sensor.da_router_fan_control
+                  name: Авторежим
+                - entity: sensor.asus_rt_ac68u_cpu
+                  name: Загрузка
+                  unit: '%'
+                - entity: sensor.asus_rt_ac68u_temperature_cpu
+                  name: Температура
+                  unit: 'С'
+
+              - entity: sensor.asus_rt_ac68u_wan_download_speed
+                type: custom:multiple-entity-row
+                name: WAN
+                state_header: Download
+                entities:
+                  - entity: sensor.asus_rt_ac68u_wan_upload_speed
+                    name: Upload
+                    
+              - entity: sensor.rt_ac68u_wired_download_speed
+                type: custom:multiple-entity-row
+                name: Wired
+                state_header: Download
+                entities:
+                  - entity: sensor.rt_ac68u_wired_upload_speed
+                    name: Upload
+                    
+              - entity: sensor.rt_ac68u_5_ghz_download_speed
+                type: custom:multiple-entity-row
+                name: 5 GHz
+                state_header: Download
+                entities:
+                  - entity: sensor.rt_ac68u_5_ghz_upload_speed
+                    name: Upload
+
+              - entity: sensor.rt_ac68u_2_4_ghz_download_speed
+                type: custom:multiple-entity-row
+                name: 2.4 GHz
+                state_header: Download
+                entities:
+                  - entity: sensor.rt_ac68u_2_4_ghz_upload_speed
+                    name: Upload   
+                    
+        - type: custom:mini-graph-card
+          entities:
+           - entity: sensor.asus_rt_ac68u_temperature_cpu
+             name: Температура
+          color_thresholds:
+            - value: 50
+              color: "#63ff70"
+            - value: 70
+              color: "#fff960"
+            - value: 80
+              color: "#ec6d00"
+            - value: 90
+              color: "#ff351b"
+          animate: true
+          line_width: 2
+          hour24: true
+          points_per_hour: 1
+          group_by: hour
+          hours_to_show: 36

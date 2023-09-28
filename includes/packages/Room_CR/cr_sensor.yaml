@@ -1,0 +1,56 @@
+cr_sensor:
+
+
+    recorder:
+      include:
+        entities:
+           - sensor.0x00124b0022659c04_temperature
+           - sensor.0x00124b0022659c04_humidity
+           - binary_sensor.0x00158d00010f8920_occupancy
+
+
+    homeassistant:
+      customize:
+
+        sensor.0x00124b0022659c04_humidity:
+          friendly_name:  Коридор, влажность
+          icon: mdi:water-percent
+          unit_of_measurement: '%'
+        sensor.0x00124b0022659c04_temperature:
+          friendly_name:  Коридор, температура
+          icon: mdi:temperature-celsius
+          unit_of_measurement: '°C'
+        sensor.0x00124b0022659c04_raw_humidity:
+          friendly_name:  Коридор, влажность
+          icon: mdi:water-percent
+          unit_of_measurement: '%'
+        sensor.0x00124b0022659c04_raw_temperature:
+          friendly_name:  Коридор, температура
+          icon: mdi:temperature-celsius
+          unit_of_measurement: '°C'
+        sensor.0x00124b0022659c04_battery:
+          friendly_name:  Коридор, климат
+          
+    template:
+    
+      - binary_sensor:
+      
+          - name: '0x00158d00010f8920_occupancy'
+            unique_id: '0x00158d00010f8920_occupancy'
+            state: >
+              {{is_state("binary_sensor.0x00158d00010f8920_raw_occupancy", "on")}}
+            device_class: occupancy
+            
+      - sensor:
+
+          - name: '0x00124b0022659c04_temperature'
+            unique_id: '0x00124b0022659c04_temperature'
+            state: >
+                {{ states('sensor.0x00124b0022659c04_raw_temperature')|float(0) }}
+            device_class: temperature
+                
+          - name: '0x00124b0022659c04_humidity'
+            unique_id: '0x00124b0022659c04_humidity'
+            state: >
+                {{ states('sensor.0x00124b0022659c04_raw_humidity')|float(0) }}
+            device_class: humidity

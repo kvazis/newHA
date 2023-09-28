@@ -1,0 +1,107 @@
+sensor_telemetry:
+
+    template:
+    
+      - trigger:
+        - platform: time_pattern
+          minutes: '/1'
+        sensor:
+          - name: smoke_control
+            state: >
+                {% set variable = namespace(value = {}) %}
+                {% for entity in states.binary_sensor if state_attr(entity.entity_id, 'last_seen')
+                  and is_state_attr(entity.entity_id, 'device_class', 'smoke')
+                  and (as_timestamp (now()) -as_timestamp(state_attr(entity.entity_id, 'last_seen')))|round(0) > 15000 %}
+                   {% set variable.value = dict(variable.value, **{entity.name: (as_timestamp (now()) -as_timestamp(state_attr(entity.entity_id, 'last_seen')))|round(0) }) %}
+                {% endfor %}
+                {% if (variable.value | length) | int > 0 %}
+                {{ variable.value | length }}
+                {% else %}
+                 0
+                {% endif %}
+            attributes:
+              list_entities: >
+                {% set variable = namespace(value = {}) %}
+                {% for entity in states.binary_sensor if state_attr(entity.entity_id, 'last_seen')
+                  and is_state_attr(entity.entity_id, 'device_class', 'smoke')
+                  and (as_timestamp (now()) -as_timestamp(state_attr(entity.entity_id, 'last_seen')))|round(0) > 15000 %}
+                    {% set s = (as_timestamp (now()) -as_timestamp(state_attr(entity.entity_id, 'last_seen')))|round(0) %}
+                    {% set variable.value = dict(variable.value, **{entity.name: ('{:d} дн. {:02d}:{:02d}:{:02d}'.format (s // 86400, s % 86400 // 3600, s % 3600 // 60, s % 60)) }) %}
+                {% endfor %}
+                {{ variable.value |dictsort(false, 'value') }}
+                
+      - trigger:
+        - platform: time_pattern
+          minutes: '/1'
+        sensor:
+          - name: moisture_control
+            state: >
+                {% set variable = namespace(value = {}) %}
+                {% for entity in states.binary_sensor if state_attr(entity.entity_id, 'last_seen')
+                  and is_state_attr(entity.entity_id, 'device_class', 'moisture')
+                  and (as_timestamp (now()) -as_timestamp(state_attr(entity.entity_id, 'last_seen')))|round(0) > 15000 %}
+                   {% set variable.value = dict(variable.value, **{entity.name: (as_timestamp (now()) -as_timestamp(state_attr(entity.entity_id, 'last_seen')))|round(0) }) %}
+                {% endfor %}
+                {% if (variable.value | length) | int > 0 %}
+                {{ variable.value | length }}
+                {% else %}
+                 0
+                {% endif %}
+            attributes:
+              list_entities: >
+                {% set variable = namespace(value = {}) %}
+                {% for entity in states.binary_sensor if state_attr(entity.entity_id, 'last_seen')
+                  and is_state_attr(entity.entity_id, 'device_class', 'moisture')
+                  and (as_timestamp (now()) -as_timestamp(state_attr(entity.entity_id, 'last_seen')))|round(0) > 15000 %}
+                    {% set s = (as_timestamp (now()) -as_timestamp(state_attr(entity.entity_id, 'last_seen')))|round(0) %}
+                    {% set variable.value = dict(variable.value, **{entity.name: ('{:d} дн. {:02d}:{:02d}:{:02d}'.format (s // 86400, s % 86400 // 3600, s % 3600 // 60, s % 60)) }) %}
+                {% endfor %}
+                {{ variable.value |dictsort(false, 'value') }}
+                
+    automation: 
+    
+      - id: Список отвалившихся датчиков дыма
+        alias: send_list_smoke_unav
+        initial_state: true
+        trigger:
+         - platform: template
+           value_template: "{{ (states('sensor.smoke_control')|int) > 0 }}"
+        condition:
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - service: telegram_bot.send_message
+            data_template:
+              target:
+                - !secret chat_id_group_tech
+              message: |
+                 {{"\U0001F550"}} Время события - {{ states.sensor.time_date.state }}
+                 * *
+                 {{"\U0001F321"}} *Долгий отклик от датчиков дыма:*
+                 * *
+                 *{% for entity_name, entity_state in state_attr('sensor.smoke_control', 'list_entities')-%} {{ entity_name }} {{ ' недоступно ' }} {{ entity_state }} {{ '\n' -}} {% endfor %}*
+
+
+      - id: Список отвалившихся датчиков протечки
+        alias: send_list_moisture_unav
+        initial_state: true
+        trigger:
+         - platform: template
+           value_template: "{{ (states('sensor.moisture_control')|int) > 0 }}"
+        condition:
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - service: telegram_bot.send_message
+            data_template:
+              target:
+                - !secret chat_id_group_tech
+              message: |
+                 {{"\U0001F550"}} Время события - {{ states.sensor.time_date.state }}
+                 * *
+                 {{"\U0001F321"}} *Долгий отклик от датчиков протечки:*
+                 * *
+                 *{% for entity_name, entity_state in state_attr('sensor.moisture_control', 'list_entities')-%} {{ entity_name }} {{ ' недоступно ' }} {{ entity_state }} {{ '\n' -}} {% endfor %}*
+

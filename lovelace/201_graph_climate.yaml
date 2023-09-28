@@ -1,0 +1,136 @@
+title: Климат
+panel: true
+icon: mdi:thermometer-water
+cards:
+
+    - type: custom:history-explorer-card
+      header: Климат
+      defaultTimeRange: 4h
+      lineMode: curves
+      decimation: true
+      uimode: dark
+      recordedEntitiesOnly: true
+      labelsVisible: false
+      uiColors:
+        gridlines: rgb(100,100,100)
+      uiLayout:
+        toolbar: top
+        selector: hide
+      graphs:
+      - type: line
+        entities:
+          - entity: sensor.0x00124b001d3bdce0_radiation_dose_per_hour
+            color: rgb(255,101,30)
+            fill: rgba(255,101,30,0.05)
+      - type: line
+        # title: Улица
+        entities:
+          - entity: sensor.0x00158d0001a4b9da_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x00158d0001a4b9da_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x54ef44100001b68d_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x54ef44100001b68d_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00124b0022659c04_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x00124b0022659c04_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0xec1bbdfffe6f3394_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0xec1bbdfffe6f3394_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0xec1bbdfffe8d6ac9_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0xec1bbdfffe8d6ac9_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00158d0001581109_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x00158d0001581109_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00158d00015aebb6_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x00158d00015aebb6_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00158d0001dcd47e_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x00158d0001dcd47e_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00158d000156e92e_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x00158d000156e92e_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00158d000159c7e6_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x00158d000159c7e6_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00158d000171ffde_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x00158d000171ffde_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0xec1bbdfffe4534c0_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0xec1bbdfffe4534c0_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00158d0001fa8321_temperature
+            color: rgb(255,239,97)
+            fill: rgba(255,239,97,0.05)
+          - entity: sensor.0x00158d0001fa8321_humidity
+            color: rgb(0,250,255)
+            fill: rgba(0,250,255,0.05)
+            
+            
+            
+            
+            
+            
+            

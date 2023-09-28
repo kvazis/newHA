@@ -1,0 +1,199 @@
+test:
+
+
+    shell_command:
+      reboot_bluetooth: sudo systemctl restart bluetooth
+
+    input_button:
+
+      message:
+        name: Отправка сообщения
+
+    automation:
+
+      - alias: test_message
+        id: test_message
+        description: Тестовое сообщение
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка авто
+        - platform: state
+          entity_id: input_button.message
+        action:
+        - service: telegram_bot.send_message
+          data_template:
+            target:
+              - !secret chat_id_log
+            message: | 
+               {{"\U0001F916"}} тестовое сообщение
+          
+          
+
+    # input_datetime:
+    #   tod_custom_start:
+    #     name: Начало периода
+    #     has_date: false
+    #     has_time: true
+
+    #   tod_custom_stop:
+    #     name: Завершение периода
+    #     has_date: false
+    #     has_time: true
+
+    # template:
+    
+    #   - binary_sensor:
+      
+    #       - name: tod_custom
+    #         state: >
+    #           {% set now_time = now().time() %}
+    #           {% if states('input_datetime.tod_custom_start')[:2]|int < states('input_datetime.tod_custom_stop')[:2]|int %}
+    #             {{ states('input_datetime.tod_custom_start') <= now().strftime('%Y-%m-%d') + 'T' + now_time.strftime('%H:%M:%S') <= states('input_datetime.tod_custom_stop') }}
+    #           {% elif states('input_datetime.tod_custom_start')[:2]|int > states('input_datetime.tod_custom_stop')[:2]|int %}
+    #             {{ states('input_datetime.tod_custom_start') <= now().strftime('%Y-%m-%d') + 'T' + now_time.strftime('%H:%M:%S') or now().strftime('%Y-%m-%d') + 'T' + now_time.strftime('%H:%M:%S') <= states('input_datetime.tod_custom_stop') }}
+    #           {% else %}
+    #             {{ states('input_datetime.tod_custom_start') == now().strftime('%Y-%m-%d') + 'T' + now_time.strftime('%H:%M:%S') }}
+    #           {% endif %}
+    #         device_class: running
+
+
+
+# - id: '1667067086899'
+#   alias: Считана метка NFC 1
+#   description: ''
+#   trigger:
+#   - platform: tag
+#     tag_id: 6d2bc124-d6b7-40f8-884b-9e2c4c8a71af
+#   condition: []
+#   action:
+#   - service: light.turn_on
+#     data:
+#       kelvin: 4000
+#       brightness_pct: 50
+#     target:
+#       entity_id: light.lr_bedside
+#   mode: single
+
+
+    # script:
+    
+    #   reboot_bluetooth:
+    #     alias: перезагрузка блютуз
+    #     sequence:
+
+
+#     recorder:
+#       include:
+#         entities:
+#           - sensor.0x00158d0001bb60c2_control
+#           - sensor.0x00158d0001d72fa2_control
+#           - sensor.0xec1bbdfffe8f1e42_control
+#           - sensor.0x00158d0002705b7b_control
+#           - sensor.0x00158d0001bbeba6_control
+#           - sensor.0x00158d000149d28b_control
+#           - sensor.0x842e14fffef6d9e5_control           
+           
+#     homeassistant:
+
+#       customize:
+#         sensor.0x00158d0001bb60c2_control:
+#           friendly_name: Ванная протечка, душевая
+#         sensor.0x00158d0001d72fa2_control:
+#           friendly_name: Ванная протечка, раковина
+#         sensor.0xec1bbdfffe8f1e42_control:
+#           friendly_name: Кухня протечка
+#         sensor.0x00158d0002705b7b_control:
+#           friendly_name: Прачечная протечка
+#         sensor.0x00158d0001bbeba6_control:
+#           friendly_name: Туалет протечка
+#         sensor.0x00158d000149d28b_control:
+#           friendly_name: Прихожая дым
+#         sensor.0x842e14fffef6d9e5_control:
+#           friendly_name: Кухня дым
+
+#     template:
+    
+#       - trigger:
+#         - platform: time_pattern
+#           minutes: '/1'
+#         sensor:
+#           - name: '0x00158d0001bb60c2_control'
+#             state: >
+#               {{(as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d0001bb60c2_water_leak', 'last_seen')))|int(0) }}
+#             attributes:
+#               time: >
+#                 {% set s = (as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d0001bb60c2_water_leak', 'last_seen')))|int(0) %}
+#                 {{ '{:d} дней {:02d}:{:02d}:{:02d}'.format (s // 86400, s % 86400 // 3600, s % 3600 // 60, s % 60) }}
+
+
+#       - trigger:
+#         - platform: time_pattern
+#           minutes: '/1'
+#         sensor:
+#           - name: '0x00158d0001d72fa2_control'
+#             state: >
+#               {{(as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d0001d72fa2_water_leak', 'last_seen')))|int(0) }}
+#             attributes:
+#               time: >
+#                 {% set s = (as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d0001d72fa2_water_leak', 'last_seen')))|int(0) %}
+#                 {{ '{:d} дней {:02d}:{:02d}:{:02d}'.format (s // 86400, s % 86400 // 3600, s % 3600 // 60, s % 60) }}
+                
+#       - trigger:
+#         - platform: time_pattern
+#           minutes: '/1'
+#         sensor:
+#           - name: '0xec1bbdfffe8f1e42_control'
+#             state: >
+#               {{(as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0xec1bbdfffe8f1e42_water_leak', 'last_seen')))|int(0) }}
+#             attributes:
+#               time: >
+#                 {% set s = (as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0xec1bbdfffe8f1e42_water_leak', 'last_seen')))|int(0) %}
+#                 {{ '{:d} дней {:02d}:{:02d}:{:02d}'.format (s // 86400, s % 86400 // 3600, s % 3600 // 60, s % 60) }}
+                
+#       - trigger:
+#         - platform: time_pattern
+#           minutes: '/1'
+#         sensor:
+#           - name: '0x00158d0002705b7b_control'
+#             state: >
+#               {{(as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d0002705b7b_water_leak', 'last_seen')))|int(0) }}
+#             attributes:
+#               time: >
+#                 {% set s = (as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d0002705b7b_water_leak', 'last_seen')))|int(0) %}
+#                 {{ '{:d} дней {:02d}:{:02d}:{:02d}'.format (s // 86400, s % 86400 // 3600, s % 3600 // 60, s % 60) }}                
+                
+#       - trigger:
+#         - platform: time_pattern
+#           minutes: '/1'
+#         sensor:
+#           - name: '0x00158d0001bbeba6_control'
+#             state: >
+#               {{(as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d0001bbeba6_water_leak', 'last_seen')))|int(0) }}
+#             attributes:
+#               time: >
+#                 {% set s = (as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d0001bbeba6_water_leak', 'last_seen')))|int(0) %}
+#                 {{ '{:d} дней {:02d}:{:02d}:{:02d}'.format (s // 86400, s % 86400 // 3600, s % 3600 // 60, s % 60) }}                  
+                
+#       - trigger:
+#         - platform: time_pattern
+#           minutes: '/1'
+#         sensor:
+#           - name: '0x00158d000149d28b_control'
+#             state: >
+#               {{(as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d000149d28b_smoke', 'last_seen')))|int(0) }}
+#             attributes:
+#               time: >
+#                 {% set s = (as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x00158d000149d28b_smoke', 'last_seen')))|int(0) %}
+#                 {{ '{:d} дней {:02d}:{:02d}:{:02d}'.format (s // 86400, s % 86400 // 3600, s % 3600 // 60, s % 60) }}                  
+                
+#       - trigger:
+#         - platform: time_pattern
+#           minutes: '/1'
+#         sensor:
+#           - name: '0x842e14fffef6d9e5_control'
+#             state: >
+#               {{(as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x842e14fffef6d9e5_smoke', 'last_seen')))|int(0) }}
+#             attributes:
+#               time: >
+#                 {% set s = (as_timestamp (now()) -as_timestamp(state_attr('binary_sensor.0x842e14fffef6d9e5_smoke', 'last_seen')))|int(0) %}
+#                 {{ '{:d} дней {:02d}:{:02d}:{:02d}'.format (s // 86400, s % 86400 // 3600, s % 3600 // 60, s % 60) }}                  

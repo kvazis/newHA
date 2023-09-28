@@ -1,0 +1,599 @@
+##################   Управление
+title: Детская Д
+icon: mdi:human-male-boy
+cards:
+
+############################ Колонка 1 ############################
+
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Управление**
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Освещение**
+
+            - type: horizontal-stack
+              cards:        
+                - type: button
+                  name: Люстра
+                  entity: light.dd_ceiling_light_virtual
+                  tap_action:
+                    action: toggle
+                - type: button
+                  name: Бра
+                  entity: light.0x00158d000420dbab
+                  tap_action:
+                    action: toggle
+                - type: button
+                  name: WLED
+                  entity: light.dd_wled_light
+                  tap_action:
+                    action: toggle
+                - type: button
+                  name: Настольная лампа
+                  entity: light.dd_table_lamp
+                  tap_action:
+                    action: toggle
+                    
+            - type: conditional
+              conditions:
+                - entity: light.dd_ceiling_light_virtual
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.dd_ceiling_light_virtual
+                  name: Люстра
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: true
+                  show_color_control: false
+                  collapsible_controls: true
+                  
+            - type: conditional
+              conditions:
+                - entity: light.0x00158d000420dbab
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.0x00158d000420dbab
+                  name: Бра
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: true
+                  show_color_control: false
+                  collapsible_controls: true
+                  
+            - type: conditional
+              conditions:
+                - entity: light.dd_wled_light
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.dd_wled_light
+                  name: WLED
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: true
+                  show_color_control: true
+                  collapsible_controls: true
+
+
+            - type: horizontal-stack
+              cards:
+              
+              - type: custom:mushroom-template-card
+                primary: Люстра
+                secondary: |-
+                  {% if is_state("switch.0x54ef44100024689c_right", "on") %}
+                  Вкл
+                  {% else %}
+                  Выкл
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: toggle
+                entity: switch.0x54ef44100024689c_right
+                icon: phu:socket-eu
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("switch.0x54ef44100024689c_right", "on") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %}
+
+
+              - type: custom:mushroom-template-card
+                primary: Доступность
+                secondary: |-
+                  {% if is_state("binary_sensor.dd_ceiling_unavailable", "off") %}
+                  OK
+                  {% else %}
+                  Не доступно
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.dd_ceiling_unavailable
+                icon: |-
+                  {% if is_state("binary_sensor.dd_ceiling_unavailable", "off") %}
+                  mdi:check-bold
+                  {% else %}
+                  mdi:alert
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.dd_ceiling_unavailable", "off") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %}
+                tap_action:
+                  action: more-info
+                  
+              - type: custom:mushroom-template-card
+                primary: WLED
+                secondary: |-
+                  {% if is_state("switch.0x00158d0001a2ccab_right", "on") %}
+                  Вкл
+                  {% else %}
+                  Выкл
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: toggle
+                entity: switch.0x00158d0001a2ccab_right
+                icon: phu:socket-eu
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("switch.0x00158d0001a2ccab_right", "on") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %}
+                  
+              - type: custom:mushroom-template-card
+                primary: Настольная
+                secondary: |-
+                  {% if is_state("switch.0x00158d00030a6e78", "on") %}
+                  Вкл
+                  {% else %}
+                  Выкл
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: toggle
+                entity: switch.0x00158d00030a6e78
+                icon: phu:socket-eu
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("switch.0x00158d00030a6e78", "on") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %}
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+
+            - type: custom:mushroom-template-card
+              primary: Принтер L4160
+              secondary: |-
+                    {% if is_state("sensor.epson_l4160_series", "idle") %}
+                    Бездействие
+                    {% elif is_state("sensor.epson_l4160_series", "printing") %}
+                    Печать
+                    {% elif is_state("sensor.epson_l4160_series", "stopped") %}
+                    Остановлен
+                    {% else %}
+                    {{states ('sensor.epson_l4160_series')}}
+                    {% endif %}              
+              layout: horizontal
+              icon: mdi:printer
+              icon_color: |-
+                    {% if is_state("sensor.epson_l4160_series", "idle") %}
+                    gray
+                    {% elif is_state("sensor.epson_l4160_series", "printing") %}
+                    green
+                    {% elif is_state("sensor.epson_l4160_series", "stopped") %}
+                    yellow
+                    {% else %}
+                    amber
+                    {% endif %}   
+              
+            - type: custom:bar-card
+              title: Принтер
+              direction: up
+              height: 200px
+              stack: horizontal
+              entities:
+                - entity: sensor.epson_l4160_series_black_ink
+                  name: Черный
+                  color: Black
+                - entity: sensor.epson_l4160_series_cyan_ink
+                  name: Синий
+                  color: Blue
+                - entity: sensor.epson_l4160_series_magenta_ink
+                  name: Красный
+                  color: Magenta
+                - entity: sensor.epson_l4160_series_yellow_ink
+                  name: Желтый
+                  color: Yellow
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              content: >
+                 **Питание**
+                 
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: switch.0x00158d0001a2ccab_left
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Выключатель Aqara
+                  secondary_info: last-changed
+                  state_header: Увлажнитель
+                  entities:
+                  - entity: sensor.0x00158d0001a2ccab_meter
+                    name: Потреблено за месяц
+                    unit: 'кВт·ч'
+                  - attribute: power
+                    name: Мощность
+                    unit: 'Ватт'
+                  - entity: switch.0x00158d0001a2ccab_right
+                    name: WLED
+                    toggle: true
+                - type: divider
+                - entity: switch.0x00158d000153dd8e
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Ноутбук Acer 15
+                  secondary_info: last-changed
+                  state_header: Питание
+                  entities:
+                  - entity: sensor.0x00158d000153dd8e_meter
+                    name: Потреблено за месяц
+                    unit: 'кВт·ч'
+                  - attribute: power
+                    name: Мощность
+                    unit: 'Ватт'
+                - type: divider
+                - entity: switch.0x842e14fffefd9721_l1
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Удлинитель
+                  secondary_info: last-changed
+                  state_header: Розетка
+                  entities:
+                  - attribute: last_seen
+                    format: relative
+                    name: Отклик
+                  - entity: switch.0x842e14fffefd9721_l2
+                    name: Zyxel
+                    toggle: true                     
+                - entity: switch.0x842e14fffefd9721_l4
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Удлинитель
+                  secondary_info: last-changed
+                  state_header: Принтер
+                  entities:
+                  - entity: switch.0x842e14fffefd9721_l3
+                    name: Зарядка
+                    toggle: true 
+                  - entity: switch.0x842e14fffefd9721_l5
+                    name: USB
+                    toggle: true
+                    
+                    
+
+############################ Колонка 2 ############################
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }   
+          content: >
+              **Мониторинг** 
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+
+            - type: markdown
+              content: >
+                 **Комната**
+
+            - type: glance
+              show_state: true
+              show_name: true
+              state_color: true
+              entities:
+              - entity: binary_sensor.0x00158d0001a66222_occupancy
+                name: Движение
+              - entity: binary_sensor.0x00158d0001193697_contact
+                name: Окно
+              - entity: binary_sensor.0x00158d00015843d4_contact
+                name: Дверь балкон
+              - entity: sensor.0x00158d000156e92e_temperature
+                name: Температура
+              - entity: sensor.0x00158d000156e92e_humidity
+                name: Влажность
+          
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+
+            - type: markdown
+              content: >
+                 **Балкон**
+
+            - type: glance
+              show_state: true
+              show_name: true
+              state_color: true
+              entities:
+              - entity: binary_sensor.0xec1bbdfffe4521a3_occupancy
+                name: Движение
+              - entity: binary_sensor.0x00158d0001a65b68_contact
+                name: Окно 1
+              - entity: binary_sensor.0xec1bbdfffe3a653e_contact
+                name: Окно 2
+            - type: glance
+              show_state: true
+              show_name: true
+              state_color: true
+              entities:
+              - entity: sensor.0x00158d0001fa8321_temperature
+                name: Температура
+              - entity: sensor.0x00158d0001fa8321_humidity
+                name: Влажность
+              - entity: sensor.0x00158d0001fa8321_pressure
+                name: Давление
+              - entity: sensor.0x04cf8cdf3c7cf19e_illuminance_lux
+                name: Освещенность
+
+        - type: custom:mini-graph-card
+          icon: mdi:radioactive
+          entities:
+            - entity: sensor.0x00124b001d3bdce0_radiation_dose_per_hour
+              name: Радиация мкР/ч
+          color_thresholds:
+            - value: 20
+              color: "#00FFFF"
+            - value: 30
+              color: "#008080"
+            - value: 50
+              color: "#FFFF00"
+            - value: 9999
+              color: "#FF0000"
+          animate: true
+          line_width: 2
+          hour24: true
+          points_per_hour: 1
+          group_by: hour
+          hours_to_show: 168
+
+                    
+############################ Колонка 3 ############################
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Беспроводные устройства**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+
+            - type: markdown
+              content: >
+                 **Комната**
+             
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.0x00158d0001a66222_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:run
+                  state_color: true
+                  name: Датчик движения
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider          
+                - entity: sensor.0x00158d000156e92e_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:coolant-temperature
+                  state_color: true
+                  name: Датчик климата
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d0001193697_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:window-open-variant
+                  state_color: true
+                  name: Датчик открытия, окно
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d00015843d4_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:door
+                  state_color: true
+                  name: Датчик открытия, дверь балкона
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d000163e571_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:light-switch
+                  state_color: true
+                  name: Выключатель вход
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d0003d50723_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:light-switch
+                  state_color: true
+                  name: Выключатель кровать
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d00013f82b7_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:gesture-tap-button
+                  state_color: true
+                  name: Кнопка на принтере
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d0001a672ef_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:gesture-tap-button
+                  state_color: true
+                  name: Квадратная кнопка на столе
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+
+            - type: markdown
+              content: >
+                 **Балкон**
+             
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.0xec1bbdfffe4521a3_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:run
+                  state_color: true
+                  name: Датчик движения
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d0001fa8321_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:coolant-temperature
+                  state_color: true
+                  name: Датчик климата
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x04cf8cdf3c7cf19e_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:sun-wireless
+                  state_color: true
+                  name: Датчик освещенности
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d0001a65b68_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:window-open-variant
+                  state_color: true
+                  name: Датчик открытия, окно 1
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0xec1bbdfffe3a653e_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:window-open-variant
+                  state_color: true
+                  name: Датчик открытия, окно 2
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+
+

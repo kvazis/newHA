@@ -1,0 +1,594 @@
+lr_ups_1:
+
+    recorder:
+      include:
+        entities:
+          - sensor.0xa4c1382dc9fecb3e_power
+          - sensor.0xa4c1382dc9fecb3e_voltage
+          - sensor.0xa4c1382dc9fecb3e_energy
+          - sensor.0xa4c1382dc9fecb3e_meter_day
+          - sensor.0xa4c1382dc9fecb3e_meter_night
+          - sensor.0x00158d0002d7bb2b_power
+          - sensor.0x00158d0002d7bb2b_energy
+          - sensor.0x00158d0002d7bb2b_meter_day
+          - sensor.0x00158d0002d7bb2b_meter_night
+          - sensor.lr_ups_1_load 
+          - sensor.lr_ups_1_state
+          - sensor.lr_ups_1_power
+          - sensor.lr_ups_1_level
+           
+
+    utility_meter:
+
+      0xa4c1382dc9fecb3e_meter:
+        source: sensor.0xa4c1382dc9fecb3e_raw_energy
+        unique_id: 0xa4c1382dc9fecb3e
+        cycle: monthly
+        tariffs:
+          - night
+          - day
+          
+      0x00158d0002d7bb2b_meter:
+        source: sensor.0x00158d0002d7bb2b_raw_energy
+        unique_id: 0x00158d0002d7bb2b
+        cycle: monthly
+        tariffs:
+          - night
+          - day
+
+    homeassistant:
+      customize:
+      
+        switch.0xa4c1382dc9fecb3e:
+          friendly_name: Гостиная UPS 1 in
+          icon: phu:apc-ups-upright
+        sensor.0xa4c1382dc9fecb3e_power:
+          friendly_name: Гостиная UPS 1 in, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c1382dc9fecb3e_voltage:
+          friendly_name: Гостиная UPS 1 in, напряжение
+        sensor.0xa4c1382dc9fecb3e_energy:
+          friendly_name: Гостиная UPS 1 in, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c1382dc9fecb3e_meter_day:
+          friendly_name: Гостиная UPS 1 in день
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+        sensor.0xa4c1382dc9fecb3e_meter_night:
+          friendly_name: Гостиная UPS 1 in ночь
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0x00158d0002d7bb2b_l1:
+          friendly_name: Гостиная UPS 1 out
+          icon: phu:apc-ups-upright
+        sensor.0x00158d0002d7bb2b_power:
+          friendly_name: Гостиная UPS 1 out, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x00158d0002d7bb2b_energy:
+          friendly_name: Гостиная UPS 1 out, энергия
+          icon: mdi:chart-line
+        sensor.0x00158d0002d7bb2b_device_temperature:
+          friendly_name: Гостиная UPS 1 out, температура
+        sensor.0x00158d0002d7bb2b_meter_day:
+          friendly_name: Гостиная UPS 1 out день
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+        sensor.0x00158d0002d7bb2b_meter_night:
+          friendly_name: Гостиная UPS 1 out ночь
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+          
+        sensor.lr_ups_1_load:
+          friendly_name: Гостиная UPS 1 потребление
+          icon: phu:apc-ups-upright
+
+        sensor.lr_ups_1_power:
+          friendly_name: Гостиная UPS 1 энергия
+          device_class: energy
+          unit_of_measurement: Wh
+          
+        sensor.lr_ups_1_level:
+          friendly_name: LR APC UPS 1, заряд
+          device_class: battery
+          unit_of_measurement: "%"
+
+    input_number:
+
+      lr_ups_1_capacity:
+        name: Реальная емкость
+        min: 120
+        max: 170
+
+    input_button:
+
+      lr_ups_1_clear:
+        name: Сброс энергии
+        
+      lr_ups_1_set_energy:
+        name: Установка энергии
+
+    input_datetime:
+      lr_ups_1_start:
+        name: Старт
+        has_date: true
+        has_time: true
+        
+      lr_ups_1_stop:
+        name: Стоп
+        has_date: true
+        has_time: true
+
+
+    mqtt:
+      binary_sensor:
+        - name: lr_ups_1_test
+          state_topic: "states/lr_ups_1_test"
+
+          
+      sensor:
+        - name: lr_ups_1_power
+          state_topic: "states/lr_ups_1_power"
+
+        - name: lr_ups_1_batt_energy
+          state_topic: "states/lr_ups_1_batt_energy"
+
+    switch:
+    
+      - platform: template
+        switches:
+
+          lr_ups_1_test:
+            friendly_name: "Гостиная, UPS 1 тест"
+            value_template: "{{ is_state('binary_sensor.lr_ups_1_test', 'on') }}"
+            turn_on:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_ups_1_test"
+                payload_template: 'ON'
+                retain: true 
+            turn_off:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_ups_1_test"
+                payload_template: 'OFF'
+                retain: true 
+            icon_template: >-
+              {% if is_state('switch.lr_ups_1_test', 'on') %}
+                mdi:home-battery-outline
+              {% else %}
+                mdi:home-lightning-bolt-outline
+              {% endif %}
+
+    template:
+     
+      - sensor:
+
+          - name: lr_ups_1_load
+            state: > 
+                {% if states('sensor.0xa4c1382dc9fecb3e_raw_power')|float(0) > states('sensor.0x00158d0002d7bb2b_raw_power')|float(0) %} 
+                {{ states('sensor.0xa4c1382dc9fecb3e_raw_power')|float(0) - states('sensor.0x00158d0002d7bb2b_raw_power')|float(0) }}
+                {% else %}
+                {{ 10 }}
+                {% endif %}
+
+          - name: lr_ups_1_level
+            state: >
+                {% set cmax = states('sensor.lr_ups_1_batt_energy') | float %}
+                {{ (100 - (states('sensor.lr_ups_1_power')|float)*100/cmax)|round(2) }} 
+
+
+          - name: lr_ups_1_difference
+            state: >
+                {% set difference = (states('sensor.lr_ups_1_power') | float -1 )|round(5)  %}
+                {% if difference >= 0 %}
+                {{difference}}
+                {% else %}
+                0
+                {% endif %}
+
+          - name: '0xa4c1382dc9fecb3e_power'
+            unique_id: '0xa4c1382dc9fecb3e_power'
+            state: >
+                {{ states('sensor.0xa4c1382dc9fecb3e_raw_power')|float(0) }}
+
+          - name: '0xa4c1382dc9fecb3e_energy'
+            unique_id: '0xa4c1382dc9fecb3e_energy'
+            state: >
+                {{ states('sensor.0xa4c1382dc9fecb3e_raw_energy')|float(0) }}
+                
+          - name: '0xa4c1382dc9fecb3e_voltage'
+            unique_id: '0xa4c1382dc9fecb3e_voltage'
+            state: >
+                {{ states('sensor.0xa4c1382dc9fecb3e_raw_voltage')|float(0) }}
+
+          - name: '0x00158d0002d7bb2b_power'
+            unique_id: '0x00158d0002d7bb2b_power'
+            state: >
+                {{ states('sensor.0x00158d0002d7bb2b_raw_power')|float(0) }}
+
+          - name: '0x00158d0002d7bb2b_energy'
+            unique_id: '0x00158d0002d7bb2b_energy'
+            state: >
+                {{ states('sensor.0x00158d0002d7bb2b_raw_energy')|float(0) }}
+                
+
+      - binary_sensor:
+
+          - name: lr_ups_1_power
+            state: >
+              {{ is_state('binary_sensor.electricity', 'on') 
+                 or is_state('switch.lr_ups_1_test', 'on') 
+              }}
+
+
+    automation:
+
+### Автовключение розетки в случае случайного отключения
+      - alias: lr_ups1_turn_on
+        id: lr_ups1_turn_on
+        description: Гостиная автовключение ИБП 1
+        initial_state: true
+        trigger:
+    # Выключение выключателя
+        - platform: state
+          entity_id: switch.0xa4c1382dc9fecb3e
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Переключатель тестового прогона
+        - condition: state
+          entity_id: switch.lr_ups_1_test
+          state: 'off'
+        action:
+    # Включение
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0xa4c1382dc9fecb3e
+
+### Установка емкости аккумулятора UPS 1
+      - alias: lr_ups1_energy_set
+        id: lr_ups1_energy_set
+        description: Установка емкости аккумулятора UPS 1
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_ups_1_set_energy
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: mqtt.publish
+          data_template:
+            topic: "states/lr_ups_1_batt_energy"
+            payload_template: "{{states('input_number.lr_ups_1_capacity') | float }}"
+            retain: true 
+
+### Сброс счетчика энергии
+      - alias: lr_ups1_energy_clear
+        id: lr_ups1_energy_clear
+        description: Сброс счетчика энергии UPS 1
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_ups_1_clear
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: mqtt.publish
+          data_template:
+            topic: "states/lr_ups_1_power"
+            payload_template: "{{ 0.0 }}"
+            retain: true 
+            
+### Сохранение энергии отданной ИБП
+
+      - alias: lr_ups1_power_log
+        id: lr_ups1_power_log
+        description: Запись отданной энергии UPS 1
+        initial_state: true
+        trigger:
+        - platform: time_pattern
+          seconds: '/30'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Сенсор электричества или теста
+        - condition: state
+          entity_id: binary_sensor.lr_ups_1_power
+          state: 'on'
+    # Сенсор электрики на выходе из UPS
+        - condition: state
+          entity_id: binary_sensor.0xa4c138135e284964_contact
+          state: 'off'
+        action:
+        - service: mqtt.publish
+          data_template:
+            topic: "states/lr_ups_1_power"
+            payload_template: "{{(states('sensor.lr_ups_1_power') | float + ((states('sensor.0x00158d0002d7bb2b_raw_power') | float + 10 )/120))|round(5) }}"
+            retain: true 
+            
+
+### Запись энергии полученной UPS 1
+
+      - alias: lr_ups1_charge_log
+        id: lr_ups1_charge_log
+        description: Запись энергии полученной UPS 1
+        initial_state: true
+        trigger:
+        - platform: time_pattern
+          minutes: '/5'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Сенсор электричества или теста
+        - condition: state
+          entity_id: binary_sensor.lr_ups_1_power
+          state: 'off'
+    # Заряд
+        - condition: template
+          value_template: "{{ (states('sensor.lr_ups_1_power')|float) > 0 }}"
+        action:
+        - service: mqtt.publish
+          data_template:
+            topic: "states/lr_ups_1_power"
+            payload_template: "{{(states('sensor.lr_ups_1_difference') | float )|round(1) }}"
+            retain: true 
+
+
+### Уведомления о работе 
+
+      - alias: lr_ups_1_log_work
+        id: lr_ups_1_log_work
+        description: Логирование работы LR APC UPS 1
+        initial_state: true
+        trigger:
+
+        - platform: state
+          entity_id: binary_sensor.lr_ups_1_power
+          to: "on"
+          id: start_work
+
+        - platform: state
+          entity_id: binary_sensor.lr_ups_1_power
+          to: "off"
+          id: start_charge
+          
+        - platform: template
+          value_template: "{{ (states('sensor.lr_ups_1_level')|int) <= 10 }}"
+          id: low_level
+          
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: start_work
+                  - condition: state
+                    entity_id: switch.lr_ups_1_test
+                    state: "off"
+                sequence:
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.lr_ups_1_start
+                    data:
+                      datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      message: | 
+                            {{"\U000026A1"}} Отключено внешнее питание в {{ states('sensor.time_date') }}, UPS APC 1 - работает от аккумулятора
+
+              - conditions:
+                  - condition: trigger
+                    id: start_work
+                  - condition: state
+                    entity_id: switch.lr_ups_1_test
+                    state: "on"
+                sequence:
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.lr_ups_1_start
+                    data:
+                      datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      message: | 
+                            {{"\U000026A1"}} Запуск тестового прогона {{ states('sensor.time_date') }}, UPS APC 1 - работает от аккумулятора
+
+              - conditions:
+                  - condition: template
+                    value_template: "{{ (states('sensor.lr_ups_1_power')|float) != 0 }}"
+                  - condition: trigger
+                    id: start_charge
+                sequence:        
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.lr_ups_1_stop
+                    data:
+                      datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      message: | 
+                           {{"\U000026A1"}} UPS APC 1 - Питание восстановлено
+                           {% set s = (strptime(states("input_datetime.lr_ups_1_stop"), "%Y-%m-%d %H:%M:%S").timestamp() | int - strptime(states("input_datetime.lr_ups_1_start"), "%Y-%m-%d %H:%M:%S").timestamp() | int) %}
+                           {{"\U0000231B"}} {{ 'UPS продержал - {:02d}:{:02d}:{:02d}'.format ( s % 86400 // 3600, s % 3600 // 60, s % 60) }}
+                           {{"\U0001F50B"}} Отдано энергии {{ states('sensor.lr_ups_1_power') }} Ватт часов, заряд {{ states('sensor.lr_ups_1_level') }} %
+                  - delay: 00:00:01
+                  - service: switch.turn_on
+                    entity_id:
+                      - switch.0x00158d0002d7bb2b_l1
+ 
+
+              - conditions:
+                  - condition: trigger
+                    id: low_level
+                  - condition: state
+                    entity_id: switch.lr_ups_1_test
+                    state: "off"
+                sequence:  
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      message: | 
+                           {{"\U000026A1"}} UPS APC 1. Низкий уровень заряда - {{ states('sensor.lr_ups_1_level') }} % , время события {{ states('sensor.time_date') }}
+                           {{"\U0001F50B"}} На данный момент отдано энергии {{ states('sensor.lr_ups_1_power') }} Ватт часов
+                           {{"\U0001FAAB"}} Питание отключается
+                  - service: switch.turn_off
+                    entity_id:
+                      - switch.0x00158d0002d7bb2b_l1
+
+              - conditions:
+                  - condition: trigger
+                    id: low_level
+                  - condition: state
+                    entity_id: switch.lr_ups_1_test
+                    state: "on" 
+                sequence:  
+                  - service: switch.turn_off
+                    entity_id:
+                      - switch.lr_ups_1_test
+
+
+
+### Тестовый прогон
+      - alias: lr_ups_1_testing
+        id: lr_ups_1_testing
+        description: Гостиная тестирование APC UPS 1
+        initial_state: true
+        trigger:
+    # Ручной запуск теста
+        - platform: state
+          entity_id: switch.lr_ups_1_test
+          to: 'on'
+          id: manual_start
+    # Ручная остановка теста
+        - platform: state
+          entity_id: switch.lr_ups_1_test
+          to: 'off'
+          id: manual_stop
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: manual_start
+                sequence:
+                  - service: switch.turn_off
+                    entity_id:
+                      - switch.0xa4c1382dc9fecb3e
+              - conditions:
+                  - condition: trigger
+                    id: manual_stop
+                sequence:
+                  - service: switch.turn_on
+                    entity_id:
+                      - switch.0xa4c1382dc9fecb3e
+
+
+### Срочная остановка тестового прогона
+      - alias: lr_ups_1_test_stop
+        id: lr_ups_1_test_stop
+        description: Гостиная остановка теста APC UPS 1
+        initial_state: true
+        trigger:
+    # Воздушная тревога
+        - platform: state
+          entity_id: binary_sensor.m_kiyiv_air
+          to: 'on'
+    # Реальное отключение электричества
+        - platform: state
+          entity_id: binary_sensor.electricity
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Работает тестовый прогон
+        - condition: state
+          entity_id: switch.lr_ups_1_test
+          state: 'on'
+        action:
+        - service: switch.turn_off
+          entity_id:
+            - switch.lr_ups_1_test
+        - service: telegram_bot.send_message
+          data_template:
+            target:
+              - !secret chat_id_log
+            message: | 
+                 {{"\U000026A1"}} UPS APC 1 - тестовый прогон принудительно остановлен
+
+      - alias: lr_ups1_tariff_switching
+        id: lr_ups1_tariff_switching
+        description: Переключение тарифов ИБП 1
+        initial_state: true
+        trigger:
+    ## Сенсор ночного тарифа
+        - platform: state
+          entity_id: binary_sensor.energy_tariff
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.select_tariff
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.energy_tariff
+                    state: 'off'
+                sequence:
+                  - service: select.select_option
+                    target:
+                      entity_id: 
+                          - select.0xa4c1382dc9fecb3e_meter
+                          - select.0x00158d0002d7bb2b_meter
+                    data:
+                      option: day
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.energy_tariff
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    target:
+                      entity_id: 
+                          - select.0xa4c1382dc9fecb3e_meter
+                          - select.0x00158d0002d7bb2b_meter
+                    data:
+                      option: night 
+

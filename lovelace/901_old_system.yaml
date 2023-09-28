@@ -1,0 +1,446 @@
+##################   System
+title: Система
+icon: mdi:home-map-marker
+cards:
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Данные о системе**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              content: >
+                 **Состояние основного сервера**
+    
+            - type: entities
+              show_header_toggle: false
+              entities:
+    
+              - entity: sensor.last_boot_custom
+                type: custom:multiple-entity-row
+                name: В онлайне -
+                state_header: Сервер
+                entities:
+                  - entity: sensor.online_custom
+                    name: Home Assistant
+
+              - entity: sensor.local_ip
+                name: IP адрес
+            #   - entity: binary_sensor.rpi_power_status
+            #     type: custom:multiple-entity-row
+            #     name: Питание
+            #     state_header: Сервер
+            #     entities:
+            #       - entity: sensor.local_ip
+            #         name: IP адрес
+
+              - entity: sensor.server_telemetry
+    
+              - type: divider
+              - entity: switch.control_mode
+              - type: divider
+    
+              - entity: sensor.last_google_backup_main
+              - entity: sensor.backups_in_google_drive
+                type: custom:multiple-entity-row
+                name: Резервные копии
+                state_header: Google Drive
+                entities:
+                  - entity: sensor.backups_in_home_assistant
+                    name: Сервер
+              - entity: sensor.size_in_google_drive
+                type: custom:multiple-entity-row
+                name: Занято на
+                state_header: Google Drive
+                entities:
+                  - entity: sensor.size_in_home_assistant
+                    name: Сервере
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              content: >
+                 **Версия системы**
+          
+            - type: entities
+              show_header_toggle: false
+              entities:
+
+              - entity: update.home_assistant_supervisor_update
+                type: custom:multiple-entity-row
+                name: Supervisor
+                show_state: false
+                entities:
+                  - attribute: installed_version
+                    name: Установлено
+                  - attribute: latest_version
+                    name: Последняя
+    
+              - entity: update.home_assistant_core_update
+                type: custom:multiple-entity-row
+                name: Home Assistant
+                show_state: false
+                entities:
+                  - attribute: installed_version
+                    name: Установлено
+                  - attribute: latest_version
+                    name: Последняя
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              content: >
+                 **Состояние резервного сервера**
+    
+            - type: entities
+              show_header_toggle: false
+              entities:
+    
+              - entity: sensor.reserve_state
+                name: Home Assistant в online - 
+              - entity: sensor.reserve_telemetry
+
+            # - type: markdown
+            #   content: |
+            #     <ha-icon icon="mdi:home-assistant"></ha-icon>&nbsp;&nbsp;&nbsp;Обновлений для Supervisor - {{ states('sensor.supervisor_updates') | default }}
+            #     > {% for addon in state_attr('sensor.supervisor_updates', 'addons') %}
+            #     > {{ addon.name }} {{ addon.version }} -> {{ addon.version_latest }}
+            #     > {% endfor %}
+                
+
+    
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Ресурсы**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+          
+            - type: markdown
+              content: >
+                 **Процессор**
+
+            - type: custom:stack-in-card
+              mode: horizontal
+              cards:
+                - type: sensor
+                  entity: sensor.processor_use
+                  name: Загрузка
+                  graph: none
+                - type: sensor
+                  entity: sensor.processor_temperature
+                  name: Температура
+                  graph: none
+
+            - type: custom:history-explorer-card
+              header: hide
+              defaultTimeRange: 4h
+              lineMode: curves
+              decimation: true
+              uimode: dark
+              recordedEntitiesOnly: true
+              labelsVisible: false
+              uiColors:
+                gridlines: rgb(100,100,100)
+              uiLayout:
+                toolbar: hide
+                selector: hide
+              graphs:
+              - type: line
+                # title: Процессор
+                entities:
+                  - entity: sensor.processor_use
+                    color: rgb(255,218,241)
+                    fill: rgba(255,218,241,0.1)
+                  - entity: sensor.processor_temperature
+                    color: rgb(255,70,62)
+                    fill: rgba(255,70,62,0.05)
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+          
+            - type: markdown
+              content: >
+                 **RAM SSD**
+
+            - type: custom:stack-in-card
+              mode: horizontal
+              cards:
+                - type: sensor
+                  entity: sensor.memory_use_percent
+                  name: Память
+                  graph: none
+                - type: sensor
+                  entity: sensor.disk_use_percent
+                  name: Диск
+                  graph: none
+
+
+            - type: custom:history-explorer-card
+              header: hide
+              defaultTimeRange: 4h
+              lineMode: curves
+              decimation: true
+              uimode: dark
+              recordedEntitiesOnly: true
+              labelsVisible: false
+              uiColors:
+                gridlines: rgb(100,100,100)
+              uiLayout:
+                toolbar: hide
+                selector: hide
+              graphs:
+              - type: line
+                entities:
+                  - entity: sensor.memory_use_percent
+                    color: rgb(191,255,162)
+                    fill: rgba(191,255,162,0.1)
+                  - entity: sensor.disk_use_percent
+                    color: rgb(255,91,255)
+                    fill: rgba(255,91,255,0.05)
+
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Хранилище**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+          
+            - type: markdown
+              content: >
+                 **Свободно на диске**
+
+            - type: sensor
+              entity: sensor.disk_free
+              name: Свободно
+
+            - type: custom:history-explorer-card
+              header: hide
+              defaultTimeRange: 4h
+              lineMode: curves
+              decimation: true
+              uimode: dark
+              recordedEntitiesOnly: true
+              labelsVisible: false
+              uiColors:
+                gridlines: rgb(100,100,100)
+              uiLayout:
+                toolbar: hide
+                selector: hide
+              graphs:
+              - type: line
+                entities:
+                  - entity: sensor.disk_free
+                    color: rgb(0,255,0)
+                    fill: rgba(0,255,0,0.1)
+
+        # - type: custom:stack-in-card
+        #   mode: vertical
+        #   cards: 
+          
+        #     - type: markdown
+        #       content: >
+        #          **База данных Maria DB**
+
+        #     - type: sensor
+        #       entity: sensor.maria_db
+        #       name: Размер базы
+
+        #     - type: custom:history-explorer-card
+        #       header: hide
+        #       defaultTimeRange: 4h
+        #       lineMode: curves
+        #       decimation: true
+        #       uimode: dark
+        #       recordedEntitiesOnly: true
+        #       labelsVisible: false
+        #       uiColors:
+        #         gridlines: rgb(100,100,100)
+        #       uiLayout:
+        #         toolbar: true
+        #         selector: hide
+        #       graphs:
+        #       - type: line
+        #         entities:
+        #           - entity: sensor.maria_db
+        #             color: rgb(214,204,0)
+        #             fill: rgba(214,204,0,0.1)
+                    
+            - type: markdown
+              content: >
+                 **База данных Home Assistant**
+
+            - type: sensor
+              entity: sensor.home_assistant_v2_db_size
+              name: Размер базы
+
+            - type: custom:history-explorer-card
+              header: hide
+              defaultTimeRange: 4h
+              lineMode: curves
+              decimation: true
+              uimode: dark
+              recordedEntitiesOnly: true
+              labelsVisible: false
+              uiColors:
+                gridlines: rgb(100,100,100)
+              uiLayout:
+                toolbar: hide
+                selector: hide
+              graphs:
+              - type: line
+                entities:
+                  - entity: sensor.home_assistant_v2_db_size
+                    color: rgb(204,214,50)
+                    fill: rgba(204,214,50,0.1)                    
+                    
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Сеть**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+             
+            - type: markdown
+              content: >
+                 **Ресурсы роутера**
+
+            - type: custom:stack-in-card
+              mode: horizontal
+              cards:
+                - type: sensor
+                  entity: sensor.asus_rt_ac88u_cpu
+                  name: CPU
+                  graph: none
+                - type: sensor
+                  entity: sensor.asus_rt_ac88u_temperature_cpu
+                  name: Температура
+                  graph: none
+                - type: sensor
+                  entity: sensor.asus_rt_ac88u_ram
+                  name: RAM
+                  graph: none
+
+            - type: custom:history-explorer-card
+              header: hide
+              defaultTimeRange: 4h
+              lineMode: curves
+              decimation: true
+              uimode: dark
+              recordedEntitiesOnly: true
+              labelsVisible: false
+              uiColors:
+                gridlines: rgb(100,100,100)
+              uiLayout:
+                toolbar: hide
+                selector: hide
+              graphs:
+              - type: line
+                # title: Процессор
+                entities:
+                  - entity: sensor.asus_rt_ac88u_cpu
+                    color: rgb(255,225,247)
+                    fill: rgba(255,225,247,0.1)
+                  - entity: sensor.asus_rt_ac88u_temperature_cpu
+                    color: rgb(255,70,62)
+                    fill: rgba(255,70,62,0.05)
+                  - entity: sensor.asus_rt_ac88u_ram
+                    color: rgb(245,255,187)
+                    fill: rgba(245,255,187,0.05)
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+                    
+            - type: markdown
+              content: >
+                 **Скорость канала**
+
+            - type: custom:stack-in-card
+              mode: horizontal
+              cards:
+                - type: sensor
+                  entity: sensor.asus_rt_ac88u_wan_download_speed
+                  name: Download
+                  graph: none
+                - type: sensor
+                  entity: sensor.asus_rt_ac88u_wan_upload_speed
+                  name: Upload
+                  graph: none
+
+            - type: custom:history-explorer-card
+              header: hide
+              defaultTimeRange: 4h
+              lineMode: curves
+              decimation: true
+              uimode: dark
+              recordedEntitiesOnly: true
+              labelsVisible: false
+              uiColors:
+                gridlines: rgb(100,100,100)
+              uiLayout:
+                toolbar: hide
+                selector: hide
+              graphs:
+              - type: line
+                options:
+                  ymin: 0
+                # title: Процессор
+                entities:
+                  - entity: sensor.asus_rt_ac88u_wan_download_speed
+                    color: rgb(131,145,255)
+                    fill: rgba(131,145,255,0.1)
+                  - entity: sensor.asus_rt_ac88u_wan_upload_speed
+                    color: rgb(174,255,190)
+                    fill: rgba(174,255,190,0.05)                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    

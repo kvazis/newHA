@@ -1,0 +1,820 @@
+##################   Управление
+title: Гостиная UPS
+icon: phu:apc-ups-upright
+cards:
+
+############################ Колонка 1 ############################
+
+
+
+############################ Колонка 2 ############################
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **UPS Первая линия**
+             
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **UPS APC, вход**
+
+            - type: custom:mushroom-template-card
+              primary: Питание на UPS
+              secondary: |-
+                {% if is_state("binary_sensor.lr_ups_1_power", "off") %}
+                Питание есть
+                {% else %}
+                Питание отключено
+                {% endif %}
+              layout: horizontal
+              entity: binary_sensor.lr_ups_1_power
+              icon_color: |-
+                {% if is_state("binary_sensor.lr_ups_1_power", "off") %}
+                green
+                {% else %}
+                red
+                {% endif %}
+              icon: |-
+                {% if is_state("binary_sensor.lr_ups_1_power", "off") %}
+                mdi:power-plug
+                {% else %}
+                mdi:power-plug-off
+                {% endif %}
+              tap_action:
+                action: more-info
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Питание
+                  secondary: |-
+                    {% if is_state("switch.0xa4c1382dc9fecb3e", "on") %}
+                    Вкл
+                    {% else %}
+                    Выкл
+                    {% endif %}
+                  layout: horizontal
+                  tap_action:
+                    action: toggle
+                  entity: switch.0xa4c1382dc9fecb3e
+                  icon: phu:socket-eu
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("switch.0xa4c1382dc9fecb3e", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+
+                - type: custom:mushroom-template-card
+                  primary: Напряжение
+                  secondary: |-
+                      {{states ('sensor.0xa4c1382dc9fecb3e_voltage')}} В
+                  layout: horizontal
+                  entity: sensor.0xa4c1382dc9fecb3e_voltage
+                  icon_color: light-green
+                  icon: mdi:sine-wave
+                  tap_action:
+                    action: more-info
+
+            - type: horizontal-stack
+        
+              cards:
+              
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c1382dc9fecb3e_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c1382dc9fecb3e_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Энергия
+                  secondary: |-
+                      {{states ('sensor.0xa4c1382dc9fecb3e_energy')}} Вт*ч
+                  layout: horizontal
+                  entity: sensor.0xa4c1382dc9fecb3e_energy
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+            - type: markdown
+              content: >
+                 **     **
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: custom:bar-card
+              title: Аккумулятор
+              entity: sensor.lr_ups_1_level
+              severity:
+                - color: Red
+                  from: 0
+                  to: 10
+                - color: Orange
+                  from: 11
+                  to: 40
+                - color: Yellow
+                  from: 41
+                  to: 80
+                - color: Green
+                  from: 81
+                  to: 100
+
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Емкость аккумулятора
+                  secondary: |-
+                      {{states ('sensor.lr_ups_1_batt_energy')}} Вт*ч
+                  layout: horizontal
+                  entity: sensor.lr_ups_1_batt_energy
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Потраченная энергия
+                  secondary: |-
+                      {{states ('sensor.lr_ups_1_power')}} Вт*ч
+                  layout: horizontal
+                  entity: sensor.lr_ups_1_power
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Потребление ИБП
+                  secondary: |-
+                      {{states ('sensor.lr_ups_1_load')}} Ватт
+                  layout: horizontal
+                  entity: sensor.lr_ups_1_load
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+                - type: custom:mushroom-template-card
+                  primary: Питание UPS
+                  secondary: |-
+                    {% if is_state("binary_sensor.lr_ups_1_power", "off") %}
+                    Включено
+                    {% else %}
+                    Отключено
+                    {% endif %}
+                  layout: horizontal
+                  entity: binary_sensor.lr_ups_1_power
+                  icon_color: |-
+                    {% if is_state("binary_sensor.lr_ups_1_power", "off") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  icon: |-
+                    {% if is_state("binary_sensor.lr_ups_1_power", "off") %}
+                    mdi:power-plug
+                    {% else %}
+                    mdi:power-plug-off
+                    {% endif %}
+                  tap_action:
+                    action: more-info
+
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Тест
+                  secondary: |-
+                    {% if is_state("switch.lr_ups_1_test", "on") %}
+                    Идет тест UPS
+                    {% else %}
+                    Запустить тест
+                    {% endif %}
+                  layout: horizontal
+                  tap_action:
+                    action: toggle
+                  entity: switch.lr_ups_1_test
+                  icon: |-
+                    {% if is_state("switch.lr_ups_1_test", "on") %}
+                    mdi:timer-play
+                    {% else %}
+                    mdi:timer-pause
+                    {% endif %}
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("switch.lr_ups_1_test", "on") %}
+                    red
+                    {% else %}
+                    green
+                    {% endif %}
+                    
+
+            - type: entities
+              entities:
+                - entity: input_datetime.lr_ups_1_start        
+                - entity: input_datetime.lr_ups_1_stop
+
+            - type: markdown
+              content: >
+                 **     **
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **UPS APC, выход**
+
+            - type: custom:mushroom-template-card
+              primary: Выход с UPS 
+              secondary: |-
+                {% if is_state("binary_sensor.0xa4c138135e284964_contact", "off") %}
+                Питание есть
+                {% else %}
+                Питание отключено
+                {% endif %}
+              layout: horizontal
+              entity: binary_sensor.0xa4c138135e284964_contact
+              icon_color: |-
+                {% if is_state("binary_sensor.0xa4c138135e284964_contact", "off") %}
+                green
+                {% else %}
+                red
+                {% endif %}
+              icon: |-
+                {% if is_state("binary_sensor.0xa4c138135e284964_contact", "off") %}
+                mdi:power-plug
+                {% else %}
+                mdi:power-plug-off
+                {% endif %}
+              tap_action:
+                action: more-info
+
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Питание
+                  secondary: |-
+                    {% if is_state("switch.0x00158d0002d7bb2b_l1", "on") %}
+                    Вкл
+                    {% else %}
+                    Выкл
+                    {% endif %}
+                  layout: horizontal
+                  tap_action:
+                    action: toggle
+                  entity: switch.0x00158d0002d7bb2b_l1
+                  icon: phu:socket-eu
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("switch.0x00158d0002d7bb2b_l1", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+
+                - type: custom:mushroom-template-card
+                  primary: Температура
+                  secondary: |-
+                      {{states ('sensor.0x00158d0002d7bb2b_device_temperature')}} С
+                  layout: horizontal
+                  entity: sensor.0x00158d0002d7bb2b_device_temperature
+                  icon_color: light-green
+                  icon: mdi:temperature-celsius
+                  tap_action:
+                    action: more-info
+
+            - type: horizontal-stack
+        
+              cards:
+              
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x00158d0002d7bb2b_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x00158d0002d7bb2b_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Энергия
+                  secondary: |-
+                      {{states ('sensor.0x00158d0002d7bb2b_energy')}} Вт*ч
+                  layout: horizontal
+                  entity: sensor.0x00158d0002d7bb2b_energy
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:                    
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Настройки**
+    
+            - type: entities
+              entities:
+                - entity: input_number.lr_ups_1_capacity
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Установка емкости
+                  layout: horizontal
+                  entity: input_button.lr_ups_1_set_energy
+                  icon: mdi:battery-sync
+                  multiline_secondary: true
+                  icon_color: white
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.lr_ups_1_set_energy
+
+                - type: custom:mushroom-template-card
+                  primary: Сброс энергии
+                  layout: horizontal
+                  entity: input_button.lr_ups_1_clear
+                  icon: mdi:reload
+                  multiline_secondary: true
+                  icon_color: amber
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.lr_ups_1_clear
+
+# ############################ Колонка 2 ############################
+
+#     - type: vertical-stack
+#       cards:
+
+#         - type: custom:power-flow-card-plus
+#           clickable_entities: true
+#           entities:
+#             solar:
+#               entity: sensor.0xa4c1382dc9fecb3e_power
+#               color: '#6f9eff'
+#               icon: phu:socket-eu
+#               color_icon: '#6f9eff'
+#               name: Вход
+#             grid:
+#               icon: phu:apc-ups-upright
+#               name: APC 650 LiFePo4
+#               color: '#d600af'
+#               color_icon: '#d600af'
+#               entity: 
+#                 consumption: sensor.0xa4c13850763b90bf_power
+#                 production: sensor.0xa4c1382dc9fecb3e_power
+#               display_state: one_way
+#               color_circle: true
+#             battery:
+#               icon: mdi:battery-charging-high
+#               color: '#80b8ff'
+#               color_icon: '#80b8ff'
+#               name: Аккумулятор
+#               entity: 
+#                 production: sensor.lr_ups_1_load
+#               display_state: one_way
+#               color_circle: true
+#             home:
+#               entity: sensor.0xa4c13850763b90bf_power
+#               icon: mdi:raspberry-pi
+#               color: '#80b8ff'
+#               name: Smart Home
+#               color_icon: false
+#               override_state: true
+
+#         - type: custom:history-explorer-card
+#           header: Мощность
+#           defaultTimeRange: 8h
+#           lineMode: stepped
+#           decimation: true
+#           uimode: dark
+#           recordedEntitiesOnly: true
+#           labelsVisible: false
+#           uiColors:
+#             gridlines: rgb(100,100,100)
+#           uiLayout:
+#             toolbar: top
+#             selector: hide
+#           graphs:
+#           - type: line
+#             options:
+#               ymin: 0
+#             entities:
+#               - entity: sensor.0xa4c1382dc9fecb3e_power
+#                  color: rgb(191,255,162)
+#                  fill: rgba(191,255,162,0.1)
+#               - entity: sensor.0xa4c13850763b90bf_power
+#                  color: rgb(59,255,247)
+#                  fill: rgba(59,255,247,0.1)
+#               - entity: sensor.lr_ups_1_load
+#                  color: rgb(182,255,235)
+#                  fill: rgba(182,255,235,0.1)
+
+############################ Колонка 3 ############################
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **DC UPS Вторая линия**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **DC UPS вход**
+
+            - type: custom:mushroom-template-card
+              primary: Питание на UPS
+              secondary: |-
+                {% if is_state("binary_sensor.0xa4c1389d8b41b47d_power", "on") %}
+                Питание есть
+                {% else %}
+                Питание отключено
+                {% endif %}
+              layout: horizontal
+              entity: binary_sensor.0xa4c1389d8b41b47d_power
+              icon_color: |-
+                {% if is_state("binary_sensor.0xa4c1389d8b41b47d_power", "on") %}
+                green
+                {% else %}
+                red
+                {% endif %}
+              icon: |-
+                {% if is_state("binary_sensor.0xa4c1389d8b41b47d_power", "on") %}
+                mdi:power-plug
+                {% else %}
+                mdi:power-plug-off
+                {% endif %}
+              tap_action:
+                action: more-info
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Питание
+                  secondary: |-
+                    {% if is_state("switch.0xa4c138716822e6a7", "on") %}
+                    Вкл
+                    {% else %}
+                    Выкл
+                    {% endif %}
+                  layout: horizontal
+                  tap_action:
+                    action: toggle
+                  entity: switch.0xa4c138716822e6a7
+                  icon: phu:socket-eu
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("switch.0xa4c138716822e6a7", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+
+                - type: custom:mushroom-template-card
+                  primary: Напряжение
+                  secondary: |-
+                      {{states ('sensor.0xa4c138716822e6a7_voltage')}} В
+                  layout: horizontal
+                  entity: sensor.0xa4c138716822e6a7_voltage
+                  icon_color: light-green
+                  icon: mdi:sine-wave
+                  tap_action:
+                    action: more-info
+
+            - type: horizontal-stack
+        
+              cards:
+              
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c138716822e6a7_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c138716822e6a7_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Энергия
+                  secondary: |-
+                      {{states ('sensor.0xa4c138716822e6a7_energy')}} Вт*ч
+                  layout: horizontal
+                  entity: sensor.0xa4c138716822e6a7_energy
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+            - type: markdown
+              content: >
+                 **     **
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: custom:bar-card
+              title: Аккумулятор
+              entity: sensor.lr_ups_dc_level
+              severity:
+                - color: Red
+                  from: 0
+                  to: 10
+                - color: Orange
+                  from: 11
+                  to: 40
+                - color: Yellow
+                  from: 41
+                  to: 80
+                - color: Green
+                  from: 81
+                  to: 100
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Ток
+                  secondary: |-
+                      {{states ('sensor.lr_ups_dc_current')}} А
+                  layout: horizontal
+                  entity: sensor.lr_ups_dc_current
+                  icon_color: light-green
+                  icon: mdi:current-dc
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Напряжение
+                  secondary: |-
+                      {{states ('sensor.lr_ups_dc_voltage')}} В
+                  layout: horizontal
+                  entity: sensor.lr_ups_dc_voltage
+                  icon_color: light-green
+                  icon: mdi:car-battery
+                  tap_action:
+                    action: more-info
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.lr_ups_dc_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.lr_ups_dc_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+                - type: custom:mushroom-template-card
+                  primary: Энергия
+                  secondary: |-
+                      {{states ('sensor.lr_ups_dc_energy')}} Вт*ч
+                  layout: horizontal
+                  entity: sensor.lr_ups_dc_energy
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Сброс
+                  layout: horizontal
+                  entity: input_button.lr_ups_dc_clear
+                  icon: mdi:reload
+                  multiline_secondary: true
+                  icon_color: amber
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.lr_ups_dc_clear
+
+
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Состояние
+                  secondary: |-
+                      {{states ('sensor.lr_ups_dc_state')}}
+                  layout: horizontal
+                  entity: sensor.lr_ups_dc_state
+                  icon_color: grey
+                  icon: mdi:battery-charging-wireless
+                  tap_action:
+                    action: more-info
+              
+                - type: custom:mushroom-template-card
+                  primary: Трешхолд
+                  secondary: |-
+                    {% if is_state("binary_sensor.lr_ups_dc_treshold", "off") %}
+                    Отключен
+                    {% else %}
+                    Включен
+                    {% endif %}
+                  layout: horizontal
+                  entity: binary_sensor.lr_ups_dc_treshold
+                  icon_color: |-
+                    {% if is_state("binary_sensor.lr_ups_dc_treshold", "off") %}
+                    amber
+                    {% else %}
+                    green
+                    {% endif %}
+                  icon: |-
+                    {% if is_state("binary_sensor.lr_ups_dc_treshold", "off") %}
+                    mdi:battery-charging-50
+                    {% else %}
+                    mdi:battery-charging-100
+                    {% endif %}
+                  tap_action:
+                    action: more-info
+
+
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Тест
+                  secondary: |-
+                    {% if is_state("switch.lr_ups_dc_test", "on") %}
+                    Идет тест UPS
+                    {% else %}
+                    Запустить тест
+                    {% endif %}
+                  layout: horizontal
+                  tap_action:
+                    action: toggle
+                  entity: switch.lr_ups_dc_test
+                  icon: |-
+                    {% if is_state("switch.lr_ups_dc_test", "on") %}
+                    mdi:timer-play
+                    {% else %}
+                    mdi:timer-pause
+                    {% endif %}
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("switch.lr_ups_dc_test", "on") %}
+                    red
+                    {% else %}
+                    green
+                    {% endif %}
+                    
+                    
+                - type: custom:mushroom-template-card
+                  primary: Предохранитель
+                  secondary: |-
+                    {% if is_state("switch.lr_ups_dc_fuse", "on") %}
+                    Включен
+                    {% else %}
+                    Выключен
+                    {% endif %}
+                  layout: horizontal
+                  tap_action:
+                    action: toggle
+                  entity: switch.lr_ups_dc_fuse
+                  icon: |-
+                    {% if is_state("switch.lr_ups_dc_fuse", "on") %}
+                    mdi:fuse
+                    {% else %}
+                    mdi:fuse-off
+                    {% endif %}
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("switch.lr_ups_dc_fuse", "on") %}
+                    green
+                    {% else %}
+                    amber
+                    {% endif %}
+
+            - type: entities
+              entities:
+                - entity: input_datetime.lr_ups_dc_start
+                - entity: input_datetime.lr_ups_dc_stop
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:                    
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Настройки**
+    
+            - type: entities
+              entities:
+                - entity: input_number.lr_ups_dc_max
+                - entity: input_number.lr_ups_dc_min
+                - entity: input_number.lr_ups_dc_capacity 
+
+                      
+                    

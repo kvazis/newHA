@@ -1,0 +1,59 @@
+title: Окружающая среда
+panel: true
+icon: mdi:earth
+cards:
+
+    - type: custom:history-explorer-card
+      header: Климат
+      defaultTimeRange: 4h
+      lineMode: curves
+      decimation: true
+      uimode: dark
+      recordedEntitiesOnly: true
+      labelsVisible: false
+      uiColors:
+        gridlines: rgb(100,100,100)
+      uiLayout:
+        toolbar: top
+        selector: hide
+      graphs:
+      - type: line
+        entities:
+          - entity: sensor.0x00158d0001a4b9da_mmhg_pressure
+            color: rgb(219,255,251)
+            fill: rgba(219,255,251,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00158d000171ffde_mmhg_pressure
+            color: rgb(219,255,251)
+            fill: rgba(219,255,251,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x00158d0001fa8321_mmhg_pressure
+            color: rgb(219,255,251)
+            fill: rgba(219,255,251,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x54ef44100001b68d_voc
+            color: rgb(116,255,169)
+            fill: rgba(116,255,169,0.05)
+      - type: line
+        entities:
+          - entity: sensor.lr_carbon_dioxide
+            color: rgb(255,171,131)
+            fill: rgba(255,171,131,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x04cf8cdf3c772379_illuminance_lux
+            color: rgb(252,255,223)
+            fill: rgba(252,255,223,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x04cf8cdf3c7cf19e_illuminance_lux
+            color: rgb(252,255,223)
+            fill: rgba(252,255,223,0.05)
+      - type: line
+        entities:
+          - entity: sensor.0x04cf8cdf3c78ca91_illuminance_lux
+            color: rgb(252,255,223)
+            fill: rgba(252,255,223,0.05)

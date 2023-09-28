@@ -1,0 +1,709 @@
+##################  Улица
+title: Улица, этаж
+icon: phu:reolink-811
+cards:
+
+############################ Колонка 1 ############################
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                color: #f8ffd8;
+                --paper-item-icon-color: #f8ffd8;
+                --paper-item-icon-active-color: #f8ffd8;
+                font-weight: bold;
+                font-size: 26px;
+              }          
+          content: >
+             **Улица**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Климат и радиационный фон**
+
+            - type: horizontal-stack
+              cards:
+              
+              - type: custom:mushroom-template-card
+                primary: Температура
+                secondary: |-
+                      {{states ('sensor.0x00158d0001a4b9da_temperature')}} С°
+                layout: vertical
+                entity: sensor.0x00158d0001a4b9da_temperature
+                icon_color: |-
+                  {% if states("sensor.0x00158d0001a4b9da_temperature")|float <= -10 %}
+                  indigo
+                  {% elif states("sensor.0x00158d0001a4b9da_temperature")|float <= 0 %}
+                  blue
+                  {% elif states("sensor.0x00158d0001a4b9da_temperature")|float <= 10 %}
+                  light-blue
+                  {% elif states("sensor.0x00158d0001a4b9da_temperature")|float <= 20 %}
+                  cyan
+                  {% elif states("sensor.0x00158d0001a4b9da_temperature")|float <= 25 %}
+                  yellow
+                  {% elif states("sensor.0x00158d0001a4b9da_temperature")|float <= 30 %}
+                  amber
+                  {% elif states("sensor.0x00158d0001a4b9da_temperature")|float <= 40 %}
+                  orange
+                  {% endif %}
+                icon: mdi:temperature-celsius
+                tap_action:
+                  action: more-info
+    
+              - type: custom:mushroom-template-card
+                primary: Влажность
+                secondary: |-
+                      {{states ('sensor.0x00158d0001a4b9da_humidity')}} %
+                layout: vertical
+                entity: sensor.0x00158d0001a4b9da_humidity
+                icon_color: |-
+                  {% if states("sensor.0x00158d0001a4b9da_humidity")|float <= 30 %}
+                  deep-orange
+                  {% elif states("sensor.0x00158d0001a4b9da_humidity")|float <= 40 %}
+                  yellow
+                  {% elif states("sensor.0x00158d0001a4b9da_humidity")|float <= 50 %}
+                  light-blue
+                  {% elif states("sensor.0x00158d0001a4b9da_humidity")|float <= 60 %}
+                  blue
+                  {% elif states("sensor.0x00158d0001a4b9da_humidity")|float > 60 %}
+                  indigo
+                  {% endif %}
+                icon: mdi:water-percent
+                tap_action:
+                  action: more-info 
+    
+              - type: custom:mushroom-template-card
+                primary: Давление
+                secondary: |-
+                      {{states ('sensor.0x00158d0001a4b9da_mmhg_pressure')}} мм рт. ст.
+                layout: vertical
+                entity: sensor.0x00158d0001a4b9da_mmhg_pressure
+                icon_color: |-
+                  {% if states("sensor.0x00158d0001a4b9da_mmhg_pressure")|float <= 710 %}
+                  orange
+                  {% elif states("sensor.0x00158d0001a4b9da_mmhg_pressure")|float <= 730 %}
+                  yellow
+                  {% elif states("sensor.0x00158d0001a4b9da_mmhg_pressure")|float <= 750 %}
+                  lime
+                  {% elif states("sensor.0x00158d0001a4b9da_mmhg_pressure")|float <= 760 %}
+                  yellow
+                  {% elif states("sensor.0x00158d0001a4b9da_mmhg_pressure")|float <= 770 %}
+                  orange
+                  {% elif states("sensor.0x00158d0001a4b9da_mmhg_pressure")|float > 770 %}
+                  red
+                  {% endif %}
+                icon: mdi:gauge
+                tap_action:
+                  action: more-info 
+                  
+              - type: custom:mushroom-template-card
+                primary: Радиация
+                secondary: |-
+                      {{states ('sensor.0x00124b001d3bdce0_radiation_dose_per_hour')}} мкР * час
+                layout: vertical
+                entity: sensor.0x00124b001d3bdce0_radiation_dose_per_hour
+                icon_color: |-
+                  {% if states("sensor.0x00124b001d3bdce0_radiation_dose_per_hour")|float <= 10 %}
+                  green
+                  {% elif states("sensor.0x00124b001d3bdce0_radiation_dose_per_hour")|float <= 15 %}
+                  lime
+                  {% elif states("sensor.0x00124b001d3bdce0_radiation_dose_per_hour")|float <= 20 %}
+                  yellow
+                  {% elif states("sensor.0x00124b001d3bdce0_radiation_dose_per_hour")|float <= 25 %}
+                  amber
+                  {% elif states("sensor.0x00124b001d3bdce0_radiation_dose_per_hour")|float <= 30 %}
+                  orange
+                  {% elif states("sensor.0x00124b001d3bdce0_radiation_dose_per_hour")|float <= 50 %}
+                  deep-orange
+                  {% elif states("sensor.0x00124b001d3bdce0_radiation_dose_per_hour")|float > 50 %}
+                  red
+                  {% endif %}
+                icon: mdi:radioactive
+                tap_action:
+                  action: more-info 
+
+
+        - type: picture-entity
+          entity: camera.hikvision1
+          camera_view: live 
+          show_state: false
+          show_name: false
+
+
+        - type: horizontal-stack
+          cards:
+          - type: custom:mushroom-entity-card
+            entity: input_button.hikvision1_photo
+            layout: horizontal
+            icon_color: blue
+            icon: mdi:camera
+            primary_info: name
+            name: Фото
+            secondary_info: last-changed
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.hikvision1_photo
+
+          - type: custom:mushroom-template-card
+            primary: Cast
+            secondary: |-
+              {% if is_state("media_player.nesthub7a33", "off") %}
+              Готов к трансляции
+              {% else %}
+              Остановка трансляции
+              {% endif %}
+            layout: horizontal
+            entity: input_button.hikvision1_cast
+            icon: mdi:cast-connected
+            multiline_secondary: true
+            icon_color: |-
+              {% if is_state("media_player.nesthub7a33", "off") %}
+              green
+              {% else %}
+              amber
+              {% endif %}
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.hikvision1_cast
+
+
+        - type: picture-entity
+          entity: camera.hikvision5
+          camera_view: live 
+          show_state: false
+          show_name: false
+
+        - type: horizontal-stack
+          cards:
+          - type: custom:mushroom-entity-card
+            entity: input_button.hikvision5_photo
+            layout: horizontal
+            icon_color: blue
+            icon: mdi:camera
+            primary_info: name
+            name: Фото
+            secondary_info: last-changed
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.hikvision5_photo
+
+          - type: custom:mushroom-template-card
+            primary: Cast
+            secondary: |-
+              {% if is_state("media_player.nesthub7a33", "off") %}
+              Готов к трансляции
+              {% else %}
+              Остановка трансляции
+              {% endif %}
+            layout: horizontal
+            entity: input_button.hikvision5_cast
+            icon: mdi:cast-connected
+            multiline_secondary: true
+            icon_color: |-
+              {% if is_state("media_player.nesthub7a33", "off") %}
+              green
+              {% else %}
+              amber
+              {% endif %}
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.hikvision5_cast
+
+############################ Колонка 2 ############################
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                color: #f8ffd8;
+                --paper-item-icon-color: #f8ffd8;
+                --paper-item-icon-active-color: #f8ffd8;
+                font-weight: bold;
+                font-size: 26px;
+              }          
+          content: >
+             **Подъезд**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Безопасность**
+
+            - type: horizontal-stack
+              cards:
+
+              - type: custom:mushroom-template-card
+                primary: Воздух
+                secondary: |-
+                  {% if is_state("binary_sensor.m_kiyiv_air", "off") %}
+                  ОК
+                  {% else %}
+                  Опасность
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.m_kiyiv_air
+                icon: |-
+                  {% if is_state("binary_sensor.m_kiyiv_air", "off") %}
+                  mdi:airplane-off
+                  {% else %}
+                  mdi:bomb
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.m_kiyiv_air", "off") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %} 
+                tap_action:
+                  action: more-info 
+                  
+              - type: custom:mushroom-template-card
+                primary: Артилерия
+                secondary: |-
+                  {% if is_state("binary_sensor.m_kiyiv_artillery", "off") %}
+                  ОК
+                  {% else %}
+                  Опасность
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.m_kiyiv_artillery
+                icon: |-
+                  {% if is_state("binary_sensor.m_kiyiv_artillery", "off") %}
+                  mdi:tank
+                  {% else %}
+                  mdi:tank
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.m_kiyiv_artillery", "off") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %} 
+                tap_action:
+                  action: more-info 
+
+              - type: custom:mushroom-template-card
+                primary: Бои
+                secondary: |-
+                  {% if is_state("binary_sensor.m_kiyiv_urban_fights", "off") %}
+                  ОК
+                  {% else %}
+                  Опасность
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.m_kiyiv_urban_fights
+                icon: |-
+                  {% if is_state("binary_sensor.m_kiyiv_urban_fights", "off") %}
+                  mdi:pistol
+                  {% else %}
+                  mdi:skull-crossbones
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.m_kiyiv_urban_fights", "off") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %} 
+                tap_action:
+                  action: more-info 
+                  
+              - type: custom:mushroom-template-card
+                primary: Ядерная
+                secondary: |-
+                  {% if is_state("binary_sensor.m_kiyiv_nuclear", "off") %}
+                  ОК
+                  {% else %}
+                  Опасность
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.m_kiyiv_nuclear
+                icon: |-
+                  {% if is_state("binary_sensor.m_kiyiv_nuclear", "off") %}
+                  mdi:radioactive-off
+                  {% else %}
+                  mdi:nuke
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.m_kiyiv_nuclear", "off") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %} 
+                tap_action:
+                  action: more-info 
+                  
+              - type: custom:mushroom-template-card
+                primary: Химическая
+                secondary: |-
+                  {% if is_state("binary_sensor.m_kiyiv_chemical", "off") %}
+                  ОК
+                  {% else %}
+                  Опасность
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.m_kiyiv_chemical
+                icon: |-
+                  {% if is_state("binary_sensor.m_kiyiv_chemical", "off") %}
+                  mdi:chemical-weapon
+                  {% else %}
+                  mdi:chemical-weapon
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.m_kiyiv_chemical", "off") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %} 
+                tap_action:
+                  action: more-info 
+                  
+              - type: custom:mushroom-template-card
+                primary: Остальное
+                secondary: |-
+                  {% if is_state("binary_sensor.m_kiyiv_unknown", "off") %}
+                  ОК
+                  {% else %}
+                  Опасность
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.m_kiyiv_unknown
+                icon: |-
+                  {% if is_state("binary_sensor.m_kiyiv_unknown", "off") %}
+                  mdi:check-bold
+                  {% else %}
+                  mdi:skull
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.m_kiyiv_unknown", "off") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %} 
+                tap_action:
+                  action: more-info 
+
+        - type: picture-entity
+          entity: camera.hikvision3
+          camera_view: live 
+          show_state: false
+          show_name: false
+
+        - type: horizontal-stack
+          cards:
+          - type: custom:mushroom-entity-card
+            entity: input_button.hikvision3_photo
+            layout: horizontal
+            icon_color: blue
+            icon: mdi:camera
+            primary_info: name
+            name: Фото
+            secondary_info: last-changed
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.hikvision3_photo
+
+          - type: custom:mushroom-template-card
+            primary: Cast
+            secondary: |-
+              {% if is_state("media_player.nesthub7a33", "off") %}
+              Готов к трансляции
+              {% else %}
+              Остановка трансляции
+              {% endif %}
+            layout: horizontal
+            entity: input_button.hikvision3_cast
+            icon: mdi:cast-connected
+            multiline_secondary: true
+            icon_color: |-
+              {% if is_state("media_player.nesthub7a33", "off") %}
+              green
+              {% else %}
+              amber
+              {% endif %}
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.hikvision3_cast
+
+        - type: picture-entity
+          entity: camera.hikvision7
+          camera_view: live 
+          show_state: false
+          show_name: false
+
+        - type: horizontal-stack
+          cards:
+          - type: custom:mushroom-entity-card
+            entity: input_button.hikvision7_photo
+            layout: horizontal
+            icon_color: blue
+            icon: mdi:camera
+            primary_info: name
+            name: Фото
+            secondary_info: last-changed
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.hikvision7_photo
+
+          - type: custom:mushroom-template-card
+            primary: Cast
+            secondary: |-
+              {% if is_state("media_player.nesthub7a33", "off") %}
+              Готов к трансляции
+              {% else %}
+              Остановка трансляции
+              {% endif %}
+            layout: horizontal
+            entity: input_button.hikvision7_cast
+            icon: mdi:cast-connected
+            multiline_secondary: true
+            icon_color: |-
+              {% if is_state("media_player.nesthub7a33", "off") %}
+              green
+              {% else %}
+              amber
+              {% endif %}
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.hikvision7_cast
+############################ Колонка 3 ############################
+          
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                color: #f8ffd8;
+                --paper-item-icon-color: #f8ffd8;
+                --paper-item-icon-active-color: #f8ffd8;
+                font-weight: bold;
+                font-size: 26px;
+              }          
+          content: >
+             **Этаж**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Реле Aqara этаж**
+
+            - type: horizontal-stack
+              cards:
+              
+              - type: custom:mushroom-template-card
+                primary: Мощность
+                secondary: |-
+                      {{states ('sensor.0x00158d0003f46bb6_power')}} Ватт
+                layout: vertical
+                entity: sensor.0x00158d0003f46bb6_power
+                icon_color: light-green
+                icon: mdi:lightning-bolt-circle
+                tap_action:
+                  action: more-info
+
+              - type: custom:mushroom-template-card
+                primary: Напряжение
+                secondary: |-
+                      {{states ('sensor.0x00158d0003f46bb6_voltage')}} В
+                layout: vertical
+                entity: sensor.0x00158d0003f46bb6_voltage
+                icon_color: |-
+                  {% if states("sensor.0x00158d0003f46bb6_voltage")|float <= 210 %}
+                  red
+                  {% elif states("sensor.0x00158d0003f46bb6_voltage")|float <= 220 %}
+                  yellow
+                  {% elif states("sensor.0x00158d0003f46bb6_voltage")|float <= 240 %}
+                  green
+                  {% elif states("sensor.0x00158d0003f46bb6_voltage")|float <= 250 %}
+                  yellow
+                  {% elif states("sensor.0x00158d0003f46bb6_voltage")|float > 250 %}
+                  red
+                  {% endif %}
+                icon: mdi:sine-wave
+                tap_action:
+                  action: more-info 
+
+              - type: custom:mushroom-template-card
+                primary: Энергия
+                secondary: |-
+                      {{states ('sensor.0x00158d0003f46bb6_meter')}} KВт*ч
+                layout: vertical
+                entity: sensor.0x00158d0003f46bb6_meter
+                icon_color: light-green
+                icon: mdi:home-lightning-bolt
+                tap_action:
+                  action: more-info
+                    
+              - type: custom:mushroom-template-card
+                primary: Температура
+                secondary: |-
+                      {{states ('sensor.0x00158d0003f46bb6_device_temperature')}} С°
+                layout: vertical
+                entity: sensor.0x00158d0003f46bb6_device_temperature
+                icon_color: |-
+                  {% if states("sensor.0x00158d0003f46bb6_device_temperature")|float <= 40 %}
+                  green
+                  {% elif states("sensor.0x00158d0003f46bb6_device_temperature")|float <= 60 %}
+                  amber
+                  {% else %}
+                  red
+                  {% endif %}
+                icon: mdi:temperature-celsius
+                tap_action:
+                  action: more-info 
+
+        - type: picture-entity
+          entity: camera.reolink_411_rtsp
+          camera_view: live 
+          show_state: false
+          show_name: false
+
+        - type: horizontal-stack
+          cards:
+          - type: custom:mushroom-entity-card
+            entity: input_button.reolink_411_ws
+            layout: horizontal
+            icon_color: blue
+            icon: mdi:camera
+            primary_info: name
+            name: Фото
+            secondary_info: last-changed
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.reolink_411_ws
+          - type: custom:mushroom-template-card
+            primary: Питание
+            secondary: |-
+              {% if is_state("switch.0x00158d0003f46bb6_l2", "on") %}
+              Вкл
+              {% else %}
+              Выкл
+              {% endif %}
+            layout: horizontal
+            tap_action:
+              action: toggle
+            entity: switch.0x00158d0003f46bb6_l2
+            icon: |-
+              {% if is_state("switch.0x00158d0003f46bb6_l2", "on") %}
+              mdi:power-plug
+              {% else %}
+              mdi:power-plug-off
+              {% endif %}
+            multiline_secondary: true
+            icon_color: |-
+              {% if is_state("switch.0x00158d0003f46bb6_l2", "on") %}
+              green
+              {% else %}
+              red
+              {% endif %}
+
+        - type: picture-entity
+          entity: camera.reolink_410_rtsp
+          camera_view: live 
+          show_state: false
+          show_name: false
+
+        - type: horizontal-stack
+          cards:
+          - type: custom:mushroom-entity-card
+            entity: input_button.reolink_410
+            layout: horizontal
+            icon_color: blue
+            icon: mdi:camera
+            primary_info: name
+            name: Фото
+            secondary_info: last-changed
+            tap_action:
+              action: call-service
+              service: input_button.press
+              target:
+                entity_id: input_button.reolink_410
+          - type: custom:mushroom-template-card
+            primary: Питание
+            secondary: |-
+              {% if is_state("switch.0x00158d0003f46bb6_l1", "on") %}
+              Вкл
+              {% else %}
+              Выкл
+              {% endif %}
+            layout: horizontal
+            tap_action:
+              action: toggle
+            entity: switch.0x00158d0003f46bb6_l1
+            icon: |-
+              {% if is_state("switch.0x00158d0003f46bb6_l1", "on") %}
+              mdi:power-plug
+              {% else %}
+              mdi:power-plug-off
+              {% endif %}
+            multiline_secondary: true
+            icon_color: |-
+              {% if is_state("switch.0x00158d0003f46bb6_l1", "on") %}
+              green
+              {% else %}
+              red
+              {% endif %}
+

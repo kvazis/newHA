@@ -1,0 +1,77 @@
+ln_washmashine:
+
+    recorder:
+      include:
+        entities:
+           - sensor.0x842e14fffe51c5ae_power
+           - sensor.0x842e14fffe51c5ae_meter
+
+    homeassistant:
+      customize:
+        
+        switch.0x842e14fffe51c5ae:
+          friendly_name: Cтиральная машина, питание
+          icon: mdi:power-socket-eu
+        sensor.0x842e14fffe51c5ae_power:
+          friendly_name: Cтиральная машина, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x842e14fffe51c5ae_energy:
+          friendly_name: Cтиральная машина, энергия
+          icon: mdi:chart-line
+        sensor.0x842e14fffe51c5ae_voltage:
+          friendly_name: Cтиральная машина, напряжение
+
+        sensor.0x842e14fffe51c5ae_meter:
+          friendly_name: Cтиральная машина
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+    utility_meter:
+    
+      0x842e14fffe51c5ae_meter:
+        source: sensor.0x842e14fffe51c5ae_energy
+        unique_id: 0x842e14fffe51c5ae
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+    template:
+    
+      - binary_sensor:
+
+          - name: ln_washing
+            state: >
+              {{ states('sensor.0x842e14fffe51c5ae_power')|int > 6
+              }}
+            delay_on: 
+                minutes: 2
+            delay_off: 
+                minutes: 2
+            device_class: running
+            
+    automation:
+
+      - alias: ln_washing_end
+        id: ln_washing_end
+        description: Уведомление о завершении стирки
+        initial_state: true          
+        trigger:
+        - platform: state
+          entity_id: binary_sensor.ln_washing
+          from: 'on'
+          to: 'off'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on' 
+        action:
+        - service: telegram_bot.send_message
+          data_template:
+            target:
+                - !secret chat_id_group
+            message: | 
+                  {{"\U0001F9D9"}} Стирка завершена, не забудь развесить барахлишко {{ states('sensor.time_date') }}

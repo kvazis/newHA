@@ -1,0 +1,83 @@
+da_curtain:
+
+
+    automation:
+
+      - alias: da_curtain_control
+        id: da_curtain_control
+        description: Детская A - управление шторами
+        initial_state: false
+        trigger:
+    # Закат
+        - platform: sun
+          event: sunset
+          offset: 0
+          id: sunset
+    # Рассвет
+        - platform: sun
+          event: sunrise
+          offset: "01:00:00"
+          id: sunrise_work
+    # Рассвет
+        - platform: sun
+          event: sunrise
+          offset: "03:00:00"
+          id: sunrise_weekend 
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - choose:
+            - conditions:
+              - condition: trigger
+                id: sunset
+              sequence:
+              - service: cover.close_cover
+                data: {}
+                target:
+                  entity_id: cover.0x00124b0029dee0c9
+              - service: telegram_bot.send_message
+                data_template:
+                  target:
+                      - !secret chat_id_log
+                  message: | 
+                       {{"\U0001F916"}} Детская A - управление шторами {{ states('sensor.time_date') }} 
+                       {{"\U0001F4AC"}} Закрываю шторы
+                  
+            - conditions:
+              - condition: trigger
+                id: sunrise_work
+              - condition: state
+                entity_id: binary_sensor.workday_sensor
+                state: 'on'
+              sequence:
+              - service: cover.open_cover
+                data: {}
+                target:
+                  entity_id: cover.0x00124b0029dee0c9
+              - service: telegram_bot.send_message
+                data_template:
+                  target:
+                      - !secret chat_id_log
+                  message: | 
+                       {{"\U0001F916"}} Детская A - управление шторами {{ states('sensor.time_date') }} 
+                       {{"\U0001F4AC"}} Открываю шторы
+            - conditions:
+              - condition: trigger
+                id: sunrise_weekend
+              - condition: state
+                entity_id: binary_sensor.workday_sensor
+                state: 'off'
+              sequence:
+              - service: cover.open_cover
+                data: {}
+                target:
+                  entity_id: cover.0x00124b0029dee0c9
+              - service: telegram_bot.send_message
+                data_template:
+                  target:
+                      - !secret chat_id_log
+                  message: | 
+                       {{"\U0001F916"}} Детская A - управление шторами {{ states('sensor.time_date') }} 
+                       {{"\U0001F4AC"}} Открываю шторы

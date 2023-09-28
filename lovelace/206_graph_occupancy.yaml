@@ -1,0 +1,71 @@
+title: Движение и присутствие
+panel: true
+icon: phu:aqara-motion
+cards:
+
+    - type: custom:history-explorer-card
+    #   header: hide
+      header: Движение и присутствие
+      defaultTimeRange: 6h
+      labelsVisible: true
+      labelAreaWidth: 140
+      uimode: dark
+      stateColors:
+        binary_sensor.off: red
+        binary_sensor.on: green
+      uiLayout:
+        toolbar: top
+        selector: hide
+      graphs:
+      - type: timeline
+        entities:
+          - entity: binary_sensor.0x00158d00013f7894_occupancy
+            name: Прихожая
+      - type: timeline
+        entities:
+          - entity: binary_sensor.0x00158d00010f8920_occupancy
+            name: Коридор
+      - type: timeline
+        entities:
+          - entity: binary_sensor.0x00158d0001a24e71_occupancy
+            name: Туалет
+      - type: timeline
+        entities:
+          - entity: binary_sensor.0x00158d0001e16204_occupancy
+            name: Прачечная
+      - type: timeline
+        entities:
+          - entity: binary_sensor.kn_occupancy
+            name: Кухня присутствие
+          - entity: binary_sensor.0x00158d0001ab3350_occupancy
+            name: Вход
+          - entity: binary_sensor.0x54ef441000118375_occupancy
+            name: Кухня
+          - entity: binary_sensor.reolink_e1_zoom_motion
+            name: Камера
+          - entity: binary_sensor.0xec1bbdfffe302df1_occupancy
+            name: Балкон
+      - type: timeline
+        entities:
+          - entity: binary_sensor.0x54ef44100042e226_presence
+            name: Гостиная присутствие
+          - entity: binary_sensor.0x54ef44100042e226_motion
+            name: Диван
+          - entity: binary_sensor.0x00158d0005414857_occupancy
+            name: Комната
+          - entity: binary_sensor.0x00158d000449b773_occupancy
+            name: Балкон
+      - type: timeline
+        entities:
+          - entity: binary_sensor.0x00158d0001e547a3_occupancy
+            name: Ванная
+      - type: timeline
+        entities:
+          - entity: binary_sensor.0x00158d0001a66222_occupancy
+            name: Детская Д
+          - entity: binary_sensor.0xec1bbdfffe4521a3_occupancy
+            name: Балкон
+      - type: timeline
+        entities:
+          - entity: binary_sensor.0x00158d00016d56f5_occupancy
+            name: Детская А

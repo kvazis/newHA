@@ -1,0 +1,1268 @@
+##################   Управление
+title: Гостиная
+icon: phu:rooms-living
+cards:
+
+############################ Колонка 1 ############################
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Управление**
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Освещение**
+
+            - type: horizontal-stack
+              cards:        
+                - type: button
+                  name: Люстра 1
+                  entity: light.lr_ceiling_light_1_virtual
+                  tap_action:
+                    action: toggle
+
+                - type: button
+                  name: Амби 1
+                  entity: light.lr_ceiling_light_1_ambilight
+                  tap_action:
+                    action: toggle             
+
+                - type: button
+                  name: Люстра 2
+                  entity: light.lr_ceiling_light_2_virtual
+                  tap_action:
+                    action: toggle
+
+                - type: button
+                  name: Амби 2
+                  entity: light.lr_ceiling_light_2_ambilight
+                  tap_action:
+                    action: toggle  
+            - type: horizontal-stack
+              cards:        
+                - type: button
+                  name: Настольная
+                  entity: light.lr_table_lamp
+                  tap_action:
+                    action: toggle
+
+                - type: button
+                  name: ТВ лента
+                  entity: light.0xa4c138b72a314e97
+                  tap_action:
+                    action: toggle
+
+                - type: button
+                  name: Прикроватник
+                  entity: light.lr_bedside
+                  tap_action:
+                    action: toggle
+
+                - type: button
+                  name: Балкон
+                  entity: light.0xa4c13812b94c8365
+                  tap_action:
+                    action: toggle
+
+            - type: conditional
+              conditions:
+                - entity: light.lr_ceiling_light_1_virtual
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.lr_ceiling_light_1_virtual
+                  name: Люстра 1
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: true
+                  show_color_control: false
+                  collapsible_controls: true
+
+            - type: conditional
+              conditions:
+                - entity: light.lr_ceiling_light_1_ambilight
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.lr_ceiling_light_1_ambilight
+                  name: Амбилайт 1
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: false
+                  show_color_control: true
+                  collapsible_controls: true
+                  
+            - type: conditional
+              conditions:
+                - entity: light.lr_ceiling_light_2_virtual
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.lr_ceiling_light_2_virtual
+                  name: Люстра 2
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: true
+                  show_color_control: false
+                  collapsible_controls: true
+
+            - type: conditional
+              conditions:
+                - entity: light.lr_ceiling_light_2_ambilight
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.lr_ceiling_light_2_ambilight
+                  name: Амбилайт 2
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: false
+                  show_color_control: true
+                  collapsible_controls: true
+
+            - type: conditional
+              conditions:
+                - entity: light.lr_table_lamp
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.lr_table_lamp
+                  name: Настольная
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: false
+                  show_color_control: false
+                  collapsible_controls: true
+                  
+            - type: conditional
+              conditions:
+                - entity: light.lr_tv_bulb
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.lr_tv_bulb
+                  name: Лампа за телевизором
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: false
+                  show_color_control: true
+                  collapsible_controls: true
+                  
+            - type: conditional
+              conditions:
+                - entity: light.lr_bedside
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.lr_bedside
+                  name: Прикроватник
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: false
+                  show_color_control: true
+                  collapsible_controls: true
+                  
+            - type: conditional
+              conditions:
+                - entity: light.0xa4c13812b94c8365
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.0xa4c13812b94c8365
+                  name: Балкон
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: true
+                  show_color_control: false
+                  collapsible_controls: true
+
+
+            # - type: custom:stack-in-card
+            #   mode: horizontal
+            #   cards:
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Свет на стене
+                  secondary: |-
+                    {% if is_state("light.0x00158d00062fbb54_left", "off") %}
+                    Включить
+                    {% else %}
+                    Выключить
+                    {% endif %}
+                  layout: vertical
+                  tap_action:
+                    action: toggle
+                  entity: light.0x00158d00062fbb54_left
+                  icon: phu:wall-econic
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("light.0x00158d00062fbb54_left", "off") %}
+                    grey
+                    {% else %}
+                    amber
+                    {% endif %}
+
+                - type: custom:mushroom-template-card
+                  primary: Яркий свет
+                  secondary: |-
+                    {% if is_state("binary_sensor.lr_ceiling", "off") %}
+                    Включить
+                    {% else %}
+                    Отключить все люстры
+                    {% endif %}
+                  layout: vertical
+                  entity: input_button.lr_full_light
+                  icon: phu:bulb-group-ceiling-flush-circular
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("binary_sensor.lr_ceiling", "off") %}
+                    grey
+                    {% else %}
+                    amber
+                    {% endif %}
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.lr_full_light
+
+                - type: custom:mushroom-template-card
+                  primary: Ночник
+                  secondary: |-
+                    {% if is_state("light.gateway_light_34ce0088b039", "unavailable") %}
+                    Перезагрузить
+                    {% else %}
+                    ОК
+                    {% endif %}
+                  layout: vertical
+                  entity: input_button.lr_gateway_reload
+                  icon: |-
+                    {% if is_state("light.gateway_light_34ce0088b039", "unavailable") %}
+                    mdi:reload
+                    {% else %}
+                    mdi:check-bold
+                    {% endif %}
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("light.gateway_light_34ce0088b039", "unavailable") %}
+                    red
+                    {% else %}
+                    green
+                    {% endif %}
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.lr_gateway_reload
+
+                - type: custom:mushroom-template-card
+                  primary: Питание балкон
+                  secondary: |-
+                    {% if is_state("switch.0x54ef441000681a6f_right", "on") %}
+                    Вкл
+                    {% else %}
+                    Выкл
+                    {% endif %}
+                  layout: vertical
+                  tap_action:
+                    action: toggle
+                  entity: switch.0x54ef441000681a6f_right
+                  icon: phu:aqara-h1-switch
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("switch.0x54ef441000681a6f_right", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+
+            - type: horizontal-stack
+              cards:
+
+              - type: custom:mushroom-template-card
+                primary: Питание 1
+                secondary: |-
+                  {% if is_state("switch.0x00158d00062fbb54_right", "on") %}
+                  Вкл
+                  {% else %}
+                  Выкл
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: toggle
+                entity: switch.0x00158d00062fbb54_right
+                icon: phu:aqara-h1-switch
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("switch.0x00158d00062fbb54_right", "on") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %}
+
+
+              - type: custom:mushroom-template-card
+                primary: Доступность 1
+                secondary: |-
+                  {% if is_state("binary_sensor.lr_ceiling_unavailable_1", "off") %}
+                  OK
+                  {% else %}
+                  Не доступно
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.lr_ceiling_unavailable_1
+                icon: |-
+                  {% if is_state("binary_sensor.lr_ceiling_unavailable_1", "off") %}
+                  mdi:check-bold
+                  {% else %}
+                  mdi:alert
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.lr_ceiling_unavailable_1", "off") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %}
+                tap_action:
+                  action: more-info
+
+              - type: custom:mushroom-template-card
+                primary: Питание 2
+                secondary: |-
+                  {% if is_state("switch.0x842e14fffee5451a", "on") %}
+                  Вкл
+                  {% else %}
+                  Выкл
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: toggle
+                entity: switch.0x842e14fffee5451a
+                icon: phu:aqara-h1-switch
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("switch.0x842e14fffee5451a", "on") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %}
+
+              - type: custom:mushroom-template-card
+                primary: Доступность 2
+                secondary: |-
+                  {% if is_state("binary_sensor.lr_ceiling_unavailable_2", "off") %}
+                  OK
+                  {% else %}
+                  Не доступно
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.lr_ceiling_unavailable_2
+                icon: |-
+                  {% if is_state("binary_sensor.lr_ceiling_unavailable_2", "off") %}
+                  mdi:check-bold
+                  {% else %}
+                  mdi:alert
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.lr_ceiling_unavailable_2", "off") %}
+                  green
+                  {% else %}
+                  red
+                  {% endif %}
+                tap_action:
+                  action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Датчики и сенсоры**
+
+            - type: horizontal-stack
+              cards:
+
+              - type: custom:mushroom-template-card
+                primary: Присутствие
+                secondary: |-
+                  {% if is_state("binary_sensor.0x54ef44100042e226_presence", "off") %}
+                  Нет
+                  {% else %}
+                  Есть
+                  {% endif %}
+                layout: horizontal
+                entity: binary_sensor.0x54ef44100042e226_presence
+                icon: |-
+                  {% if is_state("binary_sensor.0x54ef44100042e226_presence", "off") %}
+                  mdi:home-off
+                  {% else %}
+                  mdi:home
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.0x54ef44100042e226_presence", "off") %}
+                  grey
+                  {% else %}
+                  amber
+                  {% endif %} 
+                tap_action:
+                  action: more-info
+
+              - type: custom:mushroom-template-card
+                primary: Диван
+                secondary: |-
+                  {% if is_state("binary_sensor.0x54ef44100042e226_motion", "off") %}
+                  Нет
+                  {% else %}
+                  Есть
+                  {% endif %}
+                layout: horizontal
+                entity: binary_sensor.0x54ef44100042e226_motion
+                icon: |-
+                  {% if is_state("binary_sensor.0x54ef44100042e226_motiony", "off") %}
+                  mdi:motion-sensor-off
+                  {% else %}
+                  mdi:motion-sensor
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.0x54ef44100042e226_motion", "off") %}
+                  grey
+                  {% else %}
+                  amber
+                  {% endif %} 
+                tap_action:
+                  action: more-info
+
+              - type: custom:mushroom-template-card
+                primary: Комната
+                secondary: |-
+                  {% if is_state("binary_sensor.0x00158d0005414857_occupancy", "off") %}
+                  Нет
+                  {% else %}
+                  Есть
+                  {% endif %}
+                layout: horizontal
+                entity: binary_sensor.0x00158d0005414857_occupancy
+                icon: |-
+                  {% if is_state("binary_sensor.0x00158d0005414857_occupancy", "off") %}
+                  mdi:motion-sensor-off
+                  {% else %}
+                  mdi:motion-sensor
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.0x00158d0005414857_occupancy", "off") %}
+                  grey
+                  {% else %}
+                  amber
+                  {% endif %} 
+                tap_action:
+                  action: more-info
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Режим тишины
+                  secondary: |-
+                    {% if is_state("switch.lr_silent_mode", "on") %}
+                    Включен
+                    {% else %}
+                    Выключен
+                    {% endif %}
+                  layout: horizontal
+                  tap_action:
+                    action: toggle
+                  entity: switch.lr_silent_mode
+                  icon: |-
+                    {% if is_state("switch.lr_silent_mode", "on") %}
+                    mdi:volume-mute
+                    {% else %}
+                    mdi:volume-medium
+                    {% endif %}
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("switch.lr_silent_mode", "on") %}
+                    red
+                    {% else %}
+                    green
+                    {% endif %}
+    
+    
+                - type: conditional
+                  conditions:
+                    - entity: switch.lr_silent_mode
+                      state: "on"
+                  card:
+                      type: custom:mushroom-entity-card
+                      entity: switch.lr_silent_mode
+                      icon_color: blue
+                      secondary_info: none
+                      primary_info: last-changed
+                      tap_action:
+                        action: more-info
+                      icon: mdi:timer-play
+
+            - type: conditional
+              conditions:
+                - entity: switch.lr_silent_mode
+                  state: "on"
+              card:
+                  type: custom:timer-bar-card
+                  entities:
+                  - entity: timer.lr_silent_mode
+                    name: Осталось - 
+                  modifications:
+                  - elapsed: 30%
+                    bar_foreground: yellow
+                  - elapsed: 60%
+                    bar_foreground: orange
+                  - elapsed: 90%
+                    bar_foreground: red
+                  bar_height: 20px
+                  sync_issues: ignore
+                  invert: true
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+          
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   }   
+              content: >
+                  **Робот пылесос** 
+    
+            - type: custom:mushroom-template-card
+              primary: Lydsto Robot R1
+              secondary: |-
+                {% if is_state("vacuum.zhimi_xa1_4790_robot_cleaner", "docked") %}
+                На базе
+                {% elif is_state("vacuum.zhimi_xa1_4790_robot_cleaner", "unknown") %}
+                Состояние неизвестно
+                {% elif is_state("vacuum.zhimi_xa1_4790_robot_cleaner", "cleaning") %}
+                Уборка
+                {% elif is_state("vacuum.zhimi_xa1_4790_robot_cleaner", "unavailable") %}
+                Недоступно
+                {% else %}
+                Возврат на базу
+                {% endif %}
+              layout: horizontal
+              entity: vacuum.zhimi_xa1_4790_robot_cleaner
+              icon: phu:roborock
+              multiline_secondary: true
+              icon_color: |-
+                {% if is_state("vacuum.zhimi_xa1_4790_robot_cleaner", "docked") %}
+                grey
+                {% elif is_state("vacuum.zhimi_xa1_4790_robot_cleaner", "unknown") %}
+                red
+                {% elif is_state("vacuum.zhimi_xa1_4790_robot_cleaner", "cleaning") %}
+                light-green
+                {% elif is_state("vacuum.zhimi_xa1_4790_robot_cleaner", "unavailable") %}
+                pink
+                {% else %}
+                green
+                {% endif %}
+              tap_action:
+                action: call-service
+                service: input_button.press
+                target:
+                  entity_id: input_button.lr_vacuum_cleaner
+    
+            - type: 'custom:vacuum-card'
+              entity: vacuum.zhimi_xa1_4790_robot_cleaner
+              show_toolbar: false
+
+############################ Колонка 2 ############################
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }   
+          content: >
+              **Мониторинг** 
+
+        - type: picture-entity
+          entity: camera.reolink_e1_pro_rtsp
+          camera_view: live 
+          show_state: false
+          show_name: false
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards: 
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Телевизор
+                  secondary: |-
+                    {% if is_state("binary_sensor.lr_tv_work", "off") %}
+                    Включить
+                    {% else %}
+                    Выключить
+                    {% endif %}
+                  layout: horizontal
+                  entity: input_button.lr_tv_control
+                  icon: |-
+                    {% if is_state("binary_sensor.lr_tv_work", "off") %}
+                    mdi:television-off
+                    {% else %}
+                    mdi:television
+                    {% endif %}
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("binary_sensor.lr_tv_work", "off") %}
+                    grey
+                    {% else %}
+                    indigo
+                    {% endif %}
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.lr_tv_control
+              
+                - type: custom:mushroom-template-card
+                  primary: Кино подсветка
+                  secondary: |-
+                    {% if is_state("light.lr_light_cinema", "off") %}
+                    Включить
+                    {% else %}
+                    Выключить
+                    {% endif %}
+                  layout: horizontal
+                  tap_action:
+                    action: toggle
+                  entity: light.lr_light_cinema
+                  icon: phu:bulb-general-group
+                  multiline_secondary: true
+                  icon_color: |-
+                    {% if is_state("light.lr_light_cinema", "off") %}
+                    grey
+                    {% else %}
+                    indigo
+                    {% endif %}
+
+        - type: custom:mushroom-media-player-card
+          entity: media_player.mitv
+          name: Android TV
+          icon: phu:telnet
+          use_media_info: true
+          show_volume_level: true
+          media_controls:
+            - on_off
+            - play_pause_stop
+          volume_controls:
+            - volume_set
+            - volume_mute
+            - volume_buttons
+          collapsible_controls: true
+
+        - type: custom:mushroom-media-player-card
+          entity: media_player.lr_mi_speaker
+          name: Колонка
+          icon: phu:nest-wifi-router
+          use_media_info: true
+          show_volume_level: true
+          media_controls:
+            - on_off
+            - play_pause_stop
+          volume_controls:
+            - volume_set
+            - volume_mute
+            - volume_buttons
+          collapsible_controls: true
+          
+        - type: custom:mushroom-media-player-card
+          entity: media_player.nesthub7a33
+          name: Google Nest Hub
+          icon: phu:home-max
+          use_media_info: true
+          show_volume_level: true
+          media_controls:
+            - on_off
+            - play_pause_stop
+          volume_controls:
+            - volume_set
+            - volume_mute
+            - volume_buttons
+          collapsible_controls: true
+
+        - type: custom:mushroom-template-card
+          primary: Cast
+          secondary: |-
+            {% if is_state("media_player.nesthub7a33", "off") %}
+            Вывести UI на Google Nest Hub
+            {% else %}
+            Остановка трансляции
+            {% endif %}
+          layout: horizontal
+          entity: input_button.lr_cast_lovelace
+          icon: mdi:cast-connected
+          multiline_secondary: true
+          icon_color: |-
+            {% if is_state("media_player.nesthub7a33", "off") %}
+            green
+            {% else %}
+            amber
+            {% endif %}
+          tap_action:
+            action: call-service
+            service: input_button.press
+            target:
+              entity_id: input_button.lr_cast_lovelace
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Розетки**
+
+            - type: custom:mushroom-chips-card
+              alignment: start
+              chips:
+
+                - type: template
+                  entity: switch.0xa4c1382dc9fecb3e
+                  icon: phu:apc-ups-upright
+                  icon_color: |-
+                    {% if is_state("switch.0xa4c1382dc9fecb3e", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  content: |-
+                    UPS 1
+                  tap_action:
+                    action: toggle
+
+                - type: template
+                  entity: sensor.0xa4c1382dc9fecb3e_power
+                  icon: mdi:lightning-bolt-circle
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c1382dc9fecb3e_power')}} Ватт
+                  tap_action:
+                    action: more-info
+
+                - type: template
+                  entity: switch.0xa4c138ee9e1e5451
+                  icon: phu:apc-ups-upright
+                  icon_color: |-
+                    {% if is_state("switch.0xa4c138ee9e1e5451", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  content: |-
+                    UPS 2
+                  tap_action:
+                    action: toggle
+
+                - type: template
+                  entity: sensor.0xa4c138ee9e1e5451_power
+                  icon: mdi:lightning-bolt-circle
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c138ee9e1e5451_power')}} Ватт
+                  tap_action:
+                    action: more-info
+
+            - type: markdown
+              content: >
+                 **     **
+
+            - type: custom:mushroom-chips-card
+              alignment: start
+              chips:
+
+                - type: template
+                  entity: switch.0xa4c1384452a34172
+                  icon: phu:socket-eu
+                  icon_color: |-
+                    {% if is_state("switch.0xa4c1384452a34172", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  content: |-
+                    Телевизор
+                  tap_action:
+                    action: toggle
+
+                - type: template
+                  entity: sensor.0xa4c1384452a34172_power
+                  icon: mdi:lightning-bolt-circle
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c1384452a34172_power')}} Ватт
+                  tap_action:
+                    action: more-info
+
+                - type: template
+                  entity: sensor.0xa4c1384452a34172_voltage
+                  icon: mdi:sine-wave
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c1384452a34172_voltage')}} В
+                  tap_action:
+                    action: more-info
+                    
+                - type: template
+                  entity: sensor.0xa4c1384452a34172_meter
+                  icon: mdi:home-lightning-bolt
+                  icon_color: light-green
+                  content: |-
+                      {{states ('sensor.0xa4c1384452a34172_meter')}} кВт/ч
+                  tap_action:
+                    action: more-info
+
+            - type: markdown
+              content: >
+                 **     **
+
+            - type: custom:mushroom-chips-card
+              alignment: start
+              chips:
+
+                - type: template
+                  entity: switch.0xa4c1387c6584d955
+                  icon: phu:socket-eu
+                  icon_color: |-
+                    {% if is_state("switch.0xa4c1387c6584d955", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  content: |-
+                    Шлюз
+                  tap_action:
+                    action: toggle
+
+                - type: template
+                  entity: sensor.0xa4c1387c6584d955_power
+                  icon: mdi:lightning-bolt-circle
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c1387c6584d955_power')}} Ватт
+                  tap_action:
+                    action: more-info
+
+                - type: template
+                  entity: sensor.0xa4c1387c6584d955_voltage
+                  icon: mdi:sine-wave
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c1387c6584d955_voltage')}} В
+                  tap_action:
+                    action: more-info
+                    
+                - type: template
+                  entity: sensor.0xa4c1387c6584d955_meter
+                  icon: mdi:home-lightning-bolt
+                  icon_color: light-green
+                  content: |-
+                      {{states ('sensor.0xa4c1387c6584d955_meter')}} кВт/ч
+                  tap_action:
+                    action: more-info
+
+            - type: markdown
+              content: >
+                 **     **
+
+            - type: custom:mushroom-chips-card
+              alignment: start
+              chips:
+
+                - type: template
+                  entity: switch.0xa4c1388c89a46970
+                  icon: phu:socket-eu
+                  icon_color: |-
+                    {% if is_state("switch.0xa4c1388c89a46970", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  content: |-
+                    Ноутбук Acer
+                  tap_action:
+                    action: toggle
+
+                - type: template
+                  entity: sensor.0xa4c1388c89a46970_power
+                  icon: mdi:lightning-bolt-circle
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c1388c89a46970_power')}} Ватт
+                  tap_action:
+                    action: more-info
+
+                - type: template
+                  entity: sensor.0xa4c1388c89a46970_voltage
+                  icon: mdi:sine-wave
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c1388c89a46970_voltage')}} В
+                  tap_action:
+                    action: more-info
+                    
+                - type: template
+                  entity: sensor.0xa4c1388c89a46970_meter
+                  icon: mdi:home-lightning-bolt
+                  icon_color: light-green
+                  content: |-
+                      {{states ('sensor.0xa4c1388c89a46970_meter')}} кВт/ч
+                  tap_action:
+                    action: more-info
+
+            - type: markdown
+              content: >
+                 **     **
+
+            - type: custom:mushroom-chips-card
+              alignment: start
+              chips:
+
+                - type: template
+                  entity: switch.0xa4c138f41459f92a
+                  icon: phu:socket-eu
+                  icon_color: |-
+                    {% if is_state("switch.0xa4c138f41459f92a", "on") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  content: |-
+                    Ноутбук Asus
+                  tap_action:
+                    action: toggle
+
+                - type: template
+                  entity: sensor.0xa4c138f41459f92a_power
+                  icon: mdi:lightning-bolt-circle
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c138f41459f92a_power')}} Ватт
+                  tap_action:
+                    action: more-info
+
+                - type: template
+                  entity: sensor.0xa4c138f41459f92a_voltage
+                  icon: mdi:sine-wave
+                  icon_color: green
+                  content: |-
+                      {{states ('sensor.0xa4c138f41459f92a_voltage')}} В
+                  tap_action:
+                    action: more-info
+                    
+                - type: template
+                  entity: sensor.0xa4c138f41459f92a_meter
+                  icon: mdi:home-lightning-bolt
+                  icon_color: light-green
+                  content: |-
+                      {{states ('sensor.0xa4c138f41459f92a_meter')}} кВт/ч
+                  tap_action:
+                    action: more-info
+
+
+            - type: markdown
+              content: >
+                 **     **                     
+                 
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                color: #f8ffd8;
+                --paper-item-icon-color: #f8ffd8;
+                --paper-item-icon-active-color: #f8ffd8;
+                font-weight: bold;
+                font-size: 26px;
+              }     
+          content: >
+              **Телеметрия** 
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Состояние датчиков гостиная**
+
+            - type: entities
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              show_header_toggle: false
+              entities:
+                - type: divider
+                - entity: sensor.0x00158d0005414857_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-motion
+                  state_color: true
+                  name: Датчик движения
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d00015aebb6_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-temperature
+                  state_color: true
+                  name: Датчик климата
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал 
+                - type: divider
+                - entity: sensor.0xec1bbdfffedf6a6a_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-contact
+                  state_color: true
+                  name: Датчик открытия, окно слева
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d00013ed373_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-contact
+                  state_color: true
+                  name: Датчик открытия, окно справа
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d00054496b0_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:air-conditioner
+                  state_color: true
+                  name: Датчик открытия, кондиционер
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d00013fc3bc_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-h1-switch
+                  state_color: true
+                  name: Беспроводный выключатель на входе
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал              
+                - type: divider
+                - entity: sensor.0x54ef4410004c1707_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-opple
+                  state_color: true
+                  name: Беспроводный выключатель на столе
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал              
+                - type: divider
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Состояние датчиков балкон гостиная**
+
+            - type: entities
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              show_header_toggle: false
+              entities:
+                - type: divider
+                - entity: sensor.0x00158d000449b773_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-motion
+                  state_color: true
+                  name: Датчик движения
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0xec1bbdfffe4534c0_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-temperature
+                  state_color: true
+                  name: Датчик климата
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал 
+                - type: divider
+                - entity: sensor.0x00158d0001a4b9da_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-temperature
+                  state_color: true
+                  name: Датчик климата на улице
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал 
+                - type: divider
+                - entity: sensor.0x00158d000445206b_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-contact
+                  state_color: true
+                  name: Датчик открытия, дверь
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d0001a2f5f7_battery
+                  type: custom:multiple-entity-row
+                  icon: phu:aqara-contact
+                  state_color: true
+                  name: Датчик открытия, окно
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал
+                - type: divider
+                - entity: sensor.0x00158d0001b86d2e_battery
+                  type: custom:multiple-entity-row
+                  icon: mdi:gesture-tap-button
+                  state_color: true
+                  name: Кнопка у двери
+                  secondary_info: last-changed
+                  state_header: Батарейка
+                  entities:
+                  - attribute: linkquality
+                    name: Сигнал 
+                - type: divider

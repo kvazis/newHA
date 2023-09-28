@@ -1,0 +1,71 @@
+sterilization:
+
+    homeassistant:
+      customize:
+
+        light.slmap2_44237ccb479b:
+          friendly_name: Ванная УФ лампа
+          icon: phu:signe-gradient-table 
+          
+        automation.bt_sterilization_lamp_reload:
+          friendly_name: Ванная - перезагрузка УФ лампы
+          icon: mdi:reload
+
+        automation.bt_sterilization_lamp_block_off_reload:
+          friendly_name: Ванная - отключение блокировки перезагрузки УФ лампы
+          icon: mdi:lock-off
+      
+    input_boolean:
+    
+      bt_sterilization_lamp:
+        name: Предохранитель, лампа стерилизации ванная
+        icon: mdi:lightbulb-off-outline      
+      
+      
+    automation:
+    
+      - alias: bt_sterilization_lamp_reload
+        description: Ванная - перезагрузка УФ лампы
+        initial_state: true
+        trigger:
+        - platform: time_pattern
+          minutes: '/10'
+        condition:
+    # Лампа недоступна
+        - condition: state
+          entity_id: light.slmap2_44237ccb479b
+          state: 'unavailable'
+        - condition: state
+          entity_id: input_boolean.bt_sterilization_lamp
+          state: 'off'
+        action:  
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            device_id: b63145e655fc99f1522f7873adb11fe0
+        - wait_template: "{{ not is_state('light.slmap2_44237ccb479b', 'unavailable') }}"
+          timeout: 15
+        - if:
+             - "{{ not wait.completed }}"
+          then:
+             - service: telegram_bot.send_message
+               data_template:
+                 target:
+                     - !secret chat_id_group_tech
+                 message: | 
+                      Внимание!
+                      Ванная, лампа стерилизации недоступна
+    # Включение предохранителя
+             - service: input_boolean.turn_on
+               entity_id: input_boolean.bt_sterilization_lamp
+               
+      - alias: bt_sterilization_lamp_block_off_reload
+        description: Ванная - отключение блокировки перезагрузки УФ лампы
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: light.slmap2_44237ccb479b
+          from: 'unavailable'
+        action:                
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.bt_sterilization_lamp

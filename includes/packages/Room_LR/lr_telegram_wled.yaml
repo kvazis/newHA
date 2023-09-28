@@ -1,0 +1,2778 @@
+lr_telegram_wled:
+
+
+    template:
+    
+      - sensor:
+      
+          - name: lr_wled_panel_brightness
+            state: >
+              {% if is_state('light.lr_wled_panel', 'on') %}
+              {{ (state_attr('light.lr_wled_panel', 'brightness') / 2.55 ) | float |round(0)}}
+              {% else %}
+              0
+              {% endif %}
+              
+          - name: lr_wled_panel_speed
+            state: >
+              {% if is_state('light.lr_wled_panel', 'on') %}
+              {{ (states('number.lr_wled_panel_speed') | float / 2.55 )  |round(0)}}
+              {% else %}
+              0
+              {% endif %}
+
+          - name: lr_wled_panel_intensity
+            state: >
+              {% if is_state('light.lr_wled_panel', 'on') %}
+              {{ (states('number.lr_wled_panel_intensity') | float / 2.55 )  |round(0)}}
+              {% else %}
+              0
+              {% endif %}
+              
+          - name: lr_wled_panel_effect
+            state: >
+              {% if is_state('light.lr_wled_panel', 'on') %}
+              {{ state_attr('light.lr_wled_panel', 'effect') }}
+              {% else %}
+              Выключено
+              {% endif %}
+
+          - name: lr_wled_panel_color
+            state: >
+              {% if is_state('light.lr_wled_panel', 'on') %}
+              {{ states('select.lr_wled_panel_color_palette') }}
+              {% else %}
+              Выключено
+              {% endif %}
+
+
+    automation:
+
+    ## Стартовая автоматизация для запуска меню
+      - id: Вызов меню управления wled панели в гостиной
+        alias: lr_telegram_wled_menu_start
+        initial_state: true
+        trigger:
+          - platform: event
+            event_type: telegram_text
+        condition:
+          - condition: template
+            value_template: >-
+              {{ trigger.event.data.text in ["панель", "Панель", "gfytkm", "Ghbdtn"] }}
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - service: telegram_bot.send_message
+            data:
+              target: "{{ trigger.event.data.user_id }}"
+              message: |
+                {{'\U0001F4F1'}} Гостиная WLED панель :
+                {{'\U0001FA84'}} Эффект - {{ states('sensor.lr_wled_panel_effect') }}, {{'\U0001F308'}} Цвет - {{ states('sensor.lr_wled_panel_color') }}
+                {{'\U0001F4A1'}} Яркость - {{ states('sensor.lr_wled_panel_brightness') }} % , {{'\U000023E9'}} Скорость - {{ states('sensor.lr_wled_panel_speed') }} %
+                {{'\U000023EB'}} Интенсивность - {{ states('sensor.lr_wled_panel_intensity') }} % , {{'\U000026A1'}} Ток - {{ states('sensor.lr_wled_panel_estimated_current') }} мА
+              inline_keyboard: 
+                - '{{''\U0001F4A1''}} Панель - {% if is_state(''light.lr_wled_panel'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_lr_wled_panel'
+                - '{{''\U0001F319''}} Ночь:/night_lr_wled_panel, {{''\U0001F39E''}} Кино:/cinema_lr_wled_panel, {{''\U00002600''}} Свет:/light_lr_wled_panel'
+                - '{{''\U00000031''}}:/effect1_lr_wled_panel , {{''\U00000032''}}:/effect2_lr_wled_panel , {{''\U00000033''}}:/effect3_lr_wled_panel , {{''\U00000034''}}:/effect4_lr_wled_panel , {{''\U00000035''}}:/effect5_lr_wled_panel'
+                - '{{''\U0001F505''}} Яркость -10%:/brightness_down_lr_wled_panel, {{''\U0001F506''}} Яркость +10%:/brightness_up_lr_wled_panel'
+                - '{{''\U000023EA''}} Скорость -10%:/speed_down_lr_wled_panel, {{''\U000023E9''}} Скорость +10%:/speed_up_lr_wled_panel'
+                - '{{''\U000023EC''}} Интенсивность -10%:/intensity_down_lr_wled_panel, {{''\U000023EB''}} Интенсивность +10%:/intensity_up_lr_wled_panel'
+                - '{{''\U0001FA84''}} Эффекты:/effect_lr_wled_panel, {{''\U0001F308''}} Цвет:/color_lr_wled_panel'
+                - '{{''\U000021AA''}} Обновить:/lr_wled_panel_control' 
+
+    ## Управление основными параметрами WLED светильника
+      - id: wled панель в гостиной основное меню управления телеграм
+        alias: lr_telegram_wled_menu_control
+        initial_state: true
+        trigger: 
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        condition:
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/lr_wled_panel_control'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: &msg_lr_wled |
+                        {{'\U0001F4F1'}} Гостиная WLED панель:
+                        {{'\U0001FA84'}} Эффект - {{ states('sensor.lr_wled_panel_effect') }}, {{'\U0001F308'}} Цвет - {{ states('sensor.lr_wled_panel_color') }}
+                        {{'\U0001F4A1'}} Яркость - {{ states('sensor.lr_wled_panel_brightness') }} % , {{'\U000023E9'}} Скорость - {{ states('sensor.lr_wled_panel_speed') }} %
+                        {{'\U000023EB'}} Интенсивность - {{ states('sensor.lr_wled_panel_intensity') }} % , {{'\U000026A1'}} Ток - {{ states('sensor.lr_wled_panel_estimated_current') }} мА
+                      inline_keyboard: &keyb_lr_wled
+                        - '{{''\U0001F4A1''}} Панель - {% if is_state(''light.lr_wled_panel'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_lr_wled_panel'
+                        - '{{''\U0001F319''}} Ночь:/night_lr_wled_panel, {{''\U0001F39E''}} Кино:/cinema_lr_wled_panel, {{''\U00002600''}} Свет:/light_lr_wled_panel'
+                        - '{{''\U00000031''}}:/effect1_lr_wled_panel , {{''\U00000032''}}:/effect2_lr_wled_panel , {{''\U00000033''}}:/effect3_lr_wled_panel , {{''\U00000034''}}:/effect4_lr_wled_panel , {{''\U00000035''}}:/effect5_lr_wled_panel'
+                        - '{{''\U0001F505''}} Яркость -10%:/brightness_down_lr_wled_panel, {{''\U0001F506''}} Яркость +10%:/brightness_up_lr_wled_panel'
+                        - '{{''\U000023EA''}} Скорость -10%:/speed_down_lr_wled_panel, {{''\U000023E9''}} Скорость +10%:/speed_up_lr_wled_panel'
+                        - '{{''\U000023EC''}} Интенсивность -10%:/intensity_down_lr_wled_panel, {{''\U000023EB''}} Интенсивность +10%:/intensity_up_lr_wled_panel'
+                        - '{{''\U0001FA84''}} Эффекты:/effect_lr_wled_panel, {{''\U0001F308''}} Цвет:/color_lr_wled_panel'
+                        - '{{''\U000021AA''}} Обновить:/lr_wled_panel_control' 
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toggle_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.toggle
+                    entity_id: light.lr_wled_panel
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - {% if is_state('light.lr_wled_panel', 'on') %} Включена {% else %} Выключена {% endif %} 
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/night_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Solid
+                      brightness_pct: 1
+                      kelvin: 2700
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - ночной свет
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/cinema_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Solid
+                      brightness_pct: 50
+                      rgb_color: [169, 153, 255]
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - подсветка для кино
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/light_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Solid
+                      brightness_pct: 100
+                      kelvin: 4000
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - яркий свет
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/effect1_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Saw
+                      brightness_pct: 50
+                  - service: select.select_option
+                    data:
+                      option: Splash
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_speed
+                    data:
+                      value: 114
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_intensity
+                    data:
+                      value: 76
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - эффект 1
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/effect2_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Lake
+                      brightness_pct: 50
+                  - service: select.select_option
+                    data:
+                      option: Fire
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_speed
+                    data:
+                      value: 221
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_intensity
+                    data:
+                      value: 255
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - эффект 2
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/effect3_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Scan Dual
+                      brightness_pct: 50
+                  - service: select.select_option
+                    data:
+                      option: Blink Red
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_speed
+                    data:
+                      value: 130
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_intensity
+                    data:
+                      value: 130
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - эффект 3
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/effect4_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Sinelon Dual
+                      brightness_pct: 30
+                  - service: select.select_option
+                    data:
+                      option: Yelblu
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_speed
+                    data:
+                      value: 99
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_intensity
+                    data:
+                      value: 153
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - эффект 3
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/effect5_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Palette
+                      brightness_pct: 40
+                  - service: select.select_option
+                    data:
+                      option: Icefire
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_speed
+                    data:
+                      value: 39
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_intensity
+                    data:
+                      value: 130
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - эффект 3
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/brightness_down_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data_template:
+                      brightness_pct: > 
+                        {% set brightness = states('sensor.lr_wled_panel_brightness') | float  -10 %}
+                        {% if brightness < 1 %}
+                          1
+                        {% else %}
+                          {{ brightness }}
+                        {% endif %}
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Текущая яркость - {{ states('sensor.lr_wled_panel_brightness') }} %
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/brightness_up_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data_template:
+                      brightness_pct: > 
+                        {% set brightness = states('sensor.lr_wled_panel_brightness') | float +10 %}
+                        {% if brightness > 100 %}
+                          100
+                        {% else %}
+                          {{ brightness }}
+                        {% endif %}
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Текущая яркость - {{ states('sensor.lr_wled_panel_brightness') }} %
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/speed_down_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_speed
+                    data_template:
+                      value: > 
+                        {% set speed = states('number.lr_wled_panel_speed') | float - 25 %}
+                        {% if speed < 1 %}
+                          1
+                        {% else %}
+                          {{ speed }}
+                        {% endif %}
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Текущая скорость - {{ states('sensor.lr_wled_panel_speed') }} %
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/speed_up_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_speed
+                    data_template:
+                      value: > 
+                        {% set speed = states('number.lr_wled_panel_speed') | float + 25 %}
+                        {% if speed > 255 %}
+                          255
+                        {% else %}
+                          {{ speed }}
+                        {% endif %}
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Текущая скорость - {{ states('sensor.lr_wled_panel_speed') }} %
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/intensity_down_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_intensity
+                    data_template:
+                      value: > 
+                        {% set speed = states('number.lr_wled_panel_intensity') | float - 25 %}
+                        {% if speed < 1 %}
+                          1
+                        {% else %}
+                          {{ speed }}
+                        {% endif %}
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Текущая интенсивность - {{ states('sensor.lr_wled_panel_intensity') }} %
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/intensity_up_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_panel_intensity
+                    data_template:
+                      value: > 
+                        {% set speed = states('number.lr_wled_panel_intensity') | float + 25 %}
+                        {% if speed > 255 %}
+                          255
+                        {% else %}
+                          {{ speed }}
+                        {% endif %}
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} Текущая интенсивность - {{ states('sensor.lr_wled_panel_intensity') }} %
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled
+                      inline_keyboard: *keyb_lr_wled
+                      
+    ## Управление эффектами WLED светильника
+      - id: wled панель меню управления эффектами
+        alias: lr_telegram_wled_effect
+        initial_state: true
+        trigger: 
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        condition:
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/effect_lr_wled_panel'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: &msg_lr_wled_effect |
+                        {{'\U0001F4F1'}} Гостиная WLED панель:
+                        {{'\U0001FA84'}} Эффект - {{ states('sensor.lr_wled_panel_effect') }}, {{'\U0001F308'}} Цвет - {{ states('sensor.lr_wled_panel_color') }}
+                        {{'\U0001F4A1'}} Яркость - {{ states('sensor.lr_wled_panel_brightness') }} % , {{'\U000023E9'}} Скорость - {{ states('sensor.lr_wled_panel_speed') }} %
+                        {{'\U000023EB'}} Интенсивность - {{ states('sensor.lr_wled_panel_intensity') }} % , {{'\U000026A1'}} Ток - {{ states('sensor.lr_wled_panel_estimated_current') }} мА
+                      inline_keyboard: &keyb_lr_wled_effect
+                        - 'Solid:/solid_lr_wled_panel , Android:/android_lr_wled_panel , Aurora:/aurora_lr_wled_panel , Blends:/blends_lr_wled_panel'
+                        - 'Bouncing Balls:/bouncing_balls_lr_wled_panel , Bpm:/bpm_lr_wled_panel , Breathe:/breathe_lr_wled_panel , Candy Cane:/candy_cane_lr_wled_panel' 
+                        - 'Chase:/chase_lr_wled_panel , Chase 2:/chase_2_lr_wled_panel , Chase Random:/chase_random_lr_wled_panel , Chunchun:/chunchun_lr_wled_panel' 
+                        - 'Colorful:/colorful_lr_wled_panel , Colorloop:/colorloop_lr_wled_panel , Colortwinkles:/colortwinkles_lr_wled_panel , Colorwaves:/colorwaves_lr_wled_panel' 
+                        - 'Dancing Shadows:/dancing_shadows_lr_wled_panel , Dissolve:/dissolve_lr_wled_panel , Dynamic:/dynamic_lr_wled_panel , Dynamic Smooth:/dynamic_smooth_lr_wled_panel' 
+                        - 'Fade:/fade_lr_wled_panel , Fairy:/fairy_lr_wled_panel , Fairytwinkle:/fairytwinkle_lr_wled_panel , Fire 2012:/fire_2012_lr_wled_panel' 
+                        - 'Fireworks:/fireworks_lr_wled_panel , Flow:/flow_lr_wled_panel , Gradient:/gradient_lr_wled_panel , Halloween:/halloween_lr_wled_panel' 
+                        - 'Lake:/lake_lr_wled_panel , Loading:/loading_lr_wled_panel , Noise Pal:/noise_pal_lr_wled_panel , Palette:/palette_lr_wled_panel' 
+                        - 'Police:/police_lr_wled_panel , Rainbow:/rainbow_lr_wled_panel , Scanner Dual:/scanner_dual_lr_wled_panel , Tri Wipe:/tri_wipe_lr_wled_panel' 
+                        - 'Twinklecat:/twinklecat_lr_wled_panel , Two Dots:/two_dots_lr_wled_panel , Wipe:/wipe_lr_wled_panel , Wipe Random:/wipe_random_lr_wled_panel' 
+                        - '{{''\U000021A9''}} Вернуться:/lr_wled_panel_control , {{''\U000021AA''}} Обновить:/effect_lr_wled_panel' 
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/solid_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Solid
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Solid
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/android_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Android
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Android
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/aurora_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Aurora
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Aurora
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/blends_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Blends
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Blends
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/bouncing_balls_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Bouncing Balls
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Bouncing Balls
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/bpm_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Bpm
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Bpm
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/breathe_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Breathe
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Breathe
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/candy_cane_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Candy Cane
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Candy Cane
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/chase_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Chase
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Chase
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/chase_2_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Chase 2
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Chase 2
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/chase_random_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Chase Random
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Chase Random
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/chunchun_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Chunchun
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Chunchun
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/colorful_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Colorful
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Colorful
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/colorloop_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Colorloop
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Colorloop
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/colortwinkles_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Colortwinkles
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Colortwinkles
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/colorwaves_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Colorwaves
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Colorwaves
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/dancing_shadows_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Dancing Shadows
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Dancing Shadows
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/dissolve_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Dissolve
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Dissolve
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/dynamic_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Dynamic
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Dynamic
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/dynamic_smooth_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Dynamic Smooth
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Dynamic Smooth
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/fade_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Fade
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Fade
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/fairy_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Fairy
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Fairy
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect 
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/fairytwinkle_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Fairytwinkle
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Fairytwinkle
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect 
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/fire_2012_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Fire 2012
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Fire 2012
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect 
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/fireworks_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Fireworks
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Fireworks
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect 
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/flow_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Flow
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Flow
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect 
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/gradient_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Gradient
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Gradient
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect 
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/halloween_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Halloween
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Halloween
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect 
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/lake_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Lake
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Lake
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/loading_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Loading
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Loading
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/noise_pal_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Noise Pal
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Noise Pal
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect 
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/palette_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Palette
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect 
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/police_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Police
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Police
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/rainbow_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Rainbow
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Rainbow
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/scanner_dual_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Scanner Dual
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Scanner Dual
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/tri_wipe_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Tri Wipe
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Tri Wipe
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/twinklecat_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Twinklecat
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Twinklecat
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/two_dots_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Two Dots
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Two Dots
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/wipe_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Wipe
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Wipe
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/wipe_random_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Wipe Random
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен эффект Wipe Random
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_effect
+                      inline_keyboard: *keyb_lr_wled_effect
+                      
+    ## Управление цветом WLED светильника
+      - id: wled панель меню управления цветом
+        alias: lr_telegram_wled_color
+        initial_state: true
+        trigger: 
+          - platform: event
+            event_type: telegram_callback
+            event_data: {}
+        condition:
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/color_lr_wled_panel'' }}'
+                sequence:
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: &msg_lr_wled_color |
+                        {{'\U0001F4F1'}} Гостиная WLED панель:
+                        {{'\U0001FA84'}} Эффект - {{ states('sensor.lr_wled_panel_effect') }}, {{'\U0001F308'}} Цвет - {{ states('sensor.lr_wled_panel_color') }}
+                        {{'\U0001F4A1'}} Яркость - {{ states('sensor.lr_wled_panel_brightness') }} % , {{'\U000023E9'}} Скорость - {{ states('sensor.lr_wled_panel_speed') }} %
+                        {{'\U000023EB'}} Интенсивность - {{ states('sensor.lr_wled_panel_intensity') }} % , {{'\U000026A1'}} Ток - {{ states('sensor.lr_wled_panel_estimated_current') }} мА
+                      inline_keyboard: &keyb_lr_wled_color
+                        - 'Красный:/red_lr_wled_panel , Желтый:/yellow_lr_wled_panel , Зеленый:/green_lr_wled_panel , Синий:/blue_lr_wled_panel'
+                        - 'Default:/default_lr_wled_panel , Analogous:/analogous_lr_wled_panel , April Night:/april_night_lr_wled_panel , Aqua Flash:/aqua_flash_lr_wled_panel'
+                        - 'Atlantica:/atlantica_lr_wled_panel , Aurora 2:/aurora_2_lr_wled_panel , Autumn:/autumn_lr_wled_panel , Beach:/beach_lr_wled_panel'
+                        - 'Blink Red:/blink_red_lr_wled_panel , C9 New:/c9_new_lr_wled_panel , Candy:/candy_lr_wled_panel , Drywet:/drywet_lr_wled_panel'
+                        - 'Fire:/fire_lr_wled_panel , Forest:/forest_lr_wled_panel , Hult:/hult_lr_wled_panel , Icefire:/icefire_lr_wled_panel'
+                        - 'Lava:/lava_lr_wled_panel , Magenta:/magenta_lr_wled_panel , Magred:/magred_lr_wled_panel , Orangery:/orangery_lr_wled_panel'
+                        - 'Party:/party_lr_wled_panel , Pastel:/pastel_lr_wled_panel , Pink Candy:/pink_candy_lr_wled_panel , Rainbow:/rainbowcolor_lr_wled_panel'
+                        - 'Red Flash:/red_flash_lr_wled_panel , Red Reaf:/red_reaf_lr_wled_panel , Semi Blue:/semi_blue_lr_wled_panel , Sherbet:/sherbet_lr_wled_panel'
+                        - 'Sunset:/sunset_lr_wled_panel , Tertiary:/tertiary_lr_wled_panel , Tiamat:/tiamat_lr_wled_panel , Toxy Reaf:/toxy_reaf_lr_wled_panel'
+                        - 'Vintage:/vintage_lr_wled_panel , Yelblu:/yelblu_lr_wled_panel , Yelblu Hot:/yelblu_hot_lr_wled_panel , Yelmag:/yelmag_lr_wled_panel'
+                        - '{{''\U000021A9''}} Вернуться:/lr_wled_panel_control , {{''\U000021AA''}} Обновить:/color_lr_wled_panel' 
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/red_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Solid
+                      rgb_color: [255, 0, 0]
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Красный
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/yellow_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Solid
+                      rgb_color: [255, 255, 0]
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Желтый
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/green_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Solid
+                      rgb_color: [0, 255, 0]
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Зеленый
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/blue_lr_wled_panel'' }}'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_panel
+                    data:
+                      effect: Solid
+                      rgb_color: [0, 0, 255]
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Синий
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/default_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Default
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Default
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/analogous_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Analogous
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Analogous
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/april_night_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: April Night
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет April Night
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/aqua_flash_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Aqua Flash
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Aqua Flash
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/atlantica_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Atlantica
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Atlantica
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color 
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/aurora_2_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Aurora 2
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Aurora 2
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/autumn_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Autumn
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Autumn
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/beach_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Beach
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Beach
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/blink_red_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Blink Red
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Blink Red
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color 
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/c9_new_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: C9 New
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет C9 New
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/candy_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Candy
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Candy
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/drywet_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Drywet
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Drywet
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/fire_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Fire
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Fire
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/forest_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Forest
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Forest
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/hult_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Hult
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Hult
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/icefire_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Icefire
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Icefire
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/lava_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Lava
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Lava
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/magenta_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Magenta
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Magenta
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/magred_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Magred
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Magred
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/orangery_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Orangery
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Orangery
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/party_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Party
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Party
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/pastel_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Pastel
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Pastel
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/pink_candy_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Pink Candy
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Pink Candy
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/rainbowcolor_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Rainbow
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Rainbow
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/red_flash_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Red Flash
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Red Flash
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/red_reaf_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Red Reaf
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Red Reaf
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/semi_blue_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Semi Blue
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Semi Blue
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/sherbet_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Sherbet
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Sherbet
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/sunset_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Sunset
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Sunset
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/tertiary_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Tertiary
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Tertiary
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color 
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/tiamat_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Tiamat
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Tiamat
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color 
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/toxy_reaf_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Toxy Reaf
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Toxy Reaf
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/vintage_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Vintage
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Vintage
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/yelblu_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Yelblu
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Yelblu
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/yelblu_hot_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Yelblu Hot
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Yelblu Hot
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color
+                      
+              - conditions:
+                  - condition: template
+                    value_template: '{{ trigger.event.data.command == ''/yelmag_lr_wled_panel'' }}'
+                  - condition: state
+                    entity_id: light.lr_wled_panel
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    data:
+                      option: Yelmag
+                    target:
+                      entity_id: select.lr_wled_panel_color_palette
+                  - delay: 00:00:01
+                  - service: telegram_bot.answer_callback_query
+                    data:
+                      callback_query_id: "{{ trigger.event.data.id }}"
+                      message: | 
+                          {{"\U0001F4AC"}} WLED в гостиной - установлен цвет Yelmag
+                  - service: telegram_bot.delete_message
+                    data_template:
+                      message_id: '{{ trigger.event.data.message.message_id }}'
+                      chat_id: '{{ trigger.event.data.chat_id }}'
+                  - service: telegram_bot.send_message
+                    data:
+                      target: '{{ trigger.event.data.chat_id }}'
+                      message: *msg_lr_wled_color
+                      inline_keyboard: *keyb_lr_wled_color

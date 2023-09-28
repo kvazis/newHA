@@ -1,0 +1,54 @@
+tt_sensors:
+
+    recorder:
+      include:
+        entities:
+           - sensor.0xec1bbdfffe6f3394_temperature
+           - sensor.0xec1bbdfffe6f3394_humidity
+           - binary_sensor.0x00158d0001a24e71_occupancy
+
+    homeassistant:
+      customize:
+
+        sensor.0xec1bbdfffe6f3394_humidity:
+          friendly_name:  Туалет, влажность
+          icon: mdi:water-percent
+          unit_of_measurement: '%'
+        sensor.0xec1bbdfffe6f3394_temperature:
+          friendly_name:  Туалет, температура
+          icon: mdi:temperature-celsius
+          unit_of_measurement: '°C'
+        sensor.0xec1bbdfffe6f3394_raw_humidity:
+          friendly_name:  Туалет, влажность
+          icon: mdi:water-percent
+          unit_of_measurement: '%'
+        sensor.0xec1bbdfffe6f3394_raw_temperature:
+          friendly_name:  Туалет, температура
+          icon: mdi:temperature-celsius
+          unit_of_measurement: '°C'
+        sensor.0xec1bbdfffe6f3394_battery:
+          friendly_name:  Туалет, климат
+          
+    template:
+    
+      - binary_sensor:
+      
+          - name: '0x00158d0001a24e71_occupancy'
+            unique_id: '0x00158d0001a24e71_occupancy'
+            state: >
+              {{is_state("binary_sensor.0x00158d0001a24e71_raw_occupancy", "on")}}
+            device_class: occupancy
+            
+      - sensor:
+
+          - name: '0xec1bbdfffe6f3394_temperature'
+            unique_id: '0xec1bbdfffe6f3394_temperature'
+            state: >
+                {{ states('sensor.0xec1bbdfffe6f3394_raw_temperature')|float(0) }}
+            device_class: temperature
+                
+          - name: '0xec1bbdfffe6f3394_humidity'
+            unique_id: '0xec1bbdfffe6f3394_humidity'
+            state: >
+                {{ states('sensor.0xec1bbdfffe6f3394_raw_humidity')|float(0) }}
+            device_class: humidity

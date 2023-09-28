@@ -1,0 +1,207 @@
+da_cicle_light_color:
+
+    # input_boolean:
+    
+    #   da_cicle_light_color:
+    #     name: DA LED лента циклический цвет
+    #     icon: mdi:palette
+        
+    input_select:  
+    
+      da_cicle_light_color:
+        name: DA LED лента циклический цвет
+        options:
+          - red
+          - lightsalmon
+          - khaki
+          - palegreen
+          - paleturquoise
+          - slateblue
+          - mediumpurple
+          - indigo
+          - darkviolet
+          - navy
+          - orchid
+          - lightslategrey
+          - blueviolet
+          - darkorchid
+          - lightgreen
+          - lemonchiffon
+          - plum
+          - springgreen
+          - darkslategray
+          - cornflowerblue
+          - lightsalmon
+          - thistle
+          - darkred
+          - lightcoral
+          - cyan
+          - snow
+
+
+
+        #   - crimson
+        #   - deeppink
+        #   - hotpink
+        #   - lightpink
+        #   - red
+        #   - orangered
+        #   - orange
+        #   - lightsalmon
+        #   - darksalmon
+        #   - coral
+        #   - goldenrod
+        #   - gold
+        #   - yellow
+        #   - yellowgreen
+        #   - greenyellow
+        #   - limegreen
+        #   - lime
+        #   - lawngreen
+        #   - green
+        #   - aquamarine
+        #   - mediumturquoise
+        #   - turquoise
+        #   - darkturquoise
+        #   - deepskyblue
+        #   - dodgerblue
+        #   - royalblue
+        #   - blue
+        #   - darkblue
+        #   - darkslateblue
+        #   - darkmagenta
+        #   - darkorchid
+        #   - blueviolet
+        #   - mediumpurple
+        #   - purple
+        #   - mediumorchid
+        #   - orchid
+        #   - plum
+        #   - violet
+        #   - fuchsia
+        #   - magenta
+        #   - darkviolet
+        #   - mediumvioletred
+
+
+        
+    mqtt:
+      binary_sensor:
+        - name: da_cicle_light_color
+          state_topic: "states/da_cicle_light_color"
+        
+    switch:
+
+      - platform: template
+        switches:
+          da_cicle_light_color:
+            friendly_name: "DA LED лента циклический цвет"
+            value_template: "{{  is_state('binary_sensor.da_cicle_light_color', 'on') }}"
+            turn_on:
+              service: mqtt.publish
+              data_template:
+                topic: "states/da_cicle_light_color"
+                payload_template: 'ON'
+                retain: true 
+            turn_off:
+              service: mqtt.publish
+              data_template:
+                topic: "states/da_cicle_light_color"
+                payload_template: 'OFF'
+                retain: true 
+            icon_template: mdi:palette
+          
+    automation:
+
+      - alias: dа_light_led_strip_cycle
+        id: dа_light_led_strip_cycle
+        description: Детская А, старт стоп режима циклической подсветки ленты
+        initial_state: true
+        trigger:
+    # Кнопка на столе
+        - platform: state
+          entity_id: sensor.0x00158d000186d9a9_action
+          to: 'double'
+    # Aqara Opple
+        - platform: state
+          entity_id: sensor.0x54ef4410004c16d9_action
+          to: 'button_1_double' 
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: switch.toggle
+          target:
+            entity_id: switch.da_cicle_light_color
+
+      - alias: dа_light_led_strip_color_sync
+        id: dа_light_led_strip_color_sync
+        description: Детская А, синхронизация цвета списка и ленты
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: input_select.da_cicle_light_color
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.turn_on
+          entity_id: light.da_led_strip
+          data_template:
+            color_name: >
+              {{trigger.to_state.state}}
+            transition: 2
+
+      - alias: dа_light_led_strip_color_toggle
+        id: dа_light_led_strip_color_toggle
+        description: Детская А, переключение режима циклической подсветки ленты
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: switch.da_cicle_light_color
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - choose:
+            - conditions:
+              - condition: state
+                entity_id: switch.da_cicle_light_color
+                state: 'on'  
+              sequence:
+              - service: light.turn_on
+                entity_id: light.da_led_strip
+                data_template:
+                  color_name: >
+                    {{states('input_select.da_cicle_light_color')}}
+                  transition: 2
+
+            - conditions:
+              - condition: state
+                entity_id: switch.da_cicle_light_color
+                state: 'off'  
+              sequence:
+              - service: light.turn_off
+                entity_id: light.da_led_strip
+
+      - alias: dа_light_led_strip_color_change
+        id: dа_light_led_strip_color_change
+        description: Детская А, переключение элементов списка циклической подсветки
+        initial_state: true
+        trigger:
+        - platform: time_pattern
+          seconds: '/5'
+        condition:
+        - condition: state
+          entity_id: switch.da_cicle_light_color
+          state: 'on'
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: input_select.select_next
+          target:
+            entity_id: input_select.da_cicle_light_color

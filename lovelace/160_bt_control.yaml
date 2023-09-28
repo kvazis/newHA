@@ -1,0 +1,628 @@
+##################  Bathroom
+title: Ванная комната
+icon: mdi:shower
+cards:
+
+############################ Колонка 1 ############################
+
+    - type: vertical-stack
+      cards:
+      
+
+        - type: markdown
+          style: |
+              ha-card {
+                color: #f8ffd8;
+                --paper-item-icon-color: #f8ffd8;
+                --paper-item-icon-active-color: #f8ffd8;
+                font-weight: bold;
+                font-size: 26px;
+              }          
+          content: >
+             **Управление**
+             
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Освещение**
+
+
+            - type: horizontal-stack
+              cards:
+                - type: button
+                  name: Ванная люстра
+                  entity: light.bt_ceiling_light
+                  tap_action:
+                    action: toggle
+
+                - type: button
+                  name: УФ лампа
+                  entity: light.sterilization_germicidal_lamp_switch_status
+                  tap_action:
+                    action: toggle
+             
+            - type: conditional
+              conditions:
+                - entity: light.bt_ceiling_light
+                  state: "on"
+              card:
+                  type: custom:mushroom-light-card
+                  entity: light.bt_ceiling_light
+                  name: Люстра
+                  icon_type: none
+                  primary_info: name
+                  secondary_info: none
+                  use_light_color: true
+                  show_brightness_control: true
+                  show_color_temp_control: true
+                  show_color_control: false
+                  collapsible_controls: true
+
+            - type: conditional
+              conditions:
+                - entity: light.bt_ceiling_light
+                  state: "on"
+              card:
+                  type: custom:timer-bar-card
+                  entities:
+                  - entity: timer.bt_light
+                    name: Осталось - 
+                  modifications:
+                  - elapsed: 30%
+                    bar_foreground: yellow
+                  - elapsed: 60%
+                    bar_foreground: orange
+                  - elapsed: 90%
+                    bar_foreground: red
+                  bar_height: 20px
+                  sync_issues: ignore
+                  invert: true
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+            - type: glance
+              show_state: true
+              show_name: true
+              state_color: true
+              entities:
+              - entity: binary_sensor.bt_light_on
+                name: Свет днем
+              - entity: binary_sensor.bt_light_night_on
+                name: Свет ночью
+
+
+
+    
+            # - type: custom:flipdown-timer-card
+            #   entity: timer.bt_light
+            #   show_hour: false
+            #   show_title: false
+            #   show_header: false
+            #   theme: dark
+            #   duration: "01:00:00"
+            #   localize:
+            #     button: start, stop, cancel, resume, reset
+            #     header: Hours, Minutes, Seconds
+            #   styles:
+            #     rotor:
+            #       width: 60px
+            #       height: 80px
+            #     button:
+            #       width: 60px
+            #       location: hide
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: switch.0x00158d0001117040_right
+                  state_color: true
+                  name: Питание люстры
+                - entity: switch.0x00158d0001117040_left
+                  state_color: true
+                  name: Вентилятор              
+             
+                - entity: switch.0x00158d0003584401
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Бойлер
+                  secondary_info: last-changed
+                  state_header: Питание
+                  entities:
+                  - entity: sensor.0x00158d0003584401_meter
+                    name: Потреблено за месяц
+                    unit: 'кВт·ч'
+                  - attribute: power
+                    name: Мощность
+                    unit: 'Ватт'
+            
+                - entity: switch.0x540f57fffe78ba20
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Розетка
+                  secondary_info: last-changed
+                  state_header: Питание
+                  entities:
+                  - entity: sensor.0x540f57fffe78ba20_meter
+                    name: Потреблено за месяц
+                    unit: 'кВт·ч'
+                  - attribute: power
+                    name: Мощность
+                    unit: 'Ватт'
+
+            - type: conditional
+              conditions:
+                - entity: timer.bt_vent
+                  state: "active"
+              card:
+                  type: custom:timer-bar-card
+                  entity: timer.bt_vent
+                  bar_height: 20px
+                  mushroom:
+                    layout: horizontal
+                    icon_color: green
+                    icon_type: none
+                  invert: true
+                  sync_issues: ignore
+                  modifications:
+                  - elapsed: 30%
+                    bar_foreground: yellow
+                  - elapsed: 60%
+                    bar_foreground: orange
+                  - elapsed: 90%
+                    bar_foreground: red
+
+
+############################ Колонка 2 ############################
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Мониторинг**
+             
+        - type: glance
+          show_state: true
+          show_name: true
+          state_color: true
+          entities:
+          - entity: binary_sensor.0x00158d0001d72fa2_water_leak
+            name: Раковина
+          - entity: binary_sensor.0x00158d0001bb60c2_water_leak
+            name: Душевая
+          - entity: binary_sensor.0x00158d0001e547a3_occupancy
+            name: Движение
+          - entity: binary_sensor.0x00158d00054495dc_contact
+            name: Дверь
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: custom:stack-in-card
+              mode: horizontal
+              cards:
+                - type: sensor
+                  entity: sensor.0x00158d0001dcd47e_temperature
+                  name: Температура
+                  graph: none
+              
+                - type: sensor
+                  entity: sensor.0x00158d0001dcd47e_humidity
+                  name: Влажность
+                  graph: none
+
+            - type: custom:history-explorer-card
+              header: hide
+              defaultTimeRange: 1d
+              decimation: true
+              uimode: dark
+              labelsVisible: false
+              stateColors:
+                off: red
+                on: green
+              uiLayout:
+                toolbar: top
+                selector: hide
+              graphs:
+              - type: line
+                # title: Температура
+                entities:
+                  - entity: sensor.0x00158d0001dcd47e_temperature
+                    color: rgb(255,239,97)
+                    fill: rgba(255,239,97,0.05)
+              - type: line
+                # title: Влажность
+                entities:
+                  - entity: sensor.0x00158d0001dcd47e_humidity
+                    color: rgb(0,250,255)
+                    fill: rgba(0,250,255,0.05)
+
+############################ Колонка 3 ############################
+
+    - type: vertical-stack
+      cards:
+      
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: sensor.custom_time
+                - entity: switch.0x00158d0003584401_mode
+
+                - entity: switch.0x00158d0003584401
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Бойлер
+                  secondary_info: last-changed
+                  state_header: Питание
+                  entities:
+                  - entity: sensor.0x00158d0003584401_timer_manual
+                    name: Таймер M
+                #   - entity: sensor.0x00158d0003584401_meter_day
+                #     name: День
+                #     unit: 'кВт·ч'
+                #   - entity: sensor.0x00158d0003584401_meter_night
+                #     name: Ночь
+                #     unit: 'кВт·ч'
+                  - attribute: power
+                    name: Мощность
+                    unit: 'Ватт'
+
+
+            - type: conditional
+              conditions:
+                - entity: switch.0x00158d0003584401
+                  state: "on"
+              card:
+                  type: custom:timer-bar-card
+                  entities:
+                  - entity: timer.0x00158d0003584401
+                    name: Осталось - 
+                  modifications:
+                  - elapsed: 30%
+                    bar_foreground: yellow
+                  - elapsed: 60%
+                    bar_foreground: orange
+                  - elapsed: 90%
+                    bar_foreground: red
+                  bar_height: 20px
+                  sync_issues: ignore
+                  invert: true
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: input_datetime.0x00158d0003584401_period
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_period_1
+                  icon: mdi:numeric-1-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_period_1
+
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_period_2
+                  icon: mdi:numeric-2-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_period_2
+
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_period_3
+                  icon: mdi:numeric-3-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_period_3
+                      
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_period_4
+                  icon: mdi:numeric-4-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_period_4
+
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_period_5
+                  icon: mdi:numeric-5-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_period_5
+                      
+            - type: entities
+              show_header_toggle: false
+              entities:
+                - entity: input_datetime.0x00158d0003584401_timer
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_timer_1
+                  icon: mdi:numeric-1-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_timer_1
+
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_timer_2
+                  icon: mdi:numeric-2-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_timer_2
+
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_timer_3
+                  icon: mdi:numeric-3-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_timer_3
+                      
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_timer_4
+                  icon: mdi:numeric-4-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_timer_4
+
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_timer_5
+                  icon: mdi:numeric-5-circle
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_timer_5
+
+                - type: custom:mushroom-template-card
+                  layout: horizontal
+                  entity: input_button.0x00158d0003584401_timer_manual
+                  icon: mdi:alpha-m-circle-outline
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.0x00158d0003584401_timer_manual
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+
+                - entity: switch.0x00158d0003584401_period_1_mode
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Период 1
+                  secondary_info: last-changed
+                  state_header: Активность
+                  entities:
+                  - entity: sensor.0x00158d0003584401_timer_1
+                    name: Таймер
+                  - entity: sensor.0x00158d0003584401_period_1
+                    name: Старт
+                    
+                - entity: switch.0x00158d0003584401_period_2_mode
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Период 2
+                  secondary_info: last-changed
+                  state_header: Активность
+                  entities:
+                  - entity: sensor.0x00158d0003584401_timer_2
+                    name: Таймер
+                  - entity: sensor.0x00158d0003584401_period_2
+                    name: Старт
+                    
+                - entity: switch.0x00158d0003584401_period_3_mode
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Период 3
+                  secondary_info: last-changed
+                  state_header: Активность
+                  entities:
+                  - entity: sensor.0x00158d0003584401_timer_3
+                    name: Таймер
+                  - entity: sensor.0x00158d0003584401_period_3
+                    name: Старт
+                    
+                - entity: switch.0x00158d0003584401_period_4_mode
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Период 4
+                  secondary_info: last-changed
+                  state_header: Активность
+                  entities:
+                  - entity: sensor.0x00158d0003584401_timer_4
+                    name: Таймер
+                  - entity: sensor.0x00158d0003584401_period_4
+                    name: Старт
+                    
+                - entity: switch.0x00158d0003584401_period_5_mode
+                  type: custom:multiple-entity-row
+                  toggle: true
+                  state_color: true
+                  name: Период 5
+                  secondary_info: last-changed
+                  state_header: Активность
+                  entities:
+                  - entity: sensor.0x00158d0003584401_timer_5
+                    name: Таймер
+                  - entity: sensor.0x00158d0003584401_period_5
+                    name: Старт
+
+############################ Колонка 4 ############################
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Беспроводные устройства**
+             
+        - type: entities
+          show_header_toggle: false
+          entities:
+            - entity: sensor.0x00158d0001d72fa2_battery
+              type: custom:multiple-entity-row
+              icon: mdi:water
+              state_color: true
+              name: Протечка, раковина
+              secondary_info: last-changed
+              state_header: Батарейка
+              entities:
+              - attribute: linkquality
+                name: Сигнал 
+            - type: divider
+            - entity: sensor.0x00158d0001bb60c2_battery
+              type: custom:multiple-entity-row
+              icon: mdi:water
+              state_color: true
+              name: Протечка, душевая
+              secondary_info: last-changed
+              state_header: Батарейка
+              entities:
+              - attribute: linkquality
+                name: Сигнал 
+            - type: divider
+            - entity: sensor.0x00158d0001e547a3_battery
+              type: custom:multiple-entity-row
+              icon: mdi:run
+              state_color: true
+              name: Датчик движения
+              secondary_info: last-changed
+              state_header: Батарейка
+              entities:
+              - attribute: linkquality
+                name: Сигнал          
+            - type: divider
+            - entity: sensor.0x00158d0001dcd47e_battery
+              type: custom:multiple-entity-row
+              icon: mdi:coolant-temperature
+              state_color: true
+              name: Датчик климата
+              secondary_info: last-changed
+              state_header: Батарейка
+              entities:
+              - attribute: linkquality
+                name: Сигнал
+            - type: divider 
+            - entity: sensor.0x00158d00054495dc_battery
+              type: custom:multiple-entity-row
+              icon: mdi:door
+              state_color: true
+              name: Датчик открытия, дверь
+              secondary_info: last-changed
+              state_header: Батарейка
+              entities:
+              - attribute: linkquality
+                name: Сигнал
+            - type: divider
+            - entity: sensor.0x00158d000238a140_battery
+              type: custom:multiple-entity-row
+              icon: mdi:light-switch
+              state_color: true
+              name: Беспроводный выключатель
+              secondary_info: last-changed
+              state_header: Батарейка
+              entities:
+              - attribute: linkquality
+                name: Сигнал
+

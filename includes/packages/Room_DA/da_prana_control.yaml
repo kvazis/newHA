@@ -1,0 +1,232 @@
+da_prana_control:
+
+    template:
+     
+      - sensor:
+ 
+          - name: da_prana_state
+            state: >
+                {% if states('sensor.0x04cf8cdf3c764e0a_power')|float < 2 %}
+                off
+                {% elif states('sensor.0x04cf8cdf3c764e0a_power')|float > 2
+                   and states('sensor.0x04cf8cdf3c764e0a_power')|float < 3 %}
+                night
+                {% else %}
+                auto
+                {% endif %}
+
+
+    mqtt:
+      binary_sensor:
+        - name: da_prana_mode
+          state_topic: "states/da_prana_mode"
+
+    switch:
+    
+      - platform: template
+        switches:
+
+          da_prana_mode:
+            friendly_name: "ДА, рекуператор, режим работы"
+            value_template: "{{ is_state('binary_sensor.da_prana_mode', 'on') }}"
+            turn_on:
+              service: mqtt.publish
+              data_template:
+                topic: "states/da_prana_mode"
+                payload_template: 'ON'
+                retain: true 
+            turn_off:
+              service: mqtt.publish
+              data_template:
+                topic: "states/da_prana_mode"
+                payload_template: 'OFF'
+                retain: true 
+            icon_template: >-
+              {% if is_state('switch.da_prana_mode', 'on') %}
+                mdi:hvac
+              {% else %}
+                mdi:hvac-off
+              {% endif %}
+
+
+    input_button:
+
+      da_prana_auto:
+        name: Детская А, рекуператор авто
+        
+      da_prana_night:
+        name: Детская А, рекуператор ночной
+        
+      da_prana_off:
+        name: Детская А, рекуператор выкл
+
+
+    automation:
+
+      - alias: da_prana_manual_control
+        id: da_prana_manual_control
+        description: Детская A - управление рекуператором
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка авто
+        - platform: state
+          entity_id: input_button.da_prana_auto
+          id: da_prana_auto
+    ## Виртуальная кнопка ночной
+        - platform: state
+          entity_id: input_button.da_prana_night
+          id: da_prana_night
+    ## Виртуальная кнопка выкл
+        - platform: state
+          entity_id: input_button.da_prana_off
+          id: da_prana_off
+        condition:
+    ## Режим работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    ## Режим работы рекуператора
+        - condition: state
+          entity_id: switch.da_prana_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: da_prana_auto
+                sequence:
+                  - service: mqtt.publish
+                    data:
+                      topic: zigstar_poe/DA IR base/set
+                      payload: >-
+                        {"ir_code_to_send":"DUYjXRE4AjgCXQJzBjgCwAHgAwsEOAJdAjhgAQFdAsAXQAdAA+ADAQRzBl0COKABQAsBcwZABwE4AkAB4AMHwAsLOAI4AjgCOAJzBjgC"}
+                  - delay: 00:00:05
+                  - service: mqtt.publish
+                    data:
+                      topic: zigstar_poe/DA IR base/set
+                      payload: >-
+                        {"ir_code_to_send":" "}
+
+              - conditions:
+                  - condition: trigger
+                    id: da_prana_night
+                sequence:
+                  - service: mqtt.publish
+                    data:
+                      topic: zigstar_poe/DA IR base/set
+                      payload: >-
+                        {"ir_code_to_send":"DT0jVxFaAhMCWgJuBloCQAdAA+ADC0APwAPAF0AHQAMAE2ABAVoCgAuAB+AHC+ADD0AjQAPAE0ALCxMCWgL7pz0joQgTAg=="}
+                  - delay: 00:00:05
+                  - service: mqtt.publish
+                    data:
+                      topic: zigstar_poe/DA IR base/set
+                      payload: >-
+                        {"ir_code_to_send":" "}
+                        
+              - conditions:
+                  - condition: trigger
+                    id: da_prana_off
+                sequence:
+                  - service: mqtt.publish
+                    data:
+                      topic: zigstar_poe/DA IR base/set
+                      payload: >-
+                        {"ir_code_to_send":"BfQichE8AkABA3EGPALAAeADC+ADAcAXQAdAA+AHAUATQANAAUAH4AcDBDwCYQI8IAFAFws8AjwCPAI8AjwCPAI="}
+                  - delay: 00:00:05
+                  - service: mqtt.publish
+                    data:
+                      topic: zigstar_poe/DA IR base/set
+                      payload: >-
+                        {"ir_code_to_send":" "}
+                        
+                        
+      - alias: da_prana_auto_control
+        id: da_prana_auto_control
+        description: Детская A - автоматика рекуператора
+        initial_state: true
+        trigger:
+    ## Утро
+        - platform: time
+          at: '09:30:00'
+          id: morning
+    ## Вечер
+        - platform: time
+          at: '21:00:00'
+          id: evening
+        condition:
+    ## Режим работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    ## Режим работы рекуператора
+        - condition: state
+          entity_id: switch.da_prana_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: morning
+                sequence:
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.da_prana_off
+                  - delay: 00:00:30
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.da_prana_auto
+                  - delay: 00:00:15
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.da_prana_auto
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                          - !secret chat_id_log
+                      message: | 
+                           {{"\U0001F916"}} Детская A - автоматика рекуператора {{ states('sensor.time_date') }} 
+                           {{"\U0001F4AC"}} Режим Auto +
+
+
+              - conditions:
+                  - condition: trigger
+                    id: evening
+                sequence:
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.da_prana_off
+                  - delay: 00:00:15
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.da_prana_night
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                          - !secret chat_id_log
+                      message: | 
+                           {{"\U0001F916"}} Детская A - автоматика рекуператора {{ states('sensor.time_date') }} 
+                           {{"\U0001F4AC"}} Режим Night
+
+
+
+
+    # script:
+    
+    #   da_prana_auto_control:
+    #     alias: автоматика рекуператора
+    #     sequence:
+    #       - service: input_button.press
+    #         target:
+    #             entity_id: input_button.da_prana_off
+    #       - delay: 00:00:15
+    #       - service: input_button.press
+    #         target:
+    #             entity_id: input_button.da_prana_night
+    #       - service: telegram_bot.send_message
+    #         data_template:
+    #           target:
+    #               - !secret chat_id_log
+    #           message: | 
+    #               {{"\U0001F916"}} Детская A - автоматика рекуператора {{ states('sensor.time_date') }} 
+    #               {{"\U0001F4AC"}} Режим Night
+

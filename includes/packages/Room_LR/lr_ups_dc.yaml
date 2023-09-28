@@ -1,0 +1,583 @@
+lr_ups_dc:
+
+    recorder:
+      include:
+        entities:
+          - sensor.lr_ups_dc_voltage
+          - sensor.lr_ups_dc_current
+          - sensor.lr_ups_dc_power
+          - sensor.lr_ups_dc_energy
+          - sensor.lr_ups_dc_level         
+          - sensor.lr_ups_dc_state
+          - binary_sensor.0xa4c1389d8b41b47d_power
+          - binary_sensor.lr_ups_dc_treshold
+
+    homeassistant:
+      customize:
+
+        binary_sensor.0xa4c1389d8b41b47d_power:
+          friendly_name: LR DC UPS сенсор питания
+
+        binary_sensor.lr_ups_dc_treshold:
+          friendly_name: LR DC UPS трешхолд
+
+        switch.0xa4c138716822e6a7:
+          friendly_name: LR DC UPS, питание на БП
+          icon: phu:socket-eu
+          
+        sensor.0xa4c138716822e6a7_voltage:
+          friendly_name: LR DC UPS, напряжение на БП
+          
+        sensor.0xa4c138716822e6a7_power:
+          friendly_name: LR DC UPS, мощность на БП
+
+        sensor.0xa4c138716822e6a7_energy:
+          friendly_name: LR DC UPS, энергия БП
+
+        sensor.lr_ups_dc_voltage:
+          friendly_name: LR DC UPS, напряжение
+          device_class: voltage
+          unit_of_measurement: V
+          
+        sensor.lr_ups_dc_current:
+          friendly_name: LR DC UPS, ток
+          device_class: current
+          unit_of_measurement: A
+
+        sensor.lr_ups_dc_power:
+          friendly_name: LR DC UPS, мощность
+          device_class: power
+          unit_of_measurement: W
+          
+        sensor.lr_ups_dc_energy:
+          friendly_name: LR DC UPS, энергия
+          device_class: energy
+          unit_of_measurement: Wh
+
+        sensor.lr_ups_dc_level:
+          friendly_name: LR DC UPS, заряд
+          device_class: battery
+          unit_of_measurement: "%"
+
+        sensor.lr_ups_dc_state:
+          friendly_name: LR DC UPS, состояние
+
+    input_number:
+      lr_ups_dc_max:
+        name: Напряжение заряда
+        min: 10
+        max: 20
+        step: 0.1
+      lr_ups_dc_min:
+        name: Напряжение отключения
+        min: 10
+        max: 20
+        step: 0.1
+      lr_ups_dc_capacity:
+        name: Реальная емкость
+        min: 50
+        max: 150
+
+
+    input_datetime:
+      lr_ups_dc_start:
+        name: Старт
+        has_date: true
+        has_time: true
+        
+      lr_ups_dc_stop:
+        name: Стоп
+        has_date: true
+        has_time: true
+
+    input_button:
+
+      lr_ups_dc_clear:
+        name: Сброс энергии
+
+    mqtt:
+      binary_sensor:
+        - name: lr_ups_dc_test
+          state_topic: "states/lr_ups_dc_test"
+          
+        - name: lr_ups_dc_fuse
+          state_topic: "states/lr_ups_dc_fuse"
+
+      sensor:
+        - name: lr_ups_dc_power_temp
+          state_topic: "states/lr_ups_dc_power"
+
+    switch:
+    
+      - platform: template
+        switches:
+
+          lr_ups_dc_test:
+            friendly_name: "Гостиная, DC UPS тест"
+            value_template: "{{ is_state('binary_sensor.lr_ups_dc_test', 'on') }}"
+            turn_on:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_ups_dc_test"
+                payload_template: 'ON'
+                retain: true 
+            turn_off:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_ups_dc_test"
+                payload_template: 'OFF'
+                retain: true 
+
+          lr_ups_dc_fuse:
+            friendly_name: "Гостиная, DC UPS предохранитель"
+            value_template: "{{ is_state('binary_sensor.lr_ups_dc_fuse', 'on') }}"
+            turn_on:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_ups_dc_fuse"
+                payload_template: 'ON'
+                retain: true 
+            turn_off:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_ups_dc_fuse"
+                payload_template: 'OFF'
+                retain: true 
+            icon_template: >-
+              {% if is_state('switch.lr_ups_1_fuse', 'on') %}
+                mdi:fuse
+              {% else %}
+                mdi:fuse-off
+              {% endif %}
+
+    template:
+
+      - binary_sensor:
+
+        #   - name: lr_ups_dc_electricity
+        #     state: >
+        #       {{ is_state('binary_sensor.0xa4c138135e284964', 'off')
+        #          or is_state('binary_sensor.lr_ups_dc_test', 'on')
+        #       }}
+
+
+          - name: lr_ups_dc_treshold
+            state: >
+              {{ is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'on')
+                and is_state("sensor.lr_ups_dc_state", "Батарея заряжена") }}
+            delay_on: 00:00:10
+        #     delay_off: 00:00:45
+
+      - sensor:
+
+          - name: lr_ups_dc_energy
+            state: >
+                 {{ ((states('sensor.0x00124b00199e40bf_val5_l2')|float) - (states('sensor.lr_ups_dc_power_temp')|float)) |round(2) }}
+
+          - name: lr_ups_dc_voltage
+            state: >
+                {{ ((states('sensor.0x00124b00199e40bf_val1_l2')|float)/100) |round(2) }}
+
+          - name: lr_ups_dc_current
+            state: >
+                {{ ((states('sensor.0x00124b00199e40bf_val2_l2')|float)/100) |round(2) }}
+            
+          - name: lr_ups_dc_power
+            state: >
+                {{ ((states('sensor.0x00124b00199e40bf_val3_l2')|float)/10) |round(2) }}
+            
+        #   - name: lr_ups_dc_energy
+        #     state: >
+        #         {{ ((states('sensor.0x00124b00199e40bf_val5_l2')|float)) |round(2) }}
+                
+          - name: lr_ups_dc_level
+            state: >
+                {% set vmax = states('input_number.lr_ups_dc_max') | float %}
+                {% set cmax = states('input_number.lr_ups_dc_capacity') | float %}
+                {% set vrange = (states('input_number.lr_ups_dc_max') | float - states('input_number.lr_ups_dc_min') | float) %}
+                {% set vavr = ((states('input_number.lr_ups_dc_max') | float + states('input_number.lr_ups_dc_min') | float))/2 %}
+
+                {% if states('sensor.lr_ups_dc_current') | float  <= 0.05 | float 
+                   and is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'on') %}
+                100
+
+                {% elif states('sensor.lr_ups_dc_voltage') | float  >= vmax | float 
+                   and states('sensor.lr_ups_dc_current') | float  > 0.05 | float 
+                   and is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'on') %}
+                99
+
+                {% elif states('sensor.lr_ups_dc_current') | float  > 0.05 | float 
+                   and is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'on') %}                   
+                {{ (100 - (vmax - states('sensor.lr_ups_dc_voltage')|float)*100/vrange)|round(2) }}
+
+                {% elif is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'off') %}
+                {{ (100 - (states('sensor.lr_ups_dc_energy')|float)*100/cmax)|round(2) }} 
+
+                {% elif states('sensor.lr_ups_dc_voltage') | float  < vavr | float 
+                   and states('sensor.lr_ups_dc_current') | float  <= 0.05 | float 
+                   and is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'off') %}
+                0
+                {% endif %}
+
+          - name: lr_ups_dc_state
+            state: >
+                {% if is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'on')
+                   and states('sensor.lr_ups_dc_current') | float  <= 0.05 %}
+                Батарея заряжена
+                {% elif is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'on')
+                   and is_state('binary_sensor.lr_ups_dc_test', 'off')
+                   and states('sensor.lr_ups_dc_current') | float  > 0.05  %}
+                Батарея заряжается
+                {% elif is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'on')
+                   and is_state('binary_sensor.lr_ups_dc_test', 'on')  %}
+                Работа от аккумулятора
+                {% elif is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'off')
+                   and states('sensor.lr_ups_dc_level') | float > 10 %}
+                Работа от аккумулятора
+                {% elif is_state('binary_sensor.0xa4c1389d8b41b47d_power', 'off')
+                   and states('sensor.lr_ups_dc_level') | float <= 10 %}
+                Низкий уровень заряда
+                {% endif %}
+            icon: >
+              {% if is_state("sensor.lr_ups_dc_state", "Батарея заряжена") %}
+              mdi:power-plug-battery
+              {% elif is_state("sensor.lr_ups_dc_state", "Батарея заряжается") %}
+              mdi:battery-charging-high
+              {% elif is_state("sensor.lr_ups_dc_state", "Работа от аккумулятора") %}
+              mdi:battery-medium
+              {% elif is_state("sensor.lr_ups_dc_state", "Низкий уровень заряда") %}
+              mdi:battery-low
+              {% endif %}
+                
+    automation:
+
+### Автовключение розетки в случае случайного отключения
+      - alias: lr_dc_ups_turn_on
+        id: lr_dc_ups_turn_on
+        description: Гостиная автовключение LR DC UPS
+        initial_state: true
+        trigger:
+    # Выключение выключателя
+        - platform: state
+          entity_id: switch.0xa4c138716822e6a7
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Переключатель тестового прогона
+        - condition: state
+          entity_id: switch.lr_ups_dc_test
+          state: 'off'
+        action:
+    # Включение
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0xa4c138716822e6a7
+    
+### Сброс счетчика энергии
+      - alias: lr_dc_ups_energy_clear
+        id: lr_dc_ups_energy_clear
+        description: Сброс счетчика энергии LR DC UPS
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_ups_dc_clear
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        # - service: mqtt.publish
+        #   data:
+        #     topic: zigstar/LR DC UPS 100/set
+        #     payload: "{\"action\": [4,1,66,128,17]}"
+        - service: mqtt.publish
+          data_template:
+            topic: "states/lr_ups_dc_power"
+            payload_template: "{{ ((states('sensor.0x00124b00199e40bf_val5_l2')|float)) |round(2) }}"
+            retain: true 
+            
+
+      - alias: lr_dc_ups_log_work
+        id: lr_dc_ups_log_work
+        description: Логирование работы LR DC UPS
+        initial_state: true
+        trigger:
+    # Изменение сенсора состояния
+        - platform: state
+          entity_id: sensor.lr_ups_dc_state
+        #   not_from:
+        #     - "unknown"
+        #     - "unavailable"
+        #     - "Подзарядка"
+          for:
+            seconds: 10
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Предохранитель
+        - condition: state
+          entity_id: switch.lr_ups_dc_fuse
+          state: 'off'  
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_ups_dc_state
+                    state: "Работа от аккумулятора"
+                  - condition: state
+                    entity_id: switch.lr_ups_dc_test
+                    state: "off"
+                sequence:
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.lr_ups_dc_clear
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.lr_ups_dc_start
+                    data:
+                      datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      message: | 
+                            {{"\U000026A1"}} Отключено внешнее питание в {{ states('sensor.time_date') }}, DC UPS работает от аккумулятора
+
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_ups_dc_state
+                    state: "Работа от аккумулятора"
+                  - condition: state
+                    entity_id: switch.lr_ups_dc_test
+                    state: "on"
+                sequence:
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.lr_ups_dc_clear
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.lr_ups_dc_start
+                    data:
+                      datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      message: | 
+                            {{"\U000026A1"}} Запуск тестового прогона {{ states('sensor.time_date') }}, DC UPS работает от аккумулятора
+
+
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_ups_dc_state
+                    state: "Батарея заряжается"
+                sequence:        
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.lr_ups_dc_stop
+                    data:
+                      datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      message: | 
+                           {{"\U000026A1"}} DC UPS - Питание восстановлено
+                           {% set s = (strptime(states("input_datetime.lr_ups_dc_stop"), "%Y-%m-%d %H:%M:%S").timestamp() | int - strptime(states("input_datetime.lr_ups_dc_start"), "%Y-%m-%d %H:%M:%S").timestamp() | int) %}
+                           {{"\U0000231B"}} {{ 'UPS продержал - {:02d}:{:02d}:{:02d}'.format ( s % 86400 // 3600, s % 3600 // 60, s % 60) }}
+                           {{"\U0001F50B"}} Отдано энергии {{ states('sensor.lr_ups_dc_energy') }} Ватт часов, заряд {{ (100 - (states('sensor.lr_ups_dc_energy')|float)*100/(states('input_number.lr_ups_dc_capacity')|float))|round(2) }}  %
+                  - delay: 00:00:01
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.lr_ups_dc_clear
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.lr_ups_dc_start
+                    data:
+                      datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+ 
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_ups_dc_state
+                    state: "Батарея заряжена"
+                sequence:  
+                  - service: input_datetime.set_datetime
+                    target:
+                      entity_id: input_datetime.lr_ups_dc_stop
+                    data:
+                      datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      message: | 
+                           {{"\U000026A1"}} DC UPS - Батарея заряжена
+                           {% set s = (strptime(states("input_datetime.lr_ups_dc_stop"), "%Y-%m-%d %H:%M:%S").timestamp() | int - strptime(states("input_datetime.lr_ups_dc_start"), "%Y-%m-%d %H:%M:%S").timestamp() | int) %}
+                           {{"\U0000231B"}} {{ 'Аккумулятор заряжался - {:02d}:{:02d}:{:02d}'.format ( s % 86400 // 3600, s % 3600 // 60, s % 60) }}
+                           {{"\U0001F50B"}} Получено энергии {{ states('sensor.lr_ups_dc_energy') }} Ватт часов
+
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_ups_dc_state
+                    state: "Низкий уровень заряда"
+                  - condition: state
+                    entity_id: switch.lr_ups_dc_test
+                    state: "off"
+                sequence:  
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      message: | 
+                           {{"\U000026A1"}} DC UPS. Низкий уровень заряда - {{ states('sensor.lr_ups_dc_level') }} % , время события {{ states('sensor.time_date') }}
+                           {{"\U0001F50B"}} На данный момент отдано энергии {{ states('sensor.lr_ups_dc_energy') }} Ватт часов
+
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_ups_dc_state
+                    state: "Низкий уровень заряда"
+                  - condition: state
+                    entity_id: switch.lr_ups_dc_test
+                    state: "on"                           
+                sequence:  
+                  - service: switch.turn_off
+                    entity_id:
+                      - switch.lr_ups_dc_test  
+
+### Тестовый прогон
+      - alias: lr_dc_ups_testing
+        id: lr_dc_ups_testing
+        description: Гостиная тестирование LR DC UPS
+        initial_state: true
+        trigger:
+    # Ручной запуск теста
+        - platform: state
+          entity_id: switch.lr_ups_dc_test
+          to: 'on'
+          id: manual_start
+    # Ручная остановка теста
+        - platform: state
+          entity_id: switch.lr_ups_dc_test
+          to: 'off'
+          id: manual_stop
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: manual_start
+                sequence:
+                  - service: switch.turn_off
+                    entity_id:
+                      - switch.0xa4c138716822e6a7
+                  - service: input_button.press
+                    target:
+                        entity_id: input_button.lr_ups_dc_clear
+              - conditions:
+                  - condition: trigger
+                    id: manual_stop
+                sequence:
+                  - service: switch.turn_on
+                    entity_id:
+                      - switch.0xa4c138716822e6a7
+                      
+### Срочная остановка тестового прогона
+      - alias: lr_dc_ups_test_stop
+        id: lr_dc_ups_test_stop
+        description: Гостиная остановка теста LR DC UPS
+        initial_state: true
+        trigger:
+    # Воздушная тревога
+        - platform: state
+          entity_id: binary_sensor.m_kiyiv_air
+          to: 'on'                      
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Работает тестовый прогон
+        - condition: state
+          entity_id: switch.lr_ups_dc_test
+          state: 'on'
+        action:
+        - service: switch.turn_off
+          entity_id:
+            - switch.lr_ups_dc_test
+        - service: telegram_bot.send_message
+          data_template:
+            target:
+              - !secret chat_id_log
+            message: | 
+                 {{"\U000026A1"}} LR DC UPS - тестовый прогон принудительно остановлен
+                 
+### Предохранитель от мусорных сообщений
+      - alias: lr_dc_ups_fuse
+        id: lr_dc_ups_fuse
+        description: Гостиная предохранитель LR DC UPS
+        initial_state: true
+        trigger:
+    # Включение предохранителя
+        - platform: state
+          entity_id: binary_sensor.lr_ups_dc_treshold
+          to: 'on'
+          id: fuse_on
+    # Выключение предохранителя
+        - platform: state
+          entity_id: binary_sensor.0xa4c1389d8b41b47d_power
+          to: 'off'
+          id: fuse_off
+    # Выключение предохранителя
+        - platform: state
+          entity_id: switch.lr_ups_dc_test
+          to: 'on'
+          id: fuse_off
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: fuse_on
+                sequence:
+                  - service: switch.turn_on
+                    entity_id:
+                      - switch.lr_ups_dc_fuse
+              - conditions:
+                  - condition: trigger
+                    id: fuse_off
+                sequence:
+                  - service: switch.turn_off
+                    entity_id:
+                      - switch.lr_ups_dc_fuse
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 
+                 

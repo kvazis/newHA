@@ -1,0 +1,60 @@
+bt_sensors:
+
+
+    recorder:
+      include:
+        entities:
+           - sensor.0x00158d0001dcd47e_temperature
+           - sensor.0x00158d0001dcd47e_humidity
+           - binary_sensor.0x00158d0001e547a3_occupancy
+
+    homeassistant:
+      customize:
+        
+        sensor.0x00158d0001dcd47e_humidity:
+          friendly_name: Ванная, влажность
+          icon: mdi:water-percent
+          unit_of_measurement: '%'
+        sensor.0x00158d0001dcd47e_temperature:
+          friendly_name: Ванная, температура
+          icon: mdi:temperature-celsius
+          unit_of_measurement: '°C'
+        sensor.0x00158d0001dcd47e_raw_humidity:
+          friendly_name: Ванная, влажность
+          device_class: humidity
+          icon: mdi:water-percent
+        sensor.0x00158d0001dcd47e_raw_temperature:
+          friendly_name: Ванная, температура
+          device_class: temperature
+          icon: mdi:temperature-celsius
+
+
+
+        sensor.0x00158d0001dcd47e_battery:
+          friendly_name: Ванная, климат
+
+
+    template:
+    
+      - binary_sensor:
+      
+          - name: '0x00158d0001e547a3_occupancy'
+            unique_id: '0x00158d0001e547a3_occupancy'
+            state: >
+              {{is_state("binary_sensor.0x00158d0001e547a3_raw_occupancy", "on")}}
+            device_class: occupancy
+            
+      - sensor:
+
+          - name: '0x00158d0001dcd47e_temperature'
+            unique_id: '0x00158d0001dcd47e_temperature'
+            state: >
+                {{ states('sensor.0x00158d0001dcd47e_raw_temperature')|float(0) }}
+            device_class: temperature
+
+                
+          - name: '0x00158d0001dcd47e_humidity'
+            unique_id: '0x00158d0001dcd47e_humidity'
+            state: >
+                {{ states('sensor.0x00158d0001dcd47e_raw_humidity')|float(0) }}
+            device_class: humidity

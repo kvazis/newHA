@@ -1,0 +1,149 @@
+kn_sensors:
+
+    recorder:
+      include:
+        entities:
+           - binary_sensor.kn_aeration
+           - sensor.0x00158d0001581109_temperature
+           - sensor.0x00158d0001581109_humidity
+           - sensor.0x04cf8cdf3c772379_illuminance_lux
+           - binary_sensor.0x00158d0001ab3350_occupancy
+           - binary_sensor.0x54ef441000118375_occupancy
+           - binary_sensor.0xec1bbdfffe302df1_occupancy
+           - binary_sensor.kn_occupancy
+           - sensor.0x00124b0022027bd2_soil_moisture
+           - sensor.0x00124b0022145bc7_soil_moisture
+           - sensor.0x00124b0022145c90_soil_moisture
+           - sensor.0x00158d000171ffde_temperature
+           - sensor.0x00158d000171ffde_humidity
+           - sensor.0x00158d000171ffde_mmhg_pressure
+
+    homeassistant:
+      customize:
+
+############# кухня
+        
+        binary_sensor.kn_aeration:
+          friendly_name: Кухня, проветривание
+
+        binary_sensor.0x00158d0001a99562_contact:
+          friendly_name: Кухня, окно
+          device_class: window
+        sensor.0x00158d0001a99562_battery:
+          friendly_name: Кухня, окно
+
+        sensor.0x00158d0001581109_humidity:
+          friendly_name: Кухня, влажность
+          device_class: humidity
+        sensor.0x00158d0001581109_temperature:
+          friendly_name: Кухня, температура
+          device_class: temperature
+        sensor.0x00158d0001581109_battery:
+          friendly_name: Кухня, климат
+
+        sensor.0x04cf8cdf3c772379_illuminance_lux:
+          friendly_name: Кухня, освещенность
+          device_class: illuminance
+        
+############# Растения
+
+        sensor.0x00124b0022027bd2_soil_moisture:
+          friendly_name: Растение - Диффенбахия, кухня 
+        sensor.0x00124b0022027bd2_battery:
+          friendly_name: Растение - Диффенбахия, кухня 
+
+        sensor.0x00124b0022145bc7_soil_moisture:
+          friendly_name: Растение - Юкка, кухня 
+        sensor.0x00124b0022145bc7_battery:
+          friendly_name: Растение - Юкка, кухня 
+          
+        sensor.0x00124b0022145c90_soil_moisture:
+          friendly_name: Растение - Замиокулькас, кухня 
+        sensor.0x00124b0022145c90_battery :
+          friendly_name: Растение - Замиокулькас, кухня 
+          
+############# Балкон
+
+        binary_sensor.0x00158d0001a20885_contact:
+          friendly_name: Кухня, балкон дверь
+          device_class: door
+        sensor.0x00158d0001a20885_battery:
+          friendly_name: Кухня, балкон дверь
+
+        binary_sensor.0x00158d0001a4a394_contact:
+          friendly_name: Кухня, балкон окно
+          device_class: window
+        sensor.0x00158d0001a4a394_battery:
+          friendly_name: Кухня, балкон окно
+          
+        binary_sensor.0xec1bbdfffe302df1_occupancy:
+          friendly_name: Кухня, балкон движение
+
+
+        sensor.0x00158d000171ffde_humidity:
+          friendly_name: Кухня, балкон влажность
+          icon: mdi:water-percent
+        sensor.0x00158d000171ffde_temperature:
+          friendly_name: Кухня, балкон температура
+          icon: mdi:temperature-celsius
+        sensor.0x00158d000171ffde_mmhg_pressure:
+          friendly_name: Кухня, балкон давление мм рт. ст.
+        sensor.0x00158d000171ffde_battery:
+          friendly_name: Кухня, балкон климат
+
+    template:
+     
+      - binary_sensor:
+
+          - name: kn_aeration
+            state: >
+              {{ is_state('binary_sensor.0x00158d0001a99562_contact', 'on')  
+                 or is_state('binary_sensor.0x00158d0001a20885_contact', 'on')
+              }}
+            delay_on: 
+                seconds: 30
+            device_class: opening
+            icon: >
+              {% if is_state("binary_sensor.kn_aeration", "on") %}
+              mdi:window-open-variant
+              {% else %}
+              mdi:window-closed-variant
+              {% endif %}
+
+          - name: '0x00158d0001ab3350_occupancy'
+            unique_id: '0x00158d0001ab3350_occupancy'
+            state: >
+              {{is_state("binary_sensor.0x00158d0001ab3350_raw_occupancy", "on")}}
+            device_class: occupancy
+            
+          - name: '0x54ef441000118375_occupancy'
+            unique_id: '0x54ef441000118375_occupancy'
+            state: >
+              {{is_state("binary_sensor.0x54ef441000118375_raw_occupancy", "on")}}
+            device_class: occupancy
+
+              
+      - sensor:
+
+          - name: '0x00158d0001581109_temperature'
+            unique_id: '0x00158d0001581109_temperature'
+            state: >
+                {{ states('sensor.0x00158d0001581109_raw_temperature')|float(0) }}
+                
+          - name: '0x00158d0001581109_humidity'
+            unique_id: '0x00158d0001581109_humidity'
+            state: >
+                {{ states('sensor.0x00158d0001581109_raw_humidity')|float(0) }}
+                
+          - name: '0x04cf8cdf3c772379_illuminance_lux'
+            unique_id: '0x04cf8cdf3c772379_illuminance_lux'
+            state: >
+                {{ states('sensor.0x04cf8cdf3c772379_illuminance_raw_lux')|float(0) }}
+
+
+          - name: 0x00158d000171ffde_mmhg_pressure
+            unique_id: '0x00158d000171ffde_mmhg_pressure'
+            state: "{{ (states('sensor.0x00158d000171ffde_pressure')|float * 0.7500637)|round(2) }}"
+            availability: "{{ (states('sensor.0x00158d000171ffde_pressure')|float > 850 ) }}" 
+            unit_of_measurement: mmHg
+            icon: mdi:gauge 

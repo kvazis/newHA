@@ -1,0 +1,885 @@
+##################   Климат
+title: Гостиная Климат
+icon: phu:motion-sensor-temperature
+cards:
+
+############################ Колонка 1 ############################
+
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Климат**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Датчики и сенсоры**
+            - type: horizontal-stack
+              cards:
+              
+              - type: custom:mushroom-template-card
+                primary: Проветривание
+                secondary: |-
+                  {% if is_state("binary_sensor.lr_aeration", "off") %}
+                  Все закрыто
+                  {% else %}
+                  Проветривается
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.lr_aeration
+                icon: |-
+                  {% if is_state("binary_sensor.lr_aeration", "off") %}
+                  phu:tilt-window-closed
+                  {% else %}
+                  phu:tilt-window-opened
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.lr_aeration", "off") %}
+                  grey
+                  {% else %}
+                  light-blue
+                  {% endif %} 
+                tap_action:
+                  action: more-info
+
+              - type: custom:mushroom-template-card
+                primary: Воздух
+                secondary: |-
+                  {% if is_state("binary_sensor.lr_poor_air", "off") %}
+                  ОК
+                  {% else %}
+                  Надо проветрить
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.lr_poor_air
+                icon: |-
+                  {% if is_state("binary_sensor.lr_poor_air", "off") %}
+                  mdi:check-bold
+                  {% else %}
+                  mdi:biohazard
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.0xec1bbdfffedf6a6a_contact", "off") %}
+                  green
+                  {% else %}
+                  deep-orange
+                  {% endif %} 
+                tap_action:
+                  action: more-info
+
+                  
+              - type: custom:mushroom-template-card
+                primary: Окно справа
+                secondary: |-
+                  {% if is_state("binary_sensor.0x00158d00013ed373_contact", "off") %}
+                  Закрыто
+                  {% else %}
+                  Открыто
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.0x00158d00013ed373_contact
+                icon: |-
+                  {% if is_state("binary_sensor.0x00158d00013ed373_contact", "off") %}
+                  phu:double-window-closed
+                  {% else %}
+                  phu:double-window-open
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.0x00158d00013ed373_contact", "off") %}
+                  grey
+                  {% else %}
+                  light-blue
+                  {% endif %} 
+                tap_action:
+                  action: more-info
+                  
+              - type: custom:mushroom-template-card
+                primary: Окно слева
+                secondary: |-
+                  {% if is_state("binary_sensor.0xec1bbdfffedf6a6a_contact", "off") %}
+                  Закрыто
+                  {% else %}
+                  Открыто
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.0xec1bbdfffedf6a6a_contact
+                icon: |-
+                  {% if is_state("binary_sensor.0xec1bbdfffedf6a6a_contact", "off") %}
+                  phu:double-window-closed
+                  {% else %}
+                  phu:double-window-open
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.0xec1bbdfffedf6a6a_contact", "off") %}
+                  grey
+                  {% else %}
+                  light-blue
+                  {% endif %} 
+                tap_action:
+                  action: more-info
+
+            - type: horizontal-stack
+              cards:
+
+              - type: custom:mushroom-template-card
+                primary: Дверь на балкон
+                secondary: |-
+                  {% if is_state("binary_sensor.0x00158d000445206b_contact", "off") %}
+                  Закрыта
+                  {% else %}
+                  Открыта
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.0x00158d000445206b_contact
+                icon: |-
+                  {% if is_state("binary_sensor.0x00158d000445206b_contact", "off") %}
+                  phu:panel-glass-door2-close
+                  {% else %}
+                  phu:panel-glass-door2-open
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.0x00158d000445206b_contact", "off") %}
+                  grey
+                  {% else %}
+                  amber
+                  {% endif %} 
+                tap_action:
+                  action: more-info
+
+              - type: custom:mushroom-template-card
+                primary: Окно балкон
+                secondary: |-
+                  {% if is_state("binary_sensor.0x00158d0001a2f5f7_contact", "off") %}
+                  Закрыто
+                  {% else %}
+                  Открыто
+                  {% endif %}
+                layout: vertical
+                entity: binary_sensor.0x00158d0001a2f5f7_contact
+                icon: |-
+                  {% if is_state("binary_sensor.0x00158d0001a2f5f7_contact", "off") %}
+                  phu:double-window-closed
+                  {% else %}
+                  phu:double-window-open
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.0x00158d0001a2f5f7_contact", "off") %}
+                  grey
+                  {% else %}
+                  light-blue
+                  {% endif %} 
+                tap_action:
+                  action: more-info
+
+            - type: horizontal-stack
+              cards:
+
+              - type: custom:mushroom-template-card
+                primary: Температура
+                secondary: |-
+                      {{states ('sensor.0x00158d00015aebb6_temperature')}} С°
+                layout: vertical
+                entity: sensor.0x00158d00015aebb6_temperature
+                icon_color: |-
+                  {% if states("sensor.0x00158d00015aebb6_temperature")|float <= -10 %}
+                  indigo
+                  {% elif states("sensor.0x00158d00015aebb6_temperature")|float <= 0 %}
+                  blue
+                  {% elif states("sensor.0x00158d00015aebb6_temperature")|float <= 10 %}
+                  light-blue
+                  {% elif states("sensor.0x00158d00015aebb6_temperature")|float <= 20 %}
+                  cyan
+                  {% elif states("sensor.0x00158d00015aebb6_temperature")|float <= 25 %}
+                  yellow
+                  {% elif states("sensor.0x00158d00015aebb6_temperature")|float <= 30 %}
+                  amber
+                  {% elif states("sensor.0x00158d00015aebb6_temperature")|float <= 40 %}
+                  orange
+                  {% endif %}
+                icon: mdi:temperature-celsius
+                tap_action:
+                  action: more-info
+
+              - type: custom:mushroom-template-card
+                primary: Влажность
+                secondary: |-
+                      {{states ('sensor.0x00158d00015aebb6_humidity')}} %
+                layout: vertical
+                entity: sensor.0x00158d00015aebb6_humidity
+                icon_color: |-
+                  {% if states("sensor.0x00158d00015aebb6_humidity")|float <= 30 %}
+                  deep-orange
+                  {% elif states("sensor.0x00158d00015aebb6_humidity")|float <= 40 %}
+                  yellow
+                  {% elif states("sensor.0x00158d00015aebb6_humidity")|float <= 50 %}
+                  light-blue
+                  {% elif states("sensor.0x00158d00015aebb6_humidity")|float <= 60 %}
+                  blue
+                  {% elif states("sensor.0x00158d00015aebb6_humidity")|float > 60 %}
+                  indigo
+                  {% endif %}
+                icon: mdi:water-percent
+                tap_action:
+                  action: more-info 
+
+              - type: custom:mushroom-template-card
+                primary: CO2
+                secondary: |-
+                      {{states ('sensor.lr_air_co2')}} ppb
+                layout: vertical
+                entity: sensor.lr_air_co2
+                icon_color: |-
+                  {% if states("sensor.lr_air_co2")|float <= 500 %}
+                  green
+                  {% elif states("sensor.lr_air_co2")|float <= 700 %}
+                  light-green
+                  {% elif states("sensor.lr_air_co2")|float <= 800 %}
+                  lime
+                  {% elif states("sensor.lr_air_co2")|float <= 1000 %}
+                  yellow
+                  {% elif states("sensor.lr_air_co2")|float <= 1200 %}
+                  orange
+                  {% elif states("sensor.lr_air_co2")|float > 1200 %}
+                  red
+                  {% endif %}
+                icon: mdi:molecule-co2
+                tap_action:
+                  action: more-info 
+
+            - type: horizontal-stack
+              cards:
+              
+              - type: custom:mushroom-template-card
+                primary: Температура балкон
+                secondary: |-
+                      {{states ('sensor.0xec1bbdfffe4534c0_temperature')}} С°
+                layout: vertical
+                entity: sensor.0xec1bbdfffe4534c0_temperature
+                icon_color: |-
+                  {% if states("sensor.0xec1bbdfffe4534c0_temperature")|float <= -10 %}
+                  indigo
+                  {% elif states("sensor.0xec1bbdfffe4534c0_temperature")|float <= 0 %}
+                  blue
+                  {% elif states("sensor.0xec1bbdfffe4534c0_temperature")|float <= 10 %}
+                  light-blue
+                  {% elif states("sensor.0xec1bbdfffe4534c0_temperature")|float <= 20 %}
+                  cyan
+                  {% elif states("sensor.0xec1bbdfffe4534c0_temperature")|float <= 25 %}
+                  yellow
+                  {% elif states("sensor.0xec1bbdfffe4534c0_temperature")|float <= 30 %}
+                  amber
+                  {% elif states("sensor.0xec1bbdfffe4534c0_temperature")|float <= 40 %}
+                  orange
+                  {% endif %}
+                icon: mdi:temperature-celsius
+                tap_action:
+                  action: more-info
+    
+              - type: custom:mushroom-template-card
+                primary: Влажность балкон
+                secondary: |-
+                      {{states ('sensor.0xec1bbdfffe4534c0_humidity')}} %
+                layout: vertical
+                entity: sensor.0xec1bbdfffe4534c0_humidity
+                icon_color: |-
+                  {% if states("sensor.0xec1bbdfffe4534c0_humidity")|float <= 30 %}
+                  deep-orange
+                  {% elif states("sensor.0xec1bbdfffe4534c0_humidity")|float <= 40 %}
+                  yellow
+                  {% elif states("sensor.0xec1bbdfffe4534c0_humidity")|float <= 50 %}
+                  light-blue
+                  {% elif states("sensor.0xec1bbdfffe4534c0_humidity")|float <= 60 %}
+                  blue
+                  {% elif states("sensor.0xec1bbdfffe4534c0_humidity")|float > 60 %}
+                  indigo
+                  {% endif %}
+                icon: mdi:water-percent
+                tap_action:
+                  action: more-info 
+    
+
+############################ Колонка 2 ############################
+
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Отопление**
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+            - type: horizontal-stack
+        
+              cards:
+
+              - type: custom:mushroom-template-card
+                primary: Режим
+                secondary: |-
+                  {% if is_state("switch.lr_radiator_mode", "on") %}
+                  Отопление включено
+                  {% else %}
+                  Отопление выключено
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: toggle
+                entity: switch.lr_radiator_mode
+                icon: |-
+                  {% if is_state("switch.lr_radiator_mode", "on") %}
+                  phu:wiser-thermostat-off
+                  {% else %}
+                  phu:wiser-thermostat-on
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("switch.lr_radiator_mode", "on") %}
+                  orange
+                  {% else %}
+                  grey
+                  {% endif %}
+
+              - type: custom:mushroom-climate-card
+                entity: climate.0x2c1165fffeb3e567
+                hvac_modes:
+                  - heat
+                show_temperature_control: true
+                layout: vertical
+                fill_container: true
+                collapsible_controls: true
+                primary_info: name
+                secondary_info: state
+                name: Гостиная справа
+
+              - type: custom:mushroom-climate-card
+                entity: climate.0x2c1165fffec61c89
+                hvac_modes:
+                  - heat
+                show_temperature_control: true
+                layout: vertical
+                fill_container: true
+                collapsible_controls: true
+                primary_info: name
+                secondary_info: state
+                name: Гостиная слева
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Гостиная справа**
+
+            - type: horizontal-stack
+              cards:
+              
+              - type: custom:mushroom-template-card
+                primary: Калибровка
+                secondary: |-
+                  {% if ((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffeb3e567', 'local_temperature') | float))|round(1) > 1 
+                     or ((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffeb3e567', 'local_temperature') | float))|round(1) < -1  %}
+                  Расхождение > 1 С°
+                  {% else %}
+                  ОК
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: call-service
+                  service: script.turn_on
+                  service_data:
+                     entity_id: script.lr_temperature_calibration_2
+                entity: script.lr_temperature_calibration_2
+                icon: mdi:sync
+                multiline_secondary: true
+                icon_color: |-
+                  {% if ((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffeb3e567', 'local_temperature') | float))|round(1) > 1 
+                     or ((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffeb3e567', 'local_temperature') | float))|round(1) < -1  %}
+                  amber
+                  {% else %}
+                  green
+                  {% endif %}            
+
+              - type: custom:mushroom-template-card
+                primary: |-
+                      Датчик {{states ('sensor.0x00158d00015aebb6_temperature')}} С°
+                secondary: |-
+                      Головка - {{state_attr('climate.0x2c1165fffeb3e567', 'local_temperature')}} С°
+                layout: vertical
+                entity: sensor.0x00158d00015aebb6_temperature
+                icon_color: |-
+                  {% if is_state("switch.lr_radiator_mode", "on") %}
+                  amber
+                  {% else %}
+                  grey
+                  {% endif %}
+                icon: mdi:temperature-celsius
+                tap_action:
+                  action: more-info
+                  
+              - type: custom:mushroom-template-card
+                primary: |-
+                      Поправка {{states ('number.0x2c1165fffeb3e567_local_temperature_calibration')}} С°
+                secondary: |-
+                      Разница {{((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffeb3e567', 'local_temperature') | float))|round(1)}} С°
+                layout: vertical
+                entity: sensor.0x00158d000171ffde_temperature
+                icon_color: |-
+                  {% if is_state("switch.lr_radiator_mode", "on") %}
+                  amber
+                  {% else %}
+                  grey
+                  {% endif %}
+                icon: mdi:compare-horizontal
+                tap_action:
+                  action: more-info
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:  
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Гостиная слева**
+
+            - type: horizontal-stack
+              cards:
+              
+              - type: custom:mushroom-template-card
+                primary: Калибровка
+                secondary: |-
+                  {% if ((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffec61c89', 'local_temperature') | float))|round(1) > 1 
+                     or ((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffec61c89', 'local_temperature') | float))|round(1) < -1  %}
+                  Расхождение > 1 С°
+                  {% else %}
+                  ОК
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: call-service
+                  service: script.turn_on
+                  service_data:
+                     entity_id: script.lr_temperature_calibration_1
+                entity: script.lr_temperature_calibration_1
+                icon: mdi:sync
+                multiline_secondary: true
+                icon_color: |-
+                  {% if ((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffec61c89', 'local_temperature') | float))|round(1) > 1 
+                     or ((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffec61c89', 'local_temperature') | float))|round(1) < -1  %}
+                  amber
+                  {% else %}
+                  green
+                  {% endif %}            
+
+              - type: custom:mushroom-template-card
+                primary: |-
+                      Датчик {{states ('sensor.0x00158d00015aebb6_temperature')}} С°
+                secondary: |-
+                      Головка - {{state_attr('climate.0x2c1165fffec61c89', 'local_temperature')}} С°
+                layout: vertical
+                entity: sensor.0x00158d00015aebb6_temperature
+                icon_color: |-
+                  {% if is_state("switch.lr_radiator_mode", "on") %}
+                  amber
+                  {% else %}
+                  grey
+                  {% endif %}
+                icon: mdi:temperature-celsius
+                tap_action:
+                  action: more-info
+                  
+              - type: custom:mushroom-template-card
+                primary: |-
+                      Поправка {{states ('number.0x2c1165fffec61c89_local_temperature_calibration')}} С°
+                secondary: |-
+                      Разница {{((states('sensor.0x00158d00015aebb6_temperature') | float - state_attr('climate.0x2c1165fffec61c89', 'local_temperature') | float))|round(1)}} С°
+                layout: vertical
+                entity: sensor.0x00158d000171ffde_temperature
+                icon_color: |-
+                  {% if is_state("switch.lr_radiator_mode", "on") %}
+                  amber
+                  {% else %}
+                  grey
+                  {% endif %}
+                icon: mdi:compare-horizontal
+                tap_action:
+                  action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+
+            - type: markdown
+              content: >
+                 **Целевая температура**
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+              - entity: number.0x2c1165fffeb3e567_comfort_temperature
+                name: Термоголовка справа
+              - entity: number.0x2c1165fffec61c89_comfort_temperature
+                name: Термоголовка слева
+              - type: divider
+
+            - type: markdown
+              content: >
+                 **Температура проветривания**
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+              - type: divider
+              - entity: number.0x2c1165fffeb3e567_open_window_temperature
+                name: Термоголовка справа
+              - entity: number.0x2c1165fffec61c89_open_window_temperature
+                name: Термоголовка слева
+              - type: divider
+              
+            - type: markdown
+              content: >
+                 **Ночная температура**
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+              - type: divider
+              - entity: number.0x2c1165fffeb3e567_eco_temperature
+                name: Термоголовка справа
+              - entity: number.0x2c1165fffec61c89_eco_temperature
+                name: Термоголовка слева
+              - type: divider
+
+            - type: markdown
+              content: >
+                 **Отклик и питание**
+ 
+            - type: entities
+              show_header_toggle: false
+              entities:
+
+              - entity: binary_sensor.0x2c1165fffeb3e567_battery_low
+                type: custom:multiple-entity-row
+                name: Термоголовка справа
+                state_header: Батарейка
+                entities:
+                  - attribute: last_seen
+                    format: relative
+                    name: Отклик
+
+              - entity: binary_sensor.0x2c1165fffec61c89_battery_low
+                type: custom:multiple-entity-row
+                name: Термоголовка слева
+                state_header: Батарейка
+                entities:
+                  - attribute: last_seen
+                    format: relative
+                    name: Отклик
+
+
+############################ Колонка 4 ############################
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Кондиционер**
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+            - type: horizontal-stack
+        
+              cards:
+
+              - type: custom:mushroom-template-card
+                primary: Режим
+                secondary: |-
+                  {% if is_state("switch.lr_conditioner_mode", "on") %}
+                  Включен
+                  {% else %}
+                  Отключен
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: toggle
+                entity: switch.lr_conditioner_mode
+                icon: |-
+                  mdi:air-conditioner
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("switch.lr_conditioner_mode", "on") %}
+                  light-blue
+                  {% else %}
+                  grey
+                  {% endif %}
+                  
+
+              - type: custom:mushroom-template-card
+                primary: Кондиционер
+                secondary: |-
+                  {% if is_state("binary_sensor.0x00158d00054496b0_contact", "off") %}
+                  Выключен
+                  {% else %}
+                  Работает
+                  {% endif %}
+                layout: vertical
+                entity: input_button.lr_conditioner
+                icon: |-
+                  phu:air-conditioner
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("binary_sensor.0x00158d00054496b0_contact", "off") %}
+                  grey
+                  {% else %}
+                  blue
+                  {% endif %}
+                tap_action:
+                  action: call-service
+                  service: input_button.press
+                  target:
+                    entity_id: input_button.lr_conditioner
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+              - entity: input_datetime.lr_conditioner_from
+              - entity: input_datetime.lr_conditioner_to
+              - entity: input_number.lr_conditioner_min
+              - entity: input_number.lr_conditioner_max     
+              
+              
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Увлажнение**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+            - type: horizontal-stack
+              cards:
+
+              - type: custom:mushroom-template-card
+                primary: Режим
+                secondary: |-
+                  {% if is_state("switch.lr_humidifier_mode", "on") %}
+                  Включен
+                  {% else %}
+                  Отключен
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: toggle
+                entity: switch.lr_humidifier_mode
+                icon: |-
+                  {% if is_state("switch.lr_humidifier_mode", "on") %}
+                  mdi:water-check
+                  {% else %}
+                  mdi:water-off
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("switch.lr_humidifier_mode", "on") %}
+                  light-blue
+                  {% else %}
+                  grey
+                  {% endif %}
+
+              - type: custom:mushroom-template-card
+                primary: Увлажнитель
+                secondary: |-
+                  {% if is_state("humidifier.lr_humidifier", "on") %}
+                  Вкл
+                  {% else %}
+                  Выкл
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: toggle
+                entity: humidifier.lr_humidifier
+                icon: |-
+                  {% if is_state("humidifier.lr_humidifier", "on") %}
+                  mdi:air-humidifier-off
+                  {% else %}
+                  mdi:air-humidifier
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("humidifier.lr_humidifier", "on") %}
+                  green
+                  {% else %}
+                  grey
+                  {% endif %}
+
+              - type: custom:mushroom-template-card
+                primary: Доступность
+                secondary: |-
+                  {% if is_state("humidifier.lr_humidifier", "unavailable") %}
+                  Перезагрузить
+                  {% else %}
+                  ОК
+                  {% endif %}
+                layout: vertical
+                entity: input_button.lr_humidifier
+                icon: |-
+                  {% if is_state("humidifier.lr_humidifier", "unavailable") %}
+                  mdi:reload
+                  {% else %}
+                  mdi:check-bold
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("humidifier.lr_humidifier", "unavailable") %}
+                  red
+                  {% else %}
+                  green
+                  {% endif %}
+                tap_action:
+                  action: call-service
+                  service: input_button.press
+                  target:
+                    entity_id: input_button.lr_humidifier
+
+            - type: horizontal-stack
+              cards:
+
+              - type: custom:mushroom-template-card
+                primary: Условия
+                secondary: |-
+                  {% if is_state("sensor.lr_hydration_mode", "Disable") %}
+                  Отключено
+                  {% elif is_state("sensor.lr_hydration_mode", "Auto") %}
+                  Авто
+                  {% elif is_state("sensor.lr_hydration_mode", "Silent") %}
+                  Тихий
+                  {% elif is_state("sensor.lr_hydration_mode", "Medium") %}
+                  Средний
+                  {% elif is_state("sensor.lr_hydration_mode", "High") %}
+                  Максимальный
+                  {% endif %}
+                layout: vertical
+                tap_action:
+                  action: more-info
+                entity: sensor.lr_hydration_mode
+                icon: |-
+                  {% if is_state("sensor.lr_hydration_mode", "Disable") %}
+                  mdi:water-remove
+                  {% elif is_state("sensor.lr_hydration_mode", "Auto") %}
+                  mdi:water-opacity
+                  {% elif is_state("sensor.lr_hydration_mode", "Silent") %}
+                  mdi:speedometer-slow
+                  {% elif is_state("sensor.lr_hydration_mode", "Medium") %}
+                  mdi:speedometer-medium
+                  {% elif is_state("sensor.lr_hydration_mode", "High") %}
+                  mdi:speedometer
+                  {% endif %}
+                multiline_secondary: true
+                icon_color: |-
+                  {% if is_state("sensor.lr_hydration_mode", "Disable") %}
+                  grey
+                  {% elif is_state("sensor.lr_hydration_mode", "Auto") %}
+                  cyan
+                  {% elif is_state("sensor.lr_hydration_mode", "Silent") %}
+                  light-blue
+                  {% elif is_state("sensor.lr_hydration_mode", "Medium") %}
+                  blue
+                  {% elif is_state("sensor.lr_hydration_mode", "High") %}
+                  indigo
+                  {% endif %}
+
+              - type: custom:mushroom-template-card
+                primary: Уровень воды
+                secondary: |-
+                      {{states ('sensor.lr_humidifier_water_level')}} %
+                layout: vertical
+                entity: sensor.lr_humidifier_water_level
+                icon_color: |-
+                  {% if states("sensor.lr_humidifier_water_level")|float <= 10 %}
+                  pink
+                  {% elif states("sensor.lr_humidifier_water_level")|float <= 20 %}
+                  red
+                  {% elif states("sensor.lr_humidifier_water_level")|float <= 30 %}
+                  deep-orange
+                  {% elif states("sensor.lr_humidifier_water_level")|float <= 50 %}
+                  yellow
+                  {% elif states("sensor.lr_humidifier_water_level")|float <= 70 %}
+                  lime
+                  {% elif states("sensor.lr_humidifier_water_level")|float <= 90 %}
+                  light-green
+                  {% elif states("sensor.lr_humidifier_water_level")|float > 90 %}
+                  green
+                  {% endif %}
+                icon: mdi:cup-water
+                tap_action:
+                  action: more-info 
+
+            - type: markdown
+              content: >
+                 **Уровень влажности**
+
+            - type: entities
+              show_header_toggle: false
+              state_color: true
+              entities:
+              - entity: input_number.humidity_level_lr

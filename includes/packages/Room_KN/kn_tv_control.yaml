@@ -1,0 +1,162 @@
+kn_tv_control:
+
+    recorder:
+      include:
+        entities:
+           - sensor.0x00158d0001291d12_power
+           
+    homeassistant:
+      customize:
+
+        switch.0x00158d0001291d12:
+          friendly_name: Кухня телевизор, питание
+          icon: mdi:television
+        sensor.0x00158d0001291d12_power:
+          friendly_name: Кухня телевизор, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x00158d0001291d12_energy:
+          friendly_name: Кухня телевизор, энергия
+          icon: mdi:chart-line
+        sensor.0x00158d0001291d12_device_temperature:
+          friendly_name: Кухня телевизор, температура
+          icon: mdi:thermometer-check
+        sensor.0x00158d0001291d12_meter:
+          friendly_name: Кухня телевизор
+          unit_of_measurement: kWh
+
+        automation.kn_tv_toggle:
+          friendly_name: Кухня - включение, выключение телевизора
+          icon: mdi:television
+
+        automation.kn_tv_box_offline:
+          friendly_name: Кухня - индикация выключенного Xiaomi TV Box
+          icon: mdi:television-box
+          
+    template:
+     
+      - binary_sensor:
+
+          - name: kn_tv_work
+            state: >
+              {{ states('sensor.0x00158d0001291d12_power')|int > 10 
+              }}
+            icon: >
+              {% if is_state("binary_sensor.kn_tv_work", "on") %}
+              mdi:television
+              {% else %}
+              mdi:television-off
+              {% endif %}
+              
+          - name: kn_tv_box_off
+            state: >
+              {{ is_state('binary_sensor.kn_tv_work', 'on')  
+                 and is_state('media_player.kn_mi_box', 'unavailable')
+              }}
+
+              
+    automation:
+
+
+      - alias: kn_tv_toggle
+        description: Кухня - включение, выключение телевизора
+        initial_state: true
+        trigger:
+    # 6 клавишник на входе
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c794209_action
+          to: 'button_5_single' 
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.kn_tv_control
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.kn_tv_work
+                    state: 'off'
+                sequence:
+                  - service: remote.send_command
+                    entity_id: remote.kn_ir_base
+                    data:
+                      command:
+                      - raw:Z6WRAN0AAAAfAgAAewIAACUEAAB5BQAALioAAMAMAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATEkJCEkISQhJCQlITEkJCEkISQhJCQlITEkJCEkISQhJCQlITEkJCEkISQhJCQlITEkJCEkISQhJCQlITEkJCEkISQhJCQmIA==
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.kn_tv_work
+                    state: 'on'
+                sequence:
+                  - service: remote.send_command
+                    entity_id: remote.kn_ir_base
+                    data:
+                      command:
+                      - raw:Z6WRAN0AAAAfAgAAewIAACUEAAB5BQAALioAAMAMAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATEkJCEkISQhJCQlITEkJCEkISQhJCQlITEkJCEkISQhJCQlITEkJCEkISQhJCQlITEkJCEkISQhJCQlITEkJCEkISQhJCQmIA==
+                      - raw:Z6W/ABwCAAB9AgAAQgMAAE0EAAB6BQAAjjMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMQE==
+                      - raw:Z6W/ABwCAAB9AgAAQgMAAE0EAAB6BQAAjjMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMQE==
+                      - raw:Z6W/ABwCAAB9AgAAQgMAAE0EAAB6BQAAjjMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMVEDMQEhMQEBQQEBMQE==
+                      - raw:Z6WPABgCAACBAgAAPgMAAEkEAABxBQAAJzEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMQEhMQEBQSEBQVEDMQEhMQEBQSEBQVEDMQEhMQEBQSEBQVEDMQEhMQEBQSEBQVEDMQEhMQEBQSEBQVEDMQEhMQEBQSEBQQE==
+                  - service: media_player.turn_off
+                    target:
+                      entity_id: media_player.kn_mi_box 
+
+
+      - alias: kn_tv_box_offline
+        id: kn_tv_box_offline
+        description: Кухня - индикация выключенного Xiaomi TV Box   
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: binary_sensor.kn_tv_box_off
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+    # Включение подсветки если ТВ включен, а ТВ бокс выключен в дневное время - проверка сенсора time of day
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.kn_tv_box_off
+                    state: 'on'
+                sequence:
+                  - service: light.turn_on
+                    data:
+                      color_name: dodgerblue
+                      brightness_pct: 70
+                    target:
+                      entity_id: light.gateway_light_7811dc64f4c8
+    # Включение люстры в ночное время - проверка сенсора time of day
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.kn_tv_box_off
+                    state: 'off'
+                sequence:
+                  - service: light.turn_off
+                    entity_id: light.gateway_light_7811dc64f4c8
+     
+      - alias: kn_gateway_auto_off
+        id: kn_gateway_auto_off
+        description: Кухня - автоматическое отключение шлюза 
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: light.gateway_light_7811dc64f4c8
+          to: 'on'
+          for:
+            minutes: 2          
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'          
+        action:          
+        - service: light.turn_off
+          entity_id: light.gateway_light_7811dc64f4c8          
+          
+          
+          
+          
+          

@@ -1,0 +1,62 @@
+telegram_dialog:
+
+    automation:
+
+    ## Стартовая автоматизация для запуска меню
+      - id: Вызов меню управления телеграм
+        alias: telegram_menu_start
+        initial_state: true
+        trigger:
+          - platform: event
+            event_type: telegram_text
+        condition:
+          - condition: template
+            value_template: >-
+              {{ trigger.event.data.text in ["куку", "Куку", "Rere", "rere", "Привет", "привет", "Ghbdtn", "ghbdtn"] }}
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: >
+                       {{ trigger.event.data.user_id == (states('sensor.admin_tg_id')|int) }}
+                sequence:
+                  - service: telegram_bot.send_message
+                    data:
+                      target: "{{ trigger.event.data.user_id }}"
+                      message: |
+                        {{'\U0001F527'}} *Управление умным домом*
+                        * *
+                        {{'\U0001F4BB'}} *CPU* - {{ states('sensor.processor_use') }} %, {{'\U0001F321'}} - {{ states('sensor.processor_temperature') }} °C
+                      inline_keyboard:
+                      - '{{''\U00002328''}} Телеметрия:/telemetry'
+                      - '{{''\U0001F6B6''}} Вход:/en_control , {{''\U0001F6C0''}} Санузел:/bt_control'
+                      - '{{''\U0001F3E2''}} Гостиная:/lr_control , {{''\U0001F374''}} Кухня:/kn_control'
+                      - '{{''\U0001F6B9''}} Детская Д:/dd_control , {{''\U0001F6BA''}} Детская А:/da_control'
+                      - '{{''\U0001F6AB''}} Убрать меню:/menu_hide'
+              - conditions:
+                  - condition: template
+                    value_template: >
+                       {{ trigger.event.data.user_id == (states('sensor.dima_tg_id')|int) }}
+                sequence:
+                  - service: telegram_bot.send_message
+                    data:
+                      target: "{{ trigger.event.data.user_id }}"
+                      message: &msg_locdd |
+                        {{'\U0001F6B9'}} Управление Детской Д :
+                        Детская Д -
+                        {{'\U0001F6B6'}} - {% if is_state('binary_sensor.0x00158d0001a66222_occupancy', 'on') %} Движение {% else %} Нет движения {% endif %} {{'\U0001FA9F'}} - {% if is_state('binary_sensor.0x00158d0001193697_contact', 'on') %} Открыто {% else %} Закрыто {% endif %}
+                        {{'\U0001F321'}} - {{ states('sensor.0x00158d000156e92e_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x00158d000156e92e_humidity') }} %
+                        Балкон -
+                        {{'\U0001F6AA'}} - {% if is_state('binary_sensor.0x00158d00015843d4_contact', 'on') %} Открыта {% else %} Закрыта {% endif %} 
+                        {{'\U0001FA9F'}} 1 - {% if is_state('binary_sensor.0x00158d0001a65b68_contact', 'on') %} Открыто {% else %} Закрыто {% endif %}  {{'\U0001FA9F'}} 2 - {% if is_state('binary_sensor.0xec1bbdfffe3a653e_contact', 'on') %} Открыто {% else %} Закрыто {% endif %} 
+                        {{'\U0001F321'}} - {{ states('sensor.0x00158d0001fa8321_temperature') }} °C, {{'\U0001F4A7'}} - {{ states('sensor.0x00158d0001fa8321_humidity') }} %
+                      inline_keyboard: &keyb_locdd
+                        - '{{''\U0001F4A1''}} Люстра - {% if is_state(''light.dd_ceiling_light'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_locdd_ceiling_light , {{''\U0001F4A1''}} Бра - {% if is_state(''light.0x00158d000420dbab'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_locdd_bra'
+                        - '{{''\U0001F4A1''}} Адресная лента - {% if is_state(''light.dd_wled_light'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/dd_wled_light_control , {{''\U0001F4A1''}} Настольная - {% if is_state(''light.dd_table_lamp'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_locdd_table_lamp'
+                        - '{{''\U0001F4A1''}} Свет на балконе - {% if is_state(''light.0x680ae2fffe71ae63'', ''off'')%}{{''🔴''}}{% else %}{{''🟢''}}{% endif %}:/toggle_locdd_balcony_light '
+                        - '{{''\U000021AA''}} Обновить:/dd_local_control' 
+
+

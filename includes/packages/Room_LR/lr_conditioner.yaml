@@ -1,0 +1,169 @@
+lr_conditioner:
+
+    homeassistant:
+      customize:
+      
+        binary_sensor.0x00158d00054496b0_contact:
+          friendly_name: Гостиная кондиционер
+          device_class: cold
+        sensor.0x00158d00054496b0_battery:
+          friendly_name: Гостиная кондиционер  
+        
+    input_button:
+
+      lr_conditioner:
+        name: Гостиная кондиционер
+
+    input_datetime:
+      lr_conditioner_from:
+        name: Время работы c
+        has_date: false
+        has_time: true
+        
+      lr_conditioner_to:
+        name: Время работы по
+        has_date: false
+        has_time: true
+
+    input_number:
+      lr_conditioner_min:
+        name: Температура отключения
+        min: 20
+        max: 25
+        step: 1
+        
+      lr_conditioner_max:
+        name: Температура включения
+        min: 26
+        max: 30
+        step: 1
+
+    mqtt:
+      binary_sensor:
+        - name: lr_conditioner
+          state_topic: "states/lr_conditioner"
+        
+    switch:
+    
+      - platform: template
+        switches:
+          lr_conditioner_mode:
+            friendly_name: "Гостиная, режим кондиционирования воздуха"
+            value_template: "{{ is_state('binary_sensor.lr_conditioner', 'on') }}"
+            turn_on:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_conditioner"
+                payload_template: 'ON'
+                retain: true 
+            turn_off:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_conditioner"
+                payload_template: 'OFF'
+                retain: true 
+            icon_template: >-
+                mdi:air-conditioner
+
+    template:
+    
+      - binary_sensor:
+
+################# Время работы кондиционера #################     
+          - name: lr_conditioner_time
+            state: >
+                {% set t = now().strftime('%H:%M:%S') %}
+                {% set begin = states("input_datetime.lr_conditioner_from") %}
+                {% set end = states("input_datetime.lr_conditioner_to") %}
+                {% set midnight = now().replace(hour=0, minute=0, second=0).strftime('%H:%M:%S') %}
+                {% if begin <= end %} 
+                {{ (begin <= t < end) }}
+                {% elif midnight == end %} 
+                {{ (begin <= t > end) }}
+                {% elif begin >= end %} 
+                        {%  if begin <= t >= midnight %}                       
+                        {{ (begin <= t > end) }}
+                        {%  elif midnight <= t <= end %}                       
+                        {{ (midnight <= t < end) }}
+                        {%  elif end <= t <= begin %}                       
+                        off
+                        {% endif %}
+                {% endif %}
+            device_class: running
+
+
+    # Автоматическое включение кондиционера
+          - name: lr_conditioning_on
+            state: >
+              {{ is_state('binary_sensor.lr_aeration', 'off')  
+                 and is_state('binary_sensor.lr_conditioner', 'on')
+                 and is_state('binary_sensor.0x00158d00054496b0_contact', 'off')
+                 and is_state('binary_sensor.lr_conditioner_time', 'on')
+                 and (states('sensor.0x00158d00015aebb6_temperature') | float >= (states('input_number.lr_conditioner_max') | float))
+              }}
+            device_class: cold
+            
+    # Условия для выключения кондиционера
+          - name: lr_conditioning_terms
+            state: >
+              {{ is_state('binary_sensor.lr_aeration', 'on')  
+                 or is_state('binary_sensor.lr_conditioner', 'off')
+                 or is_state('binary_sensor.lr_conditioner_time', 'off')
+                 or (states('sensor.0x00158d00015aebb6_temperature') | float <= (states('input_number.lr_conditioner_min') | float))
+              }}
+            device_class: cold
+            
+    # Автоматическое выключение кондиционера
+          - name: lr_conditioning_off
+            state: >
+              {{ is_state('binary_sensor.lr_conditioning_terms', 'on')  
+                 and is_state('binary_sensor.0x00158d00054496b0_contact', 'on')
+              }}
+            device_class: cold
+                
+    automation:
+    
+      - id: Гостиная управление кондиционером
+        alias: lr_conditioner_control
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_conditioner
+        - platform: state
+          entity_id: binary_sensor.lr_conditioning_on
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: binary_sensor.lr_conditioning_off
+          from: 'off'
+          to: 'on'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: switch.lr_conditioner_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.0x00158d00054496b0_contact
+                    state: 'off'
+                sequence:
+                  - service: remote.send_command
+                    data:
+                      entity_id: remote.lr_ir_base_remote
+                      command:
+                        - b64:JgCSAAABJpMVNhUSFRMUNxU2FTYVNxQTFRIVExUSFTYVExQTFRIVExQTFRMUExQTFRMUExUSFRMUExUSFRMUExU2FRMUNxQTFRMVNhQTFQACjhUTFBMVEhUTFDcVEhUTFBMVEhUTFBMVEhUTFDcVEhUTFBMVEhUTFRIVExQTFRIVExQTFRIVExQTFRIVNxQ3FDcVAA0FAAAAAAAA
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.0x00158d00054496b0_contact
+                    state: 'on'
+                sequence:
+                  - service: remote.send_command
+                    data:
+                      entity_id: remote.lr_ir_base_remote
+                      command:
+                        - b64:JgCSAAABJpMUNxQTFRMUExU2FTYWNhQTFRIVExQTFTYWEhQTFRIVExUSFRIWEhQTFRIVExQTFRMUExUSFRMUExU2FhIUNxQTFhEWNhUSFQACjhUTFBMVEhUTFDcUExUTFBMVEhUTFRIVEhUTFDcVEhUTFBMVEhYSFBMVEhUTFRIVExQTFRIVExUSFRIVNhY2FBMVAA0FAAAAAAAA

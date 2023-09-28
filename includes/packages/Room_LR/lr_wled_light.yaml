@@ -1,0 +1,388 @@
+lr_wled_light:
+
+    homeassistant:
+      customize:
+        automation.lr_light_wled_silent:
+          friendly_name: Гостиная WLED - режим тишины
+          icon: phu:bulb-general-group
+
+        automation.lr_light_wled_threat_notification:
+          friendly_name: Гостиная WLED - тревога
+          icon: mdi:bomb
+          
+        automation.lr_light_wled_threat_cancel:
+          friendly_name: Гостиная WLED - отмена тревоги
+          icon: mdi:airplane-off
+          
+        automation.lr_light_wled_calendar_reminder:
+          friendly_name: Гостиная WLED - напоминание календаря
+          icon: mdi:calendar-check
+          
+        automation.lr_light_wled_washing_end:
+          friendly_name: Гостиная WLED - уведомление о завершении стирки
+          icon: mdi:washing-machine-alert
+
+    automation:
+    
+      - alias: lr_light_wled_silent
+        id: lr_light_wled_silent
+        description: Гостиная WLED - режим тишины
+        initial_state: true          
+        trigger:
+    # Сенсор тишины
+        - platform: state
+          entity_id: binary_sensor.lr_silent
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.lr_silent
+                    state: 'on'
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_light
+                    data:
+                      effect: Chase 2
+                      brightness_pct: 10
+                  - service: select.select_option
+                    data:
+                      option: Icefire
+                    target:
+                      entity_id: select.lr_wled_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_speed
+                    data:
+                      value: 30
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_intensity
+                    data:
+                      value: 50
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.lr_silent
+                    state: 'off'
+                sequence:
+                  - service: light.turn_off
+                    entity_id: light.lr_wled_light
+
+      - alias: lr_light_wled_threat_notification
+        id: lr_light_wled_threat_notification
+        description: Гостиная WLED - тревога
+        initial_state: true          
+        trigger:
+    # Сборный сенсор тревоги
+        - platform: state
+          entity_id: binary_sensor.m_kiyiv_air
+          from: 'off'
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # # Включен ночной режим работы
+    #     - condition: state
+    #       entity_id: binary_sensor.night_time
+    #       state: 'on'
+        action:
+        - service: light.turn_on
+          entity_id: light.lr_wled_light
+          data:
+            effect: Scanner
+            brightness_pct: 10
+        - service: select.select_option
+          data:
+            option: Red Shift
+          target:
+            entity_id: select.lr_wled_color_palette
+        - service: number.set_value
+          target:
+            entity_id: number.lr_wled_speed
+          data:
+            value: 85
+        - service: number.set_value
+          target:
+            entity_id: number.lr_wled_intensity
+          data:
+            value: 0
+        - delay: 00:00:30
+        - service: light.turn_off
+          entity_id: light.lr_wled_light
+          
+      - alias: lr_light_wled_threat_cancel
+        id: lr_light_wled_threat_cancel
+        description: Гостиная WLED - отмена тревоги
+        initial_state: true          
+        trigger:
+    # Сборный сенсор тревоги
+        - platform: state
+          entity_id: binary_sensor.m_kiyiv_air
+          from: 'on'
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # # Включен ночной режим работы
+    #     - condition: state
+    #       entity_id: binary_sensor.night_time
+    #       state: 'on'
+        action:
+        - service: light.turn_on
+          entity_id: light.lr_wled_light
+          data:
+            effect: Scanner Dual
+            brightness_pct: 10
+        - service: select.select_option
+          data:
+            option: Aurora
+          target:
+            entity_id: select.lr_wled_color_palette
+        - service: number.set_value
+          target:
+            entity_id: number.lr_wled_speed
+          data:
+            value: 0
+        - service: number.set_value
+          target:
+            entity_id: number.lr_wled_intensity
+          data:
+            value: 11
+        - delay: 00:00:30
+        - service: light.turn_off
+          entity_id: light.lr_wled_light
+
+      - alias: lr_light_wled_calendar_reminder
+        id: lr_light_wled_calendar_reminder
+        description: Гостиная WLED - напоминание календаря
+        initial_state: true          
+        trigger:
+        - platform: time
+          at: '21:00:00'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.turn_on
+          entity_id: light.lr_wled_light
+          data:
+            effect: Gravcenter
+            brightness_pct: 10
+        - service: select.select_option
+          data:
+            option: Hult
+          target:
+            entity_id: select.lr_wled_color_palette
+        - service: number.set_value
+          target:
+            entity_id: number.lr_wled_speed
+          data:
+            value: 40
+        - service: number.set_value
+          target:
+            entity_id: number.lr_wled_intensity
+          data:
+            value: 255
+        - delay: 00:00:15
+        - service: light.turn_off
+          entity_id: light.lr_wled_light
+          
+      - alias: lr_light_wled_washing_end
+        id: lr_light_wled_washing_end
+        description: Гостиная WLED - уведомление о завершении стирки
+        initial_state: true          
+        trigger:
+        - platform: state
+          entity_id: binary_sensor.ln_washing
+          from: 'on'
+          to: 'off'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on' 
+        - condition: state
+          entity_id: binary_sensor.notification_time
+          state: 'on'           
+        action:
+        - service: light.turn_on
+          entity_id: light.lr_wled_light
+          data:
+            effect: Washing Machine
+            brightness_pct: 10
+        - service: select.select_option
+          data:
+            option: Icefire
+          target:
+            entity_id: select.lr_wled_color_palette
+        - service: number.set_value
+          target:
+            entity_id: number.lr_wled_speed
+          data:
+            value: 157
+        - service: number.set_value
+          target:
+            entity_id: number.lr_wled_intensity
+          data:
+            value: 221
+        - delay: 00:00:30
+        - service: light.turn_off
+          entity_id: light.lr_wled_light        
+        
+      - alias: lr_light_wled_manual_control
+        id: lr_light_wled_manual_control
+        description: Гостиная WLED - управление адресной лентой
+        initial_state: true          
+        trigger:
+    # Пульт Loratap
+        - platform: state
+          entity_id: sensor.0x60a423fffe942cf2_action
+          to: '1_single' 
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.toggle
+          entity_id: light.lr_wled_light       
+        
+      - alias: lr_light_wled_effects
+        id: lr_light_wled_effects
+        description: Гостиная WLED - эффекты адресной ленты
+        initial_state: true          
+        trigger:
+    # Пульт Loratap кнопка 1, 2 нажатия
+        - platform: state
+          entity_id: sensor.0x60a423fffe942cf2_action
+          to: '1_double'
+          id: lr_loratap_button_1_2
+    # Пульт Loratap кнопка 2, 1 нажатие
+        - platform: state
+          entity_id: sensor.0x60a423fffe942cf2_action
+          to: '2_single'
+          id: lr_loratap_button_2_1
+    # Пульт Loratap кнопка 2, 2 нажатия
+        - platform: state
+          entity_id: sensor.0x60a423fffe942cf2_action
+          to: '2_double'
+          id: lr_loratap_button_2_2
+    # Пульт Loratap кнопка 2, 1 нажатие
+        - platform: state
+          entity_id: sensor.0x60a423fffe942cf2_action
+          to: '3_single'
+          id: lr_loratap_button_3_1
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: light.lr_wled_light
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: lr_loratap_button_1_2
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_light
+                    data:
+                      effect: Tetrix
+                      brightness_pct: 30
+                  - service: select.select_option
+                    data:
+                      option: Fairy Reaf
+                    target:
+                      entity_id: select.lr_wled_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_speed
+                    data:
+                      value: 55
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_intensity
+                    data:
+                      value: 75 
+              - conditions:
+                  - condition: trigger
+                    id: lr_loratap_button_2_1
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_light
+                    data:
+                      effect: Gravimeter
+                      brightness_pct: 30
+                  - service: select.select_option
+                    data:
+                      option: Tiamat
+                    target:
+                      entity_id: select.lr_wled_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_speed
+                    data:
+                      value: 28
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_intensity
+                    data:
+                      value: 193
+              - conditions:
+                  - condition: trigger
+                    id: lr_loratap_button_2_2
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_light
+                    data:
+                      effect: Scanner Dual
+                      brightness_pct: 30
+                  - service: select.select_option
+                    data:
+                      option: Party
+                    target:
+                      entity_id: select.lr_wled_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_speed
+                    data:
+                      value: 35
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_intensity
+                    data:
+                      value: 65
+              - conditions:
+                  - condition: trigger
+                    id: lr_loratap_button_3_1
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.lr_wled_light
+                    data:
+                      effect: Flow
+                      brightness_pct: 30
+                  - service: select.select_option
+                    data:
+                      option: Magenta
+                    target:
+                      entity_id: select.lr_wled_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_speed
+                    data:
+                      value: 96
+                  - service: number.set_value
+                    target:
+                      entity_id: number.lr_wled_intensity
+                    data:
+                      value: 0
+        

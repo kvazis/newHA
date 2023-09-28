@@ -1,0 +1,48 @@
+ln_sensors:
+
+    recorder:
+      include:
+        entities:
+           - sensor.0xec1bbdfffe8d6ac9_temperature
+           - sensor.0xec1bbdfffe8d6ac9_humidity
+
+    homeassistant:
+      customize:
+
+        sensor.0xec1bbdfffe8d6ac9_humidity:
+          friendly_name: Прачечная, влажность
+          icon: mdi:water-percent
+          unit_of_measurement: '%'
+        sensor.0xec1bbdfffe8d6ac9_temperature:
+          friendly_name: Прачечная, температура
+          icon: mdi:temperature-celsius
+          unit_of_measurement: '°C'
+        sensor.0xec1bbdfffe8d6ac9_raw_humidity:
+          friendly_name: Прачечная, влажность
+          device_class: humidity
+          icon: mdi:water-percent
+        sensor.0xec1bbdfffe8d6ac9_raw_temperature:
+          friendly_name: Прачечная, температура
+          device_class: temperature
+          icon: mdi:temperature-celsius
+
+
+
+        sensor.0xec1bbdfffe8d6ac9_battery:
+          friendly_name:  Прачечная, климат
+          
+    template:
+    
+      - sensor:
+
+          - name: '0xec1bbdfffe8d6ac9_temperature'
+            unique_id: '0xec1bbdfffe8d6ac9_temperature'
+            state: >
+                {{ states('sensor.0xec1bbdfffe8d6ac9_raw_temperature')|float(0) }}
+            device_class: temperature
+                
+          - name: '0xec1bbdfffe8d6ac9_humidity'
+            unique_id: '0xec1bbdfffe8d6ac9_humidity'
+            state: >
+                {{ states('sensor.0xec1bbdfffe8d6ac9_raw_humidity')|float(0) }}
+            device_class: humidity

@@ -1,0 +1,152 @@
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  country: UA
+  currency: UAH
+  # Location required to calculate the time the sun rises and sets
+  latitude: !secret latitude_coord
+  longitude: !secret longitude_coord
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 50
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Europe/Kiev
+  # Customization file
+#  customize: !include_dir_merge_named includes/customize
+  packages: !include_dir_merge_named includes/packages
+  auth_providers:
+   - type: homeassistant
+
+  whitelist_external_dirs :
+   - /config
+
+default_config:
+config:
+#Сканирование доступных устройств в сети
+ssdp:
+# Включение официального интерфейса
+frontend:
+  themes: !include_dir_merge_named themes
+  
+  extra_module_url:
+    - /hacsfiles/custom-brand-icons/custom-brand-icons.js
+# Включение карты
+# map:
+# Включение поддержки приложения
+mobile_app:
+# Отслеживание солнца
+sun:
+# API для предоставления информации о системе и ее компонентах
+system_health:
+# Сенсор для отображения последней версии НА
+# updater:
+# Stream from camera
+stream:
+history:
+
+# Nabu Casa
+cloud:
+
+# Медиа контент
+media_source:
+
+lovelace:
+  mode: yaml
+  resources:
+   - url: /hacsfiles/lovelace-auto-entities/auto-entities.js
+     type: module
+   - url: /hacsfiles/vertical-stack-in-card/vertical-stack-in-card.js
+     type: js 
+   - url: /hacsfiles/mini-graph-card/mini-graph-card-bundle.js
+     type: module
+   - url: /hacsfiles/lovelace-card-mod/card-mod.js
+     type: module
+   - url: /hacsfiles/stack-in-card/stack-in-card.js
+     type: module
+   - url: /hacsfiles/battery-state-card/battery-state-card.js
+     type: module
+   - url: /hacsfiles/logbook-card/logbook-card.js
+     type: module
+   - url: /hacsfiles/entity-attributes-card/entity-attributes-card.js
+     type: module
+   - url: /hacsfiles/lovelace-multiple-entity-row/multiple-entity-row.js
+     type: module
+   - url: /hacsfiles/lovelace-tempometer-gauge-card/tempometer-gauge-card.js
+     type: module
+   - url: /hacsfiles/flipdown-timer-card/flipdown-timer-card.js
+     type: module
+   - url:  /hacsfiles/vacuum-card/vacuum-card.js
+     type: module 
+   - url: /hacsfiles/light-entity-card/light-entity-card.js
+     type: module
+   - url: /hacsfiles/history-explorer-card/history-explorer-card.js
+     type: module 
+   - url: /hacsfiles/ha-sankey-chart/ha-sankey-chart.js
+     type: module      
+   - url: /hacsfiles/lovelace-mushroom/mushroom.js
+     type: module
+   - url: /hacsfiles/bar-card/bar-card.js
+     type: module
+   - url: /hacsfiles/timer-bar-card/timer-bar-card.js
+     type: module
+   - url: /hacsfiles/power-flow-card-plus/power-flow-card-plus.js
+     type: module
+
+     
+  dashboards:
+    lovelace-graph:
+      mode: yaml
+      filename: ui_graph.yaml
+      title: Графики
+      icon: mdi:chart-bell-curve-cumulative
+      show_in_sidebar: true
+      require_admin: true
+
+
+panel_custom:
+  - name: server_state
+    sidebar_title: 'Система'
+    sidebar_icon: mdi:server
+    js_url: /api/hassio/app/entrypoint.js
+    url_path: 'hassio/system'
+    embed_iframe: true
+    require_admin: true
+    config:
+      ingress: core_configurator  
+
+logbook:
+
+remote:
+  - platform: xiaomi_miio
+    name: "kn ir base"
+    host: 192.168.0.135
+    token: db472a45b4f1913439abaab3f7ff6356
+    slot: 3
+    timeout: 30
+    hidden: false
+
+# Text to speech
+tts:
+  - platform: google_translate
+  
+  - platform: reversotts
+    language: 'Alyona-Russian'
+    pitch: "100"
+    bitrate: "128k"
+
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+telegram_bot:
+  - platform: polling
+    api_key: !secret api_key_bot
+    allowed_chat_ids:
+      - !secret chat_id_alex
+      - !secret chat_id_olha
+      - !secret chat_id_dima
+      - !secret chat_id_user
+      - !secret chat_id_group
+      - !secret chat_id_group_tech
+      - !secret chat_id_log

@@ -1,0 +1,109 @@
+lr_air_quality:
+
+
+    recorder:
+      include:
+        entities:
+        #   - sensor.lr_carbon_dioxide
+          - sensor.lr_air_co2
+
+    homeassistant:
+
+      customize:
+      
+        sensor.lr_air_co2:
+          friendly_name: Гостиная, СО2
+          unit_of_measurement: 'ppm'
+          icon: mdi:molecule-co2
+          device_class: carbon_monoxide
+
+        binary_sensor.lr_poor_air:
+          friendly_name: Гостиная, плохой воздух
+          device_class: carbon_monoxide
+
+        # automation.lr_air_co2_reload:
+        #   friendly_name: Гостиная - перезагрузка детектора CO2
+        #   icon: mdi:molecule-co2
+
+    template:
+    
+      - binary_sensor:
+          - name: lr_poor_air
+            state: >
+                  {{ states('sensor.lr_air_co2')|float > 1500 
+                     and is_state('binary_sensor.notification_time', 'on' )
+                     and is_state('binary_sensor.lr_aeration', 'off' ) }}
+            availability: "{{ (states('sensor.lr_air_co2')|float > 250 ) }}" 
+            icon: >
+              {% if is_state("binary_sensor.lr_poor_air", "on") %}
+              mdi:biohazard
+              {% else %}
+              mdi:air-filter
+              {% endif %}
+     
+      - sensor:
+          - name: lr_air_co2
+            unique_id: lr_air_co2
+            state: "{{ (states('sensor.cgllc_s1_cc00_co2_density')|float(500) )}}"
+          
+          
+          
+    #       - name: lr_carbon_dioxide
+    #         state: "{{ state_attr('air_quality.lr_air_monitor', 'carbon_dioxide') }}"
+            
+
+            
+    automation:
+
+      - id: Гостиная - перезагрузка детектора CO2
+        alias: lr_air_co2_reload
+        description: Гостиная - перезагрузка детектора CO2
+        initial_state: false
+        trigger:
+          - platform: homeassistant
+            event: start
+          - platform: time_pattern
+            minutes: '/20'   
+        action:
+          - delay: 00:02:00
+          - service: homeassistant.reload_config_entry
+            data: {}
+            target:
+              entity_id: sensor.lr_air_co2
+
+
+      - id: Гостиная, уведомление о низком качестве воздуха
+        alias: lr_air_notification
+        initial_state: true
+        trigger:
+          - platform: time_pattern
+            minutes: '/30'
+        condition:
+          - condition: state
+            entity_id:  binary_sensor.lr_poor_air
+            state: 'on'
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+         - service: telegram_bot.send_message
+           data_template:
+             target:
+                 - !secret chat_id_group
+             message: | 
+                  {{"\U0001F637"}} Гостиная {{ states('sensor.time_date') }} - хорошо бы проветрить
+         - service: light.turn_on
+           entity_id:
+              - light.gateway_light_34ce0088b039
+           data_template:
+             brightness_pct: 20
+             rgb_color: [0, 0, 255]
+         - service: xiaomi_aqara.play_ringtone
+           data:
+            gw_mac: 34:CE:00:88:B0:39
+            ringtone_id: 10010
+            ringtone_vol: 50
+         - delay: 00:00:04
+         - service: light.turn_off
+           entity_id:
+              - light.gateway_light_34ce0088b039 

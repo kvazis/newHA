@@ -1,0 +1,142 @@
+title: Мощность
+panel: true
+icon: mdi:transmission-tower
+cards:
+
+
+    - type: custom:history-explorer-card
+      header: Мощность
+      defaultTimeRange: 4h
+      lineMode: stepped
+      decimation: true
+      uimode: dark
+      recordedEntitiesOnly: true
+      labelsVisible: false
+      uiColors:
+        gridlines: rgb(100,100,100)
+      uiLayout:
+        toolbar: top
+        selector: hide
+      graphs:
+      - type: line
+        options:
+          ymin: 0
+        #   ymax: 15000
+        entities:
+           - entity: sensor.0x70ac08fffe99c363_power
+             color: rgb(255,246,44)
+             fill: rgba(255,246,44,0.1)
+           - entity: sensor.0x187a3efffe355cf1_power
+             color: rgb(0,255,0)
+             fill: rgba(0,255,0,0.1)
+           - entity: sensor.0x187a3efffe303832_power
+             color: rgb(255,0,0)
+             fill: rgba(255,0,0,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0x00158d0001d35bc0_power
+             color: rgb(191,255,162)
+             fill: rgba(191,255,162,0.1)
+           - entity: sensor.0xa4c138d571b656c5_power
+             color: rgb(59,255,247)
+             fill: rgba(59,255,247,0.1)
+           - entity: sensor.0xa4c138273b49e4d0_power
+             color: rgb(182,255,235)
+             fill: rgba(182,255,235,0.1)
+           - entity: sensor.0xa4c1385bcf7d00c9_power
+             color: rgb(241,255,106)
+             fill: rgba(241,255,106,0.1)
+           - entity: sensor.0xa4c138201dcb67f6_power
+             color: rgb(255,178,252)
+             fill: rgba(255,178,252,0.1)
+           - entity: sensor.0xa4c13874f3d1d1c0_power
+             color: rgb(255,211,206)
+             fill: rgba(255,211,206,0.1)
+           - entity: sensor.0x00158d0001fa2934_power
+             color: rgb(255,228,229)
+             fill: rgba(255,228,229,0.1)
+           - entity: sensor.0x00158d0001291d12_power
+             color: rgb(255,201,182)
+             fill: rgba(255,201,182,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0xa4c1388c89a46970_power
+             color: rgb(191,255,162)
+             fill: rgba(191,255,162,0.1)
+           - entity: sensor.0xa4c138f41459f92a_power
+             color: rgb(59,255,247)
+             fill: rgba(59,255,247,0.1)
+           - entity: sensor.0xa4c138131a85d3ff_power
+             color: rgb(182,255,235)
+             fill: rgba(182,255,235,0.1)
+           - entity: sensor.0xa4c1382dc9fecb3e_power
+             color: rgb(241,255,106)
+             fill: rgba(241,255,106,0.1)
+           - entity: sensor.0xa4c138ee9e1e5451_power
+             color: rgb(255,178,252)
+             fill: rgba(255,178,252,0.1)
+           - entity: sensor.0xa4c1382600c57620_power
+             color: rgb(255,211,206)
+             fill: rgba(255,211,206,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0xa4c13850763b90bf_power
+             color: rgb(191,255,162)
+             fill: rgba(191,255,162,0.1)
+           - entity: sensor.0xa4c138716822e6a7_power
+             color: rgb(59,255,247)
+             fill: rgba(59,255,247,0.1)
+           - entity: sensor.lr_ups_dc_power
+             color: rgb(255,211,206)
+             fill: rgba(255,211,206,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0x00158d0003584401_power
+             color: rgb(182,255,235)
+             fill: rgba(182,255,235,0.1)
+           - entity: sensor.0x540f57fffe78ba20_power
+             color: rgb(241,255,106)
+             fill: rgba(241,255,106,0.1)
+           - entity: sensor.0x842e14fffe51c5ae_power
+             color: rgb(255,201,182)
+             fill: rgba(255,201,182,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0x00158d0001a2ccab_power
+             color: rgb(191,255,162)
+             fill: rgba(191,255,162,0.1)
+           - entity: sensor.0x00158d00030a6e78_power
+             color: rgb(59,255,247)
+             fill: rgba(59,255,247,0.1)
+           - entity: sensor.0x00158d000153dd8e_power
+             color: rgb(182,255,235)
+             fill: rgba(182,255,235,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:             
+           - entity: sensor.0x00158d00010ec4b8_power
+             color: rgb(241,255,106)
+             fill: rgba(241,255,106,0.1)
+           - entity: sensor.0x00158d00012896cb_power
+             color: rgb(255,178,252)
+             fill: rgba(255,178,252,0.1)             
+           - entity: sensor.0x04cf8cdf3c764e0a_power
+             color: rgb(255,211,206)
+             fill: rgba(255,211,206,0.1)             
+           - entity: sensor.0xa4c138e22148db3a_power
+             color: rgb(255,178,252)
+             fill: rgba(255,178,252,0.1)             
+             
+             
+             

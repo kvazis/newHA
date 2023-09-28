@@ -1,0 +1,45 @@
+lr_vacuum_cleaner:
+
+    homeassistant:
+      customize:
+      
+        automation.lr_vacuum_cleaner:
+          friendly_name: Гостиная - робот пылесос
+          
+    input_button:
+
+      lr_vacuum_cleaner:
+        name: Управление роботом пылесосом
+        icon: phu:roborock
+        
+    automation:
+    
+      - alias: lr_vacuum_cleaner
+        description: Гостиная - робот пылесос
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_vacuum_cleaner
+        condition:
+         - condition: state
+           entity_id: switch.control_mode
+           state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ is_state('vacuum.xa1_304958804790', 'docked') }}"
+                sequence:
+                  - service: vacuum.start
+                    data: {}
+                    target:
+                      entity_id: vacuum.xa1_304958804790
+              - conditions:
+                  - condition: template
+                    value_template: "{{ not is_state('vacuum.xa1_304958804790', 'docked') }}"
+                sequence:
+                  - service: vacuum.return_to_base
+                    data: {}
+                    target:
+                      entity_id: vacuum.xa1_304958804790

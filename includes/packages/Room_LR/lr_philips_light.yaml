@@ -1,0 +1,145 @@
+lr_philips_light:
+
+
+    homeassistant:
+
+      customize:
+
+        automation.lr_philips_cicle_light_color_sync:
+          friendly_name: Гостиная - прикроватник синхронизация цвета списка и светильника
+          icon: phu:bollard
+          
+        automation.lr_philips_cicle_light_color_change:
+          friendly_name: Гостиная - прикроватник переключение элементов списка циклической подсветки
+          icon: phu:bollard
+          
+        automation.lr_philips_cicle_light_color:
+          friendly_name: Гостиная - прикроватник старт стоп режима циклической подсветки
+          icon: phu:bollard
+
+    input_select:  
+    
+      lr_philips_cicle_light_color:
+        name: Список цветов
+        options:
+          - crimson
+          - deeppink
+          - hotpink
+          - lightpink
+          - red
+          - orangered
+          - orange
+          - lightsalmon
+          - darksalmon
+          - coral
+          - goldenrod
+          - gold
+          - yellow
+          - yellowgreen
+          - greenyellow
+          - limegreen
+          - lime
+          - lawngreen
+          - green
+          - aquamarine
+          - mediumturquoise
+          - turquoise
+          - darkturquoise
+          - deepskyblue
+          - dodgerblue
+          - royalblue
+          - blue
+          - darkblue
+          - darkslateblue
+          - darkmagenta
+          - darkorchid
+          - blueviolet
+          - mediumpurple
+          - purple
+          - mediumorchid
+          - orchid
+          - plum
+          - violet
+          - fuchsia
+          - magenta
+          - darkviolet
+          - mediumvioletred
+          
+    automation:
+
+      - alias: lr_philips_cicle_light_color_sync
+        id: lr_philips_cicle_light_color_sync
+        description: Гостиная - прикроватник синхронизация цвета списка и светильника
+        initial_state: false
+        trigger:
+        - platform: state
+          entity_id: input_select.lr_philips_cicle_light_color
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.turn_on
+          entity_id: light.lr_bedside
+          data_template:
+            color_name: >
+              {{trigger.to_state.state}}
+            transition: 2
+
+      - alias: lr_philips_cicle_light_color_change
+        id: lr_philips_cicle_light_color_change
+        description: Гостиная - прикроватник переключение элементов списка циклической подсветки
+        initial_state: false
+        trigger:
+        - platform: time_pattern
+          seconds: '/5'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: input_select.select_next
+          target:
+            entity_id: input_select.lr_philips_cicle_light_color
+    
+      - alias: lr_philips_cicle_light_color
+        id: lr_philips_cicle_light_color
+        description: Гостиная - прикроватник старт стоп режима циклической подсветки
+        initial_state: false
+        trigger:
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_6_triple'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - choose:
+            - conditions:
+              - condition: state
+                entity_id: light.lr_bedside
+                state: 'off'  
+              sequence:
+              - service: light.turn_on
+                entity_id: light.lr_bedside
+                data_template:
+                  brightness_pct: 60
+                  color_name: >
+                    {{states('input_select.lr_philips_cicle_light_color')}}
+                  transition: 2
+              - service: automation.turn_on
+                target:
+                  entity_id: automation.lr_philips_cicle_light_color_change
+
+            - conditions:
+              - condition: state
+                entity_id: light.lr_bedside
+                state: 'on'  
+              sequence:
+              - service: light.turn_off
+                entity_id: light.lr_bedside
+              - service: automation.turn_off
+                target:
+                  entity_id: automation.lr_philips_cicle_light_color_change

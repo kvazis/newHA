@@ -1,0 +1,73 @@
+# da_reboot_entity:
+
+#     homeassistant:
+
+#       customize:
+#         automation.da_neon_strip_reload:
+#           friendly_name: Детская А - перезагрузка адресной ленты
+#           icon: mdi:reload
+
+#         automation.da_neon_strip_block_off_reload:
+#           friendly_name: Детская А - отключение блокировки перезагрузки адресной ленты
+#           icon: mdi:lock-off
+
+#     input_boolean:
+    
+#      da_neon_strip:
+#         name: Предохранитель ДА адресная лента
+#         icon: phu:light-strip
+
+#     automation:
+# #################### ПЕРЕЗАГРУЗКА ЛЕНТЫ ####################
+
+#       - alias: da_neon_strip_reload
+#         description: Детская А - перезагрузка адресной ленты
+#         initial_state: true
+#         trigger:
+#     ## Виртуальная кнопка
+#         - platform: state
+#           entity_id: input_button.da_neon_strip
+#     # Проверка раз в 10 минут
+#         - platform: time_pattern
+#           minutes: '/10'
+#         condition:
+#     # Лента недоступна
+#         - condition: state
+#           entity_id: light.neon_strip
+#           state: 'unavailable'
+#     # Предохранитель
+#         - condition: state
+#           entity_id: input_boolean.da_neon_strip
+#           state: 'off'
+#         action:  
+#         - service: homeassistant.reload_config_entry
+#           data: {}
+#           target:
+#             entity_id: light.neon_strip
+#         - wait_template: "{{ not is_state('light.neon_strip', 'unavailable') }}"
+#           timeout: 10
+#         - if:
+#              - "{{ not wait.completed }}"
+#           then:
+#              - service: telegram_bot.send_message
+#               data_template:
+#                  target:
+#                      - !secret chat_id_group_tech
+#                  message: | 
+#                       Внимание!
+#                       Адресная лента в Детской А - недоступна, перезагрузка не имела успеха
+#     # Включение предохранителя
+#              - service: input_boolean.turn_on
+#               entity_id: input_boolean.da_neon_strip
+
+
+#       - alias: da_neon_strip_block_off_reload
+#         description: Детская А - отключение блокировки перезагрузки адресной ленты
+#         initial_state: true
+#         trigger:
+#         - platform: state
+#           entity_id: light.neon_strip
+#           from: 'unavailable'
+#         action:                
+#         - service: input_boolean.turn_off
+#           entity_id: input_boolean.da_neon_strip

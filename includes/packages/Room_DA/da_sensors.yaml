@@ -1,0 +1,60 @@
+da_sensors:
+
+
+    recorder:
+      include:
+        entities:
+           - sensor.0x00158d000159c7e6_temperature
+           - sensor.0x00158d000159c7e6_humidity
+           - sensor.0x04cf8cdf3c78ca91_illuminance_lux
+           - binary_sensor.0x00158d00016d56f5_occupancy
+
+    homeassistant:
+      customize:
+
+        binary_sensor.0x00158d00016d56f5_occupancy:
+          friendly_name: Детская А движение
+        sensor.0x00158d00016d56f5_battery:
+          friendly_name: Детская А движение        
+
+        binary_sensor.0x00158d0001583c7b_contact:
+          friendly_name: Детская А окно
+          device_class: window
+        sensor.0x00158d0001583c7b_battery:
+          friendly_name: Детская А окно
+
+        binary_sensor.da_aeration:
+          friendly_name: Детская А проветривание
+        
+        sensor.0x00158d000159c7e6_humidity:
+          friendly_name: Детская А влажность
+          icon: mdi:water-percent
+        sensor.0x00158d000159c7e6_temperature:
+          friendly_name: Детская А температура
+          icon: mdi:temperature-celsius
+        sensor.0x00158d000159c7e6_battery:
+          friendly_name: Детская А климат
+
+        sensor.0x04cf8cdf3c78ca91_illuminance_lux:
+          friendly_name: Детская А освещенность
+        sensor.0x04cf8cdf3c78ca91_battery:
+          friendly_name: Детская А сенсор освещенности
+
+
+    template:
+     
+      - binary_sensor:
+
+          - name: da_aeration
+            state: >
+              {{ is_state('binary_sensor.0x00158d0001583c7b_contact', 'on')  
+              }}
+            delay_on: 
+                seconds: 30
+            device_class: opening
+            icon: >
+              {% if is_state("binary_sensor.da_aeration", "on") %}
+              mdi:window-open-variant
+              {% else %}
+              mdi:window-closed-variant
+              {% endif %}

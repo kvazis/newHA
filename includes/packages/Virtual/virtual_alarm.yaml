@@ -1,0 +1,198 @@
+# virtual_alarm:
+
+
+#     template:
+
+#       - binary_sensor:
+
+#     # Сборный сенсор тревоги - будет активен при любой из видов тревог
+#           - name: threat_dnipro
+#             state: >
+#               {{ is_state('binary_sensor.m_dnipro_ta_dniprovska_teritorialna_gromada_air', 'on')  
+#                  or is_state('binary_sensor.m_dnipro_ta_dniprovska_teritorialna_gromada_artillery', 'on')
+#                  or is_state('binary_sensor.m_dnipro_ta_dniprovska_teritorialna_gromada_unknown', 'on')
+#                  or is_state('binary_sensor.m_dnipro_ta_dniprovska_teritorialna_gromada_urban_fights', 'on')
+#                  or is_state('binary_sensor.m_dnipro_ta_dniprovska_teritorialna_gromada_chemical', 'on')
+#                  or is_state('binary_sensor.m_dnipro_ta_dniprovska_teritorialna_gromada_nuclear', 'on')
+#               }}
+#             device_class: safety
+#             icon: >
+#               {% if is_state("binary_sensor.threat_dnipro", "on") %}
+#               mdi:skull
+#               {% else %}
+#               mdi:shield-check
+#               {% endif %}
+              
+#     automation:
+
+#       - id: Тревога Днепр
+#         alias: dnepr_threat_notification
+#         description: Включение световой индикации для Днепра
+#         initial_state: true
+#         trigger:
+#     # Сборный сенсор тревоги
+#         - platform: state
+#           entity_id: binary_sensor.threat_dnipro
+#           from: 'off'
+#           to: 'on'
+#         condition:
+#     # Переключатель режима работы сервера
+#           - condition: state
+#             entity_id: switch.control_mode
+#             state: 'on'
+#         action:
+#           - service: light.turn_on
+#             data:
+#             #   brightness_pct: 3
+#             #   transition: 2
+#               color_name: red
+#             target:
+#               entity_id:
+#                 - light.dnipro_1_virtual
+#                 - light.dnipro_2_virtual
+                
+#       - id: Отбой тревоги, Днепр
+#         alias: dnepr_threat_cancel_notification
+#         description: Выключение световой индикации для Днепра
+#         initial_state: true
+#         trigger:
+#     # Сборный сенсор тревоги
+#         - platform: state
+#           entity_id: binary_sensor.threat_dnipro
+#           from: 'on'
+#           to: 'off'
+#         condition:
+#     # Переключатель режима работы сервера
+#           - condition: state
+#             entity_id: switch.control_mode
+#             state: 'on'
+#         action:
+#           - service: light.turn_on
+#             data:
+#             #   brightness_pct: 3
+#             #   transition: 2
+#               color_name: green
+#             target:
+#               entity_id:
+#                 - light.dnipro_1_virtual
+#                 - light.dnipro_2_virtual    
+#           - delay: 5         
+#           - service: light.turn_on
+#             data:
+#               brightness_pct: 3
+#               transition: 2
+#               kelvin: 4000
+#             target:
+#               entity_id:
+#                 - light.dnipro_1_virtual
+#                 - light.dnipro_2_virtual       
+
+#       - id: Днепр, проверка лампочки 1
+#         alias: dnepr_threat_control_1
+#         initial_state: true
+#         trigger:
+#     # Проверка раз в 5 минут
+#         - platform: time_pattern
+#           minutes: '/5'
+#         condition:
+#     # Переключатель режима работы сервера
+#         - condition: state
+#           entity_id: switch.control_mode
+#           state: 'on'
+#         action:
+#             - choose:
+
+#               - conditions:
+#                   - condition: template
+#                     value_template: "{{(state_attr('light.dnipro_1_virtual', 'color_mode')) == 'color_temp'}}"
+#                   - condition: state
+#                     entity_id: binary_sensor.threat_dnipro
+#                     state: 'on'
+#                 sequence:
+#                   - service: light.turn_on
+#                     data:
+#                     #   brightness_pct: 3
+#                     #   transition: 2
+#                       color_name: red
+#                     target:
+#                       entity_id: light.dnipro_1_virtual
+
+#               - conditions:
+#                   - condition: template
+#                     value_template: "{{(state_attr('light.dnipro_1_virtual', 'color_mode')) == 'hs'}}"
+#                   - condition: state
+#                     entity_id: binary_sensor.threat_dnipro
+#                     state: 'off'
+#                 sequence:
+#                   - service: light.turn_on
+#                     data:
+#                       brightness_pct: 3
+#                       transition: 2
+#                       kelvin: 4000
+#                     target:
+#                       entity_id: light.dnipro_1_virtual
+                
+                
+#       - id: Днепр, проверка лампочки 2
+#         alias: dnepr_threat_control_2
+#         initial_state: true
+#         trigger:
+#     # Проверка раз в 5 минут
+#         - platform: time_pattern
+#           minutes: '/5'
+#         condition:
+#     # Переключатель режима работы сервера
+#         - condition: state
+#           entity_id: switch.control_mode
+#           state: 'on'
+#         action:
+#             - choose:
+
+#               - conditions:
+#                   - condition: template
+#                     value_template: "{{(state_attr('light.dnipro_2_virtual', 'color_mode')) == 'color_temp'}}"
+#                   - condition: state
+#                     entity_id: binary_sensor.threat_dnipro
+#                     state: 'on'
+#                 sequence:
+#                 #   - service: persistent_notification.create
+#                 #     data:
+#                 #       message: "Лампочка 2 - Первое условие"
+#                 #       title: "Уведомление"
+#                   - service: light.turn_on
+#                     data:
+#                     #   brightness_pct: 3
+#                     #   transition: 2
+#                       color_name: red
+#                     target:
+#                       entity_id: light.dnipro_2_virtual
+
+#               - conditions:
+#                   - condition: template
+#                     value_template: "{{(state_attr('light.dnipro_2_virtual', 'color_mode')) == 'hs'}}"
+#                   - condition: state
+#                     entity_id: binary_sensor.threat_dnipro
+#                     state: 'off'
+#                 sequence:
+#                 #   - service: persistent_notification.create
+#                 #     data:
+#                 #       message: "Второе условие"
+#                 #       title: "Уведомление"
+#                   - service: light.turn_on
+#                     data:
+#                       brightness_pct: 3
+#                       transition: 2
+#                       kelvin: 4000
+#                     target:
+#                       entity_id: light.dnipro_2_virtual
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                

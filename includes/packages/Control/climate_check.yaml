@@ -1,0 +1,50 @@
+climate_check:
+
+
+    template:
+    
+      - binary_sensor:
+
+    # Одновременный отвал термостатов
+          - name: all_climate_unavailable
+            state: >
+              {{ is_state('climate.0x2c1165fffeb3e531', 'unavailable')  
+                 and is_state('climate.0x2c1165fffec61c89', 'unavailable')
+                 and is_state('climate.0x2c1165fffeb3e567', 'unavailable')
+                 and is_state('climate.0x84fd27fffe31ada3', 'unavailable')
+                 and is_state('climate.0x2c1165fffec612b1', 'unavailable')
+              }}
+            delay_on: 
+                minutes: 1
+            device_class: problem
+            icon: >
+              {% if is_state("binary_sensor.all_climate_unavailable", "on") %}
+              phu:wiser-thermostat-off
+              {% else %}
+              phu:wiser-thermostat-on
+              {% endif %}
+              
+    automation:
+    
+      - alias: all_climate_mosquitto_reload
+        id: all_climate_mosquitto_reload
+        description: Перезагрузка аддона mosquitto
+        initial_state: true
+        trigger:
+    # Проверка раз в 5 минут
+        - platform: time_pattern
+          minutes: '/5'
+        condition:
+        - condition: state
+          entity_id: binary_sensor.all_climate_unavailable
+          state: 'on'
+        action:
+        - service: hassio.addon_restart
+          data:
+            addon: core_mosquitto
+        - service: telegram_bot.send_message
+          data_template:
+            target:
+                - !secret chat_id_log
+            message: | 
+                 {{"\U0001F916"}} Отвалились термоголовки, дергаю москито {{ states('sensor.time_date') }} 

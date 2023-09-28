@@ -1,0 +1,91 @@
+# da_fairy_lights:
+
+
+#     input_select:  
+    
+#       da_fairy_lights_effects:
+#         name: Список эффектов
+#         options:
+#           - 0103e8
+#           - 0203e8
+#           - 0303e8
+#           - 0403e8
+#           - 0503e8
+#           - 0603e8
+#           - 0703e8
+#           - 0803e8
+#           - 0903e8
+#           - 1003e8
+#           - 1103e8
+#           - 1203e8
+#           - 1303e8
+#           - 1403e8
+#           - 1503e8
+#           - 1603e8
+#           - 1703e8
+#           - 1803e8
+#           - 1903e8
+#           - 2003e8
+
+         
+          
+#     automation:
+
+#       - alias: da_fairy_lights_effects
+#         initial_state: true
+#         trigger:
+#         - platform: state
+#           entity_id: input_select.da_fairy_lights_effects
+#         condition:
+#         - condition: state
+#           entity_id: light.fairy_light
+#           state: 'on'
+#         action:
+#         - choose:
+#           - conditions:
+#               - condition: state
+#                 entity_id: sensor.fairy_light_mode
+#                 state: 'scene'
+#             sequence: 
+#             - service: localtuya.set_dp
+#               data_template:
+#                 device_id: bf711554ea4678bf7fccqq
+#                 dp: 25
+#                 value: >
+#                     {{states('input_select.da_fairy_lights_effects')}}
+#           - conditions:
+#              not:
+#               - condition: state
+#                 entity_id: sensor.fairy_light_mode
+#                 state: 'scene'
+#             sequence:
+#             - service: localtuya.set_dp
+#               data:
+#                 device_id: bf711554ea4678bf7fccqq
+#                 dp: 21
+#                 value: "scene"
+#             - service: localtuya.set_dp
+#               data_template:
+#                 device_id: bf711554ea4678bf7fccqq
+#                 dp: 25
+#                 value: >
+#                     {{states('input_select.da_fairy_lights_effects')}}
+                    
+#       - alias: da_fairy_lights_effect_change
+#         initial_state: false
+#         trigger:
+#         - platform: time_pattern
+#           minutes: '/5'
+#         condition:
+#         - condition: state
+#           entity_id: light.fairy_light
+#           state: 'on'
+#         action:
+#         - service: input_select.select_next
+#           target:
+#             entity_id: input_select.da_fairy_lights_effects 
+                    
+                    
+                    
+                    
+                    

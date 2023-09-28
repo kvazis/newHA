@@ -1,0 +1,160 @@
+en_camera:
+
+    homeassistant:
+      customize:
+
+        automation.en_open_door_photo:
+          friendly_name: Прихожая - фото и отправка в телеграмм при открытии двери
+          icon: mdi:camera
+          
+        automation.cam_reolink411_photo:
+          friendly_name: Reolink 411 ws - фото и отправка в телеграмм
+          icon: phu:reolink-510
+          
+        automation.cam_reolink410_photo:
+          friendly_name: Reolink 410 - фото и отправка в телеграмм
+          icon: phu:reolink-510
+          
+        automation.cam_xiaofang_photo:
+          friendly_name: Xiaofang - фото и отправка в телеграмм
+          icon: phu:wyzecam
+
+        automation.cam_xiaofang_reload:
+          friendly_name: Xiaofang - перезагрузка
+          icon: mdi:reload
+          
+    template:
+     
+      - binary_sensor:
+
+          - name: enter_camera_snapshot
+            state: >
+              {{ is_state('binary_sensor.0x00158d000119378d_contact', 'on')  
+              }}
+            delay_off: 00:03:00
+            device_class: running
+            icon: >
+              {% if is_state("binary_sensor.enter_camera_snapshot", "on") %}
+              mdi:camera-off
+              {% else %}
+              mdi:camera
+              {% endif %}
+
+    automation:
+
+      - alias: en_open_door_photo
+        description: Открытие двери - фото и отправка в телеграмм
+        initial_state: true
+        trigger:
+    ## Открытие двери
+        - platform: state
+          entity_id: binary_sensor.enter_camera_snapshot
+          to: 'on'
+        condition:
+         - condition: state
+           entity_id: switch.control_mode
+           state: 'on'
+        action:
+         - service: telegram_bot.send_message
+           data_template:
+             target:
+                 - !secret chat_id_group
+             message: | 
+                  {{"\U0001F6AA"}} Входная дверь открыта в {{ states.sensor.time_date.state }}
+         - service: input_button.press
+           target:
+             entity_id: 
+              - input_button.reolink_411_ws
+              - input_button.reolink_410
+              - input_button.xiaofang
+
+    
+      - alias: cam_reolink411_photo
+        description: Reolink 411 ws - фото и отправка в телеграмм
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.reolink_411_ws
+        condition:
+         - condition: state
+           entity_id: switch.control_mode
+           state: 'on'
+        action:
+         - service: camera.snapshot
+           data:
+              entity_id: camera.reolink_411_rtsp
+              filename: "/config/www/cam_captures/reolink411.jpg"
+         - delay: 00:00:10
+         - service: telegram_bot.send_photo
+           data_template:
+             target:
+              - !secret chat_id_group
+             file: "/config/www/cam_captures/reolink411.jpg" 
+        
+      - alias: cam_reolink410_photo
+        description: Reolink 410 - фото и отправка в телеграмм
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.reolink_410
+        condition:
+         - condition: state
+           entity_id: switch.control_mode
+           state: 'on'
+        action:
+         - service: camera.snapshot
+           data:
+              entity_id: camera.reolink_410_rtsp
+              filename: "/config/www/cam_captures/reolink410.jpg"
+         - delay: 00:00:20
+         - service: telegram_bot.send_photo
+           data_template:
+             target:
+              - !secret chat_id_group
+             file: "/config/www/cam_captures/reolink410.jpg"  
+        
+
+      - alias: cam_xiaofang_photo
+        description: Xiaofang - фото и отправка в телеграмм
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.xiaofang 
+        condition:
+         - condition: state
+           entity_id: switch.control_mode
+           state: 'on'
+        action:
+         - service: camera.snapshot
+           data:
+              entity_id: camera.xiaofang
+              filename: "/config/www/cam_captures/xiaofang.jpg"
+         - delay: 00:00:10
+         - service: telegram_bot.send_photo
+           data_template:
+             target:
+              - !secret chat_id_group
+             file: "/config/www/cam_captures/xiaofang.jpg" 
+
+      - alias: cam_xiaofang_reload
+        description: Xiaofang - перезагрузка
+        initial_state: true
+        trigger:
+    ## Недоступность 5 минут
+        - platform: state
+          entity_id: camera.xiaofang
+          to: 'unavailable'
+          for:
+            minutes: 5 
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.xiaofang_reload
+        action:  
+          - service: homeassistant.reload_config_entry
+            data:
+              entry_id: a1c373199136cdab9f076e7e7a76b574
+            target:
+              entity_id: camera.xiaofang

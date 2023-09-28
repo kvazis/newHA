@@ -1,0 +1,102 @@
+da_wled_control:
+
+    input_button:
+
+      da_wled_light:
+        name: Детская А, адресная лента
+
+    automation:
+
+      - alias: da_light_wled_manual_control
+        id: da_light_wled_manual_control
+        description: Детская A - управление адресной лентой
+        initial_state: true          
+        trigger:
+    # Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.da_wled_light
+    # Aqara Opple
+        - platform: state
+          entity_id: sensor.0x54ef4410004c16d9_action
+          to: 'button_3_single' 
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.toggle
+          entity_id: light.da_wled_light
+        
+      - alias: da_light_wled_effects
+        id: da_light_wled_effects
+        description: Детская A - эффекты адресной ленты
+        initial_state: true          
+        trigger:
+    # Aqara Opple кнопка 3, 2 нажатия
+        - platform: state
+          entity_id: sensor.0x54ef4410004c16d9_action
+          to: 'button_3_double'
+          id: da_opple_button_3_2
+    # Aqara Opple кнопка 3, 3 нажатия
+        - platform: state
+          entity_id: sensor.0x54ef4410004c16d9_action
+          to: 'button_3_triple'
+          id: da_opple_button_3_3
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: light.da_wled_light
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: da_opple_button_3_2
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.da_wled_light
+                    data:
+                      effect: Saw
+                      brightness_pct: 50
+                  - service: select.select_option
+                    data:
+                      option: Orangery
+                    target:
+                      entity_id: select.da_wled_light_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.da_wled_light_speed
+                    data:
+                      value: 114
+                  - service: number.set_value
+                    target:
+                      entity_id: number.da_wled_light_intensity
+                    data:
+                      value: 76
+              - conditions:
+                  - condition: trigger
+                    id: da_opple_button_3_3
+                sequence:
+                  - service: light.turn_on
+                    entity_id: light.da_wled_light
+                    data:
+                      effect: Washing Machine
+                      brightness_pct: 50
+                  - service: select.select_option
+                    data:
+                      option: Icefire
+                    target:
+                      entity_id: select.da_wled_light_color_palette
+                  - service: number.set_value
+                    target:
+                      entity_id: number.da_wled_light_speed
+                    data:
+                      value: 157
+                  - service: number.set_value
+                    target:
+                      entity_id: number.da_wled_light_intensity
+                    data:
+                      value: 221
+                      

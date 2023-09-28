@@ -1,0 +1,124 @@
+dd_sensors:
+
+    recorder:
+      include:
+        entities:
+           - sensor.0x00158d000156e92e_temperature
+           - sensor.0x00158d000156e92e_humidity
+           - sensor.0x04cf8cdf3c7cf19e_illuminance_lux
+           - sensor.0x00124b001d3bdce0_radiation_dose_per_hour
+           - sensor.0x00158d0001fa8321_temperature
+           - sensor.0x00158d0001fa8321_humidity
+           - sensor.0x00158d0001fa8321_mmhg_pressure
+           - binary_sensor.0x00158d0001a66222_occupancy
+           - binary_sensor.0xec1bbdfffe4521a3_occupancy
+           
+    homeassistant:
+      customize:
+
+############# Комната
+        
+        binary_sensor.dd_aeration:
+          friendly_name: Детская Д, проветривание
+
+        binary_sensor.0x00158d0001a66222_occupancy:
+          friendly_name: Детская Д, движение
+        sensor.0x00158d0001a66222_illuminance_lux:
+          friendly_name: Детская Д, освещенность
+        sensor.0x00158d0001a66222_battery:
+          friendly_name: Детская Д, движение
+
+
+        binary_sensor.0x00158d0001193697_contact:
+          friendly_name: Детская Д, окно
+          device_class: window
+        sensor.0x00158d0001193697_battery:
+          friendly_name: Детская Д, окно
+
+        sensor.0x00158d000156e92e_humidity:
+          friendly_name: Детская Д, влажность
+          icon: mdi:water-percent
+        sensor.0x00158d000156e92e_temperature:
+          friendly_name: Детская Д, температура
+          icon: mdi:temperature-celsius
+        sensor.0x00158d000156e92e_battery:
+          friendly_name: Детская Д, климат
+          
+        sensor.0x00124b001d3bdce0_radiation_dose_per_hour:
+          friendly_name: Счетчик Гейгера
+        
+
+
+############# Балкон
+
+        binary_sensor.0x00158d00015843d4_contact:
+          friendly_name: Детская Д, балкон дверь
+          device_class: door
+        sensor.0x00158d00015843d4_battery:
+          friendly_name: Детская Д, балкон дверь
+
+        binary_sensor.0x00158d0001a65b68_contact:
+          friendly_name: Детская Д, балкон окно 1
+          device_class: window
+        sensor.0x00158d0001a65b68_battery:
+          friendly_name: Детская Д, балкон окно 1
+          
+        binary_sensor.0xec1bbdfffe3a653e_contact:
+          friendly_name: Детская Д, балкон окно 2
+          device_class: window
+        sensor.0xec1bbdfffe3a653e_battery:
+          friendly_name: Детская Д, балкон окно 2
+
+        sensor.0x04cf8cdf3c7cf19e_illuminance_lux:
+          friendly_name: Детская Д, балкон освещенность
+        sensor.0x04cf8cdf3c7cf19e_battery:
+          friendly_name: Детская Д, балкон сенсор освещенности
+         
+        sensor.0x00158d0001fa8321_humidity:
+          friendly_name: Детская Д, балкон влажность
+          icon: mdi:water-percent
+        sensor.0x00158d0001fa8321_temperature:
+          friendly_name: Детская Д, балкон температура
+          icon: mdi:temperature-celsius
+        sensor.0x00158d0001fa8321_pressure:
+          friendly_name: Детская Д, балкон давление ГПа
+          device_class: pressure
+        sensor.0x00158d0001fa8321_mmhg_pressure:
+          friendly_name: Детская Д, балкон давление мм рт. ст.
+          device_class: pressure
+        sensor.0x00158d0001fa8321_battery:
+          friendly_name: Детская Д, балкон климат
+
+        binary_sensor.0xec1bbdfffe4521a3_occupancy:
+          friendly_name: Детская Д, балкон движение
+        sensor.0xec1bbdfffe4521a3_battery:
+          friendly_name: Детская Д, движение
+
+          
+    template:
+     
+      - binary_sensor:
+
+          - name: dd_aeration
+            state: >
+              {{ is_state('binary_sensor.0x00158d0001193697_contact', 'on')  
+                 or is_state('binary_sensor.0x00158d00015843d4_contact', 'on')
+              }}
+            delay_on: 
+                seconds: 30
+            device_class: opening
+            icon: >
+              {% if is_state("binary_sensor.dd_aeration", "on") %}
+              mdi:window-open-variant
+              {% else %}
+              mdi:window-closed-variant
+              {% endif %}
+
+      - sensor:
+
+          - name: 0x00158d0001fa8321_mmhg_pressure
+            state: "{{ (states('sensor.0x00158d0001fa8321_pressure')|float * 0.7500637)|round(2) }}"
+            availability: "{{ (states('sensor.0x00158d0001fa8321_pressure')|float > 850 ) }}" 
+            unit_of_measurement: mmHg
+            icon: mdi:gauge 
+

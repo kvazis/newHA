@@ -1,0 +1,48 @@
+title: Ресурсы
+panel: true
+icon: mdi:server
+cards:
+
+    - type: custom:history-explorer-card
+      header: Ресурсы
+      defaultTimeRange: 4h
+      lineMode: curves
+      decimation: true
+      uimode: dark
+      recordedEntitiesOnly: true
+      labelsVisible: false
+      uiColors:
+        gridlines: rgb(100,100,100)
+      uiLayout:
+        toolbar: true
+        selector: hide
+      graphs:
+      - type: line
+        # options:
+        #   ymin: 0
+        entities:
+          - entity: sensor.processor_use
+            color: rgb(255,218,241)
+            fill: rgba(255,218,241,0.1)
+          - entity: sensor.processor_temperature
+            color: rgb(255,70,62)
+            fill: rgba(255,70,62,0.05)
+      - type: line
+        entities:
+          - entity: sensor.memory_use_percent
+            color: rgb(191,255,162)
+            fill: rgba(191,255,162,0.1)
+          - entity: sensor.disk_use_percent
+            color: rgb(255,91,255)
+            fill: rgba(255,91,255,0.05)
+      - type: line
+        entities:
+          - entity: sensor.disk_free
+            color: rgb(0,255,0)
+            fill: rgba(0,255,0,0.1)
+      - type: line
+        entities:
+        #   - entity: sensor.home_assistant_v2_db_size
+          - entity: sensor.maria_db
+            color: rgb(204,214,50)
+            fill: rgba(204,214,50,0.1)  

@@ -1,0 +1,20 @@
+title: Home Assistant
+views:
+  - !include lovelace/001_telemetry.yaml
+  - !include lovelace/002_logic.yaml
+  - !include lovelace/003_network.yaml
+  - !include lovelace/004_power.yaml
+  - !include lovelace/100_outdoor.yaml
+  - !include lovelace/110_en_control.yaml
+  - !include lovelace/130_tt_control.yaml
+  - !include lovelace/140_kn_climate.yaml
+  - !include lovelace/141_kn_control.yaml
+  - !include lovelace/150_lr_climate.yaml
+  - !include lovelace/151_lr_control.yaml
+  - !include lovelace/152_lr_ups.yaml
+  - !include lovelace/160_bt_control.yaml
+  - !include lovelace/170_dd_climate.yaml
+  - !include lovelace/171_dd_control.yaml
+  - !include lovelace/180_da_climate.yaml
+  - !include lovelace/181_da_control.yaml
+  - !include lovelace/test.yaml

@@ -1,0 +1,78 @@
+da_fan_router:
+
+    homeassistant:
+      customize:
+        switch.0x00124b00246fd93e:
+          friendly_name: Детская А, вентилятор роутера
+
+    binary_sensor:
+    
+      - platform: tod
+        name: da_router_fan
+        after: '08:45'
+        before: '21:00' 
+
+      - platform: tod
+        name: da_router_fan_2
+        after: '01:00'
+        before: '06:00' 
+        
+    template:
+    
+      - binary_sensor:
+      
+          - name: da_router_fan_work
+            state: >
+              {{ is_state('binary_sensor.da_router_fan', 'on')  
+                 or is_state('binary_sensor.da_router_fan_2', 'on') }}
+
+
+          - name: da_router_fan_control
+            state: >
+              {{ is_state('binary_sensor.da_router_fan_work', 'on')  
+                 and states('sensor.asus_rt_ac68u_temperature_cpu')|int > 60 }}
+            delay_on: 
+                minutes: 15
+            delay_off: 
+                minutes: 15
+            device_class: heat
+            
+    automation:
+    
+      - alias: da_control_router_fan
+        id: da_control_router_fan_control
+        description: Управление охлаждением роутера
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: binary_sensor.da_router_fan_control
+        - platform: time_pattern
+          minutes: '/15'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.da_router_fan_control
+                    state: 'on'
+                  - condition: state
+                    entity_id: switch.0x00124b00246fd93e
+                    state: 'off'
+                sequence:
+                  - service: switch.turn_on
+                    entity_id:
+                      - switch.0x00124b00246fd93e
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.da_router_fan_control
+                    state: 'off'
+                  - condition: state
+                    entity_id: switch.0x00124b00246fd93e
+                    state: 'on'
+                sequence:
+                  - service: switch.turn_off
+                    entity_id:
+                      - switch.0x00124b00246fd93e

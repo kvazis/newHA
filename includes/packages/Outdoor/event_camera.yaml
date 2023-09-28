@@ -1,0 +1,90 @@
+event_camera:
+
+
+    template:
+    
+      - binary_sensor:
+      
+          - name: cam_reolink411_auto_cast
+            state: >
+              {{ is_state('binary_sensor.reolink_411_ws_motion', 'on')  
+                 and is_state('binary_sensor.night_time', 'off')
+              }}
+            delay_off: 
+                minutes: 1
+
+
+    automation:
+
+      - alias: cam_reolink411_cast
+        id: cam_reolink411_cast
+        initial_state: true
+        trigger:
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_4_triple'
+        condition:
+         - condition: state
+           entity_id: switch.control_mode
+           state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: media_player.nesthub7a33
+                    state: 'off'
+                sequence:
+                  - service: camera.play_stream
+                    data:
+                      media_player: media_player.nesthub7a33
+                    target:
+                      entity_id: camera.reolink_411_ws_sub
+              - conditions:
+                  - condition: state
+                    entity_id: media_player.nesthub7a33
+                    state: 'playing'
+                sequence:
+                  - service: media_player.turn_off
+                    target:
+                      entity_id: media_player.nesthub7a33
+
+      - alias: cam_reolink411_cast_motion
+        id: cam_reolink411_cast_motion
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: binary_sensor.cam_reolink411_auto_cast
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: binary_sensor.cam_reolink411_auto_cast
+          from: 'on'
+          to: 'off'
+        condition:
+         - condition: state
+           entity_id: switch.control_mode
+           state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.cam_reolink411_auto_cast
+                    state: 'on'
+                  - condition: state
+                    entity_id: media_player.nesthub7a33
+                    state: 'off'
+                sequence:
+                  - service: camera.play_stream
+                    data:
+                      media_player: media_player.nesthub7a33
+                    target:
+                      entity_id: camera.reolink_411_ws_sub
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.cam_reolink411_auto_cast
+                    state: 'off'
+                sequence:
+                  - service: media_player.turn_off
+                    target:
+                      entity_id: media_player.nesthub7a33

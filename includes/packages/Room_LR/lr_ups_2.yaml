@@ -1,0 +1,129 @@
+lr_ups_2:
+
+    recorder:
+      include:
+        entities:
+          - sensor.0xa4c138ee9e1e5451_power
+          - sensor.0xa4c138ee9e1e5451_energy
+          - sensor.0xa4c138ee9e1e5451_voltage
+          - sensor.0xa4c138ee9e1e5451_meter_day
+          - sensor.0xa4c138ee9e1e5451_meter_night
+
+    homeassistant:
+      customize:
+      
+        switch.0xa4c138ee9e1e5451:
+          friendly_name: Гостиная UPS 2 in
+          icon: phu:apc-ups-upright
+        sensor.0xa4c138ee9e1e5451_power:
+          friendly_name: Гостиная UPS 2 in, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c138ee9e1e5451_voltage:
+          friendly_name: Гостиная UPS 2 in, напряжение
+          device_class: voltage
+          unit_of_measurement: V
+        sensor.0xa4c138ee9e1e5451_energy:
+          friendly_name: Гостиная UPS 2 in, энергия
+          unit_of_measurement: kWh
+          state_class: total_increasing
+          device_class: energy
+        sensor.0xa4c138ee9e1e5451_meter_day:
+          friendly_name: Гостиная UPS 2 in день
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+        sensor.0xa4c138ee9e1e5451_meter_night:
+          friendly_name: Гостиная UPS 2 in ночь
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+    utility_meter:
+
+      0xa4c138ee9e1e5451_meter:
+        source: sensor.0xa4c138ee9e1e5451_raw_energy
+        unique_id: '0xa4c138ee9e1e5451_meter'
+        cycle: monthly
+        tariffs:
+          - night
+          - day
+
+    template:
+
+        sensor:
+
+          - name: '0xa4c138ee9e1e5451_power'
+            unique_id: '0xa4c138ee9e1e5451_power'
+            state: >
+                {{ states('sensor.0xa4c138ee9e1e5451_raw_power')|float(0) }}
+
+          - name: '0xa4c138ee9e1e5451_energy'
+            unique_id: '0xa4c138ee9e1e5451_energy'
+            state: >
+                {{ states('sensor.0xa4c138ee9e1e5451_raw_energy')|float(0) }}
+                
+          - name: '0xa4c138ee9e1e5451_voltage'
+            unique_id: '0xa4c138ee9e1e5451_voltage'
+            state: >
+                {{ states('sensor.0xa4c138ee9e1e5451_raw_voltage')|float(0) }}
+
+
+          
+    automation:
+
+      - alias: lr_ups2_turn_on
+        id: lr_ups2_turn_on
+        description: Гостиная автовключение ИБП 2
+        initial_state: true
+        trigger:
+    # Выключение выключателя
+        - platform: state
+          entity_id: switch.0xa4c138ee9e1e5451
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Включение
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0xa4c138ee9e1e5451
+          
+      - alias: lr_ups2_tariff_switching
+        id: lr_ups2_tariff_switching
+        description: Переключение тарифов ИБП 2
+        initial_state: true
+        trigger:
+    ## Сенсор ночного тарифа
+        - platform: state
+          entity_id: binary_sensor.energy_tariff
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.select_tariff
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.energy_tariff
+                    state: 'off'
+                sequence:
+                  - service: select.select_option
+                    target:
+                      entity_id: 
+                          - select.0xa4c138ee9e1e5451_meter
+                    data:
+                      option: day
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.energy_tariff
+                    state: 'on'
+                sequence:
+                  - service: select.select_option
+                    target:
+                      entity_id: 
+                          - select.0xa4c138ee9e1e5451_meter
+                    data:
+                      option: night 

@@ -1,0 +1,134 @@
+notification:
+
+    template:
+
+      - sensor:
+
+          - name: admin_tg_id
+            state: !secret chat_id_alex
+            
+          - name: dima_tg_id
+            state: !secret chat_id_dima
+            
+          - name: user_tg_id
+            state: !secret chat_id_user
+
+    automation:
+
+      - id: Стартовое уведомление
+        alias: start_notification    
+        initial_state: true
+        trigger:
+          - platform: homeassistant
+            event: start
+        action:  
+          - service: telegram_bot.send_message
+            data_template:
+              target:
+                  - !secret chat_id_group_tech
+              message: | 
+                   {{"\U0001F4AC"}} Основной сервер Beelink GK mini
+                   {{"\U0001F567"}} Запущен в {{ states('sensor.time_date') }} 
+                   {{"\U0001F4C3"}} Отчет о состоянии будет через 1 минуту 
+          - delay: 00:01:05
+          - service: telegram_bot.send_message
+            data_template:
+              target:
+                  - !secret chat_id_group_tech
+              message: | 
+                   {{"\U0001F4AC"}} Основной сервер Beelink GK mini
+                   {{"\U0001F567"}} Отчет за {{ states('sensor.time_date') }}
+                   {{"\U0001F503"}} Режим управления - {{ states('switch.control_mode') }} 
+                   {{"\U0001F4A1"}} Светильников недоступно - {{ states('sensor.count_light_unavailable') }} 
+                   {{"\U0001F50C"}} Реле недоступно - {{ states('sensor.count_switch_unavailable') }} 
+                   {{"\U00002668"}} Термоголовок недоступно - {{ states('sensor.count_climate_unavailable') }} 
+                   {{"\U0001F321"}} Сенсоров недоступно - {{ states('sensor.count_sensor_unavailable') }} 
+                   {{"\U0001F51F"}} Бинарных сенсоров недоступно - {{ states('sensor.count_binary_sensor_unavailable') }}
+
+    ## Запрос состояния
+      - id: Запрос состояния системы
+        alias: system_status_query
+        initial_state: true
+        trigger:
+          - platform: event
+            event_type: telegram_text
+        condition:
+          - condition: template
+            value_template: >-
+              {{ trigger.event.data.text in ["Как дела", "как дела", "Отчет", "отчет", "Статус", "статус"] }}
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - service: telegram_bot.send_message
+            data:
+              target: "{{ trigger.event.data.user_id }}"
+              message: | 
+                   {{"\U0001F4AC"}} Основной сервер Raspberry Pi 4 B 8GB
+                   {{"\U0001F567"}} Отчет за {{ states('sensor.time_date') }}
+                   {{"\U0001F503"}} Режим управления - {{ states('switch.control_mode') }} 
+                   {{"\U0001F4A1"}} Светильников недоступно - {{ states('sensor.count_light_unavailable') }} 
+                   {{"\U0001F50C"}} Реле недоступно - {{ states('sensor.count_switch_unavailable') }} 
+                   {{"\U00002668"}} Термоголовок недоступно - {{ states('sensor.count_climate_unavailable') }} 
+                   {{"\U0001F321"}} Сенсоров недоступно - {{ states('sensor.count_sensor_unavailable') }} 
+                   {{"\U0001F51F"}} Бинарных сенсоров недоступно - {{ states('sensor.count_binary_sensor_unavailable') }}
+
+      - id: Определение ID
+        alias: telegram_id
+        initial_state: true
+        trigger:
+          - platform: event
+            event_type: telegram_text
+        condition:
+          - condition: template
+            value_template: >-
+              {{ trigger.event.data.text in ["whoami"] }}
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - service: telegram_bot.send_message
+            data_template:
+              target: "{{ trigger.event.data.chat_id }}"
+              message: |
+                Твой ID {{ trigger.event.data.user_id }}
+
+    ## Запрос состояния
+      - id: Кто я
+        alias: whoami
+        initial_state: true
+        trigger:
+          - platform: event
+            event_type: telegram_text
+        condition:
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+          - choose:
+              - conditions:      
+                  - condition: template
+                    value_template: >-
+                      {{ trigger.event.data.text in ["Кто я?",] }}
+                  - condition: template
+                    value_template: >
+                       {{ trigger.event.data.user_id == (states('sensor.admin_tg_id')|int) }}
+                sequence:
+                  - service: telegram_bot.send_message
+                    data:
+                      target: "{{ trigger.event.data.user_id }}"
+                      message: | 
+                           {{"\U0000270B"}} Привет, я тебя узнал, твой ID - {{ trigger.event.data.user_id }}, статус - Администратор, доступ - полный
+              - conditions:      
+                  - condition: template
+                    value_template: >-
+                      {{ trigger.event.data.text in ["Кто я?",] }}
+                  - condition: template
+                    value_template: >
+                       {{ trigger.event.data.user_id == (states('sensor.dima_tg_id')|int) }}
+                sequence:
+                  - service: telegram_bot.send_message
+                    data:
+                      target: "{{ trigger.event.data.user_id }}"
+                      message: | 
+                           {{"\U0000270B"}} Привет, я тебя узнал, твой ID - {{ trigger.event.data.user_id }}, статус - Пользователь, доступ - управление комнатой Детская Д

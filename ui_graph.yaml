@@ -1,0 +1,10 @@
+title: Home Assistant
+views:
+  - !include lovelace/200_graph_system.yaml
+  - !include lovelace/201_graph_climate.yaml
+  - !include lovelace/202_graph_environment.yaml
+  - !include lovelace/203_graph_power.yaml
+  - !include lovelace/204_chart_power.yaml
+  - !include lovelace/205_graph_net.yaml
+  - !include lovelace/206_graph_occupancy.yaml
+  - !include lovelace/207_graph_thermostat.yaml

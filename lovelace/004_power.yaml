@@ -1,0 +1,1578 @@
+############################ Питание ############################
+title: Питание
+icon: mdi:transmission-tower
+cards:
+
+############################ Колонка 1 ############################
+    - type: vertical-stack
+      cards:
+      
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Электрика**
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Текущий тариф
+                  secondary: |-
+                    {% if is_state("select.total_counter_energy", "day") %}
+                    День
+                    {% else %}
+                    Ночь
+                    {% endif %}
+                  layout: horizontal
+                  entity: select.total_monthly_energy
+                  icon_color: |-
+                    {% if is_state("select.total_counter_energy", "day") %}
+                    white
+                    {% else %}
+                    grey
+                    {% endif %}
+                  icon: |-
+                    {% if is_state("select.total_counter_energy", "day") %}
+                    mdi:weather-sunny
+                    {% else %}
+                    mdi:weather-night
+                    {% endif %}
+                  tap_action:
+                    action: more-info
+
+
+                - type: custom:mushroom-template-card
+                  primary: Установка тарифа
+                  layout: horizontal
+                  entity: input_button.select_tariff
+                  icon: mdi:reload
+                  multiline_secondary: true
+                  icon_color: amber
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.select_tariff
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Энергия за {{states ('sensor.current_month')}}**
+
+            - type: custom:mushroom-template-card
+              primary: |-
+                      День - {{states ('sensor.total_monthly_energy_day')}} КВт*ч, на {{ (2.64 * (states ('sensor.total_monthly_energy_day')|float))|round (2)}} грн
+              secondary: |-
+                      Ночь - {{states ('sensor.total_monthly_energy_night')}} КВт*ч, на {{ (1.32 * (states ('sensor.total_monthly_energy_night')|float))|round (2)}} грн
+              layout: horizontal
+              entity: sensor.total_monthly_energy_day
+              icon_color: grey
+              icon: mdi:home-lightning-bolt
+              tap_action:
+                action: more-info
+
+            - type: custom:mushroom-template-card
+              primary: Мощность
+              secondary: |-
+                  {{states ('sensor.total_enter_power')}} Ватт
+              layout: horizontal
+              entity: sensor.total_enter_power
+              icon_color: grey
+              icon: mdi:lightning-bolt-circle
+              tap_action:
+                action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Показания счетчика**
+
+            - type: custom:mushroom-template-card
+              primary: |-
+                      День - {{states ('sensor.total_counter_energy_day')}} КВт*ч
+              secondary: |-
+                      Ночь - {{states ('sensor.total_counter_energy_night')}} КВт*ч
+              layout: horizontal
+              entity: sensor.total_counter_energy_day
+              icon_color: grey
+              icon: mdi:home-lightning-bolt
+              tap_action:
+                action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+              - entity: sensor.total_enter_energy
+              - entity: input_text.energy_correction
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: День
+                  layout: horizontal
+                  entity: input_button.energy_correction_day
+                  icon: mdi:weather-sunny
+                  multiline_secondary: true
+                  icon_color: white
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.energy_correction_day
+
+                - type: custom:mushroom-template-card
+                  primary: Ночь
+                  layout: horizontal
+                  entity: input_button.energy_correction_night
+                  icon: mdi:weather-night
+                  multiline_secondary: true
+                  icon_color: grey
+                  tap_action:
+                    action: call-service
+                    service: input_button.press
+                    target:
+                      entity_id: input_button.energy_correction_night
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Ввод**
+
+            - type: energy-distribution
+              link_dashboard: true
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+          
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Сенсоры электричества**
+
+            - type: horizontal-stack
+        
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Электрика 220В
+                  secondary: |-
+                    {% if is_state("binary_sensor.electricity", "off") %}
+                    Питание есть
+                    {% else %}
+                    Питание отключено
+                    {% endif %}
+                  layout: horizontal
+                  entity: binary_sensor.electricity
+                  icon_color: |-
+                    {% if is_state("binary_sensor.electricity", "off") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  icon: |-
+                    {% if is_state("binary_sensor.electricity", "off") %}
+                    mdi:power-plug
+                    {% else %}
+                    mdi:power-plug-off
+                    {% endif %}
+                  tap_action:
+                    action: more-info
+                    
+                - type: custom:mushroom-template-card
+                  primary: Blackout
+                  secondary: |-
+                    {% if is_state("binary_sensor.blackout", "off") %}
+                    Все в порядке
+                    {% else %}
+                    Система обесточена
+                    {% endif %}
+                  layout: horizontal
+                  entity: binary_sensor.blackout
+                  icon_color: |-
+                    {% if is_state("binary_sensor.blackout", "off") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  icon: |-
+                    {% if is_state("binary_sensor.blackout", "off") %}
+                    mdi:transmission-tower
+                    {% else %}
+                    mdi:transmission-tower-off
+                    {% endif %}
+                  tap_action:
+                    action: more-info
+
+            - type: horizontal-stack
+        
+              cards:
+              
+                - type: custom:mushroom-template-card
+                  primary: Гостиная 220В
+                  secondary: |-
+                    {% if is_state("binary_sensor.0xa4c138bae3526a07_contact", "off") %}
+                    Питание есть
+                    {% else %}
+                    Питание отключено
+                    {% endif %}
+                  layout: horizontal
+                  entity: binary_sensor.0xa4c138bae3526a07_contact
+                  icon_color: |-
+                    {% if is_state("binary_sensor.0xa4c138bae3526a07_contact", "off") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  icon: |-
+                    {% if is_state("binary_sensor.0xa4c138bae3526a07_contact", "off") %}
+                    mdi:power-plug
+                    {% else %}
+                    mdi:power-plug-off
+                    {% endif %}
+                  tap_action:
+                    action: more-info
+                    
+                - type: custom:mushroom-template-card
+                  primary: Кухня 220В
+                  secondary: |-
+                    {% if is_state("binary_sensor.0xa4c138744bf2fbf0_contact", "off") %}
+                    Питание есть
+                    {% else %}
+                    Питание отключено
+                    {% endif %}
+                  layout: horizontal
+                  entity: binary_sensor.0xa4c138744bf2fbf0_contact
+                  icon_color: |-
+                    {% if is_state("binary_sensor.0xa4c138744bf2fbf0_contact", "off") %}
+                    green
+                    {% else %}
+                    red
+                    {% endif %}
+                  icon: |-
+                    {% if is_state("binary_sensor.0xa4c138744bf2fbf0_contact", "off") %}
+                    mdi:power-plug
+                    {% else %}
+                    mdi:power-plug-off
+                    {% endif %}
+                  tap_action:
+                    action: more-info
+
+            - type: entities
+              show_header_toggle: false
+              entities:
+               - entity: input_datetime.electricity_off                
+               - entity: input_datetime.electricity_on 
+
+            - type: custom:mushroom-template-card
+              primary: Уведомление
+              layout: horizontal
+              entity: input_button.tg_electricity
+              icon: mdi:home-lightning-bolt
+              multiline_secondary: true
+              icon_color: grey
+              tap_action:
+                action: call-service
+                service: input_button.press
+                target:
+                  entity_id: input_button.tg_electricity
+
+
+            - type: markdown
+              content: >
+                 **     **
+
+############################ Колонка 2 ############################
+
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Фаза 1**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Энергия за {{states ('sensor.current_month')}}**
+
+            - type: custom:mushroom-template-card
+              primary: |-
+                      День - {{states ('sensor.first_phaze_energy_day')}} КВт*ч, на {{ (2.64 * (states ('sensor.first_phaze_energy_day')|float))|round (2)}} грн
+              secondary: |-
+                      Ночь - {{states ('sensor.first_phaze_energy_night')}} КВт*ч, на {{ (1.32 * (states ('sensor.first_phaze_energy_night')|float))|round (2)}} грн
+              layout: horizontal
+              entity: sensor.first_phaze_energy_day
+              icon_color: light-green
+              icon: mdi:home-lightning-bolt
+              tap_action:
+                action: more-info
+
+
+            - type: horizontal-stack
+              cards:
+
+
+                - type: custom:mushroom-template-card
+                  primary: Напряжение
+                  secondary: |-
+                      {{states ('sensor.0x70ac08fffe99c363_voltage')}} В
+                  layout: horizontal
+                  entity: sensor.0x70ac08fffe99c363_voltage
+                  icon_color: light-green
+                  icon: mdi:sine-wave
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x70ac08fffe99c363_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x70ac08fffe99c363_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Бойлер кухня**
+
+            - type: custom:mushroom-template-card
+              primary: |-
+                      День - {{states ('sensor.0x00158d0001d35bc0_meter_day')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d0001d35bc0_meter_day')|float))|round (2)}} грн
+              secondary: |-
+                      Ночь - {{states ('sensor.0x00158d0001d35bc0_meter_night')}} КВт*ч, на {{ (1.32 * (states ('sensor.0x00158d0001d35bc0_meter_night')|float))|round (2)}} грн
+              layout: horizontal
+              entity: sensor.0x00158d0001d35bc0_meter_day
+              icon_color: light-green
+              icon: mdi:home-lightning-bolt
+              tap_action:
+                action: more-info
+
+            - type: custom:mushroom-template-card
+              primary: Мощность
+              secondary: |-
+                  {{states ('sensor.0x00158d0001d35bc0_power')}} Ватт
+              layout: horizontal
+              entity: sensor.0x00158d0001d35bc0_power
+              icon_color: light-green
+              icon: mdi:lightning-bolt-circle
+              tap_action:
+                action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+          
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Аэрогриль**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c138d571b656c5_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c138d571b656c5_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c138d571b656c5_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c138d571b656c5_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c138d571b656c5_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Микроволновка**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c138273b49e4d0_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c138273b49e4d0_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c138273b49e4d0_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c138273b49e4d0_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c138273b49e4d0_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+                    
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Чайник**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}} 
+                  secondary: |-
+                      {{states ('sensor.0xa4c1385bcf7d00c9_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c1385bcf7d00c9_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c1385bcf7d00c9_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c1385bcf7d00c9_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c1385bcf7d00c9_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+                    
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Электрогриль**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c138201dcb67f6_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c138201dcb67f6_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c138201dcb67f6_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c138201dcb67f6_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c138201dcb67f6_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+                    
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Кофемашина**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c13874f3d1d1c0_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c13874f3d1d1c0_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c13874f3d1d1c0_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c13874f3d1d1c0_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c13874f3d1d1c0_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+
+
+############################ Колонка 3 ############################
+
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Фаза 2**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Энергия за {{states ('sensor.current_month')}}**
+
+            - type: custom:mushroom-template-card
+              primary: |-
+                      День - {{states ('sensor.second_phaze_energy_day')}} КВт*ч, на {{ (2.64 * (states ('sensor.second_phaze_energy_day')|float))|round (2)}} грн
+              secondary: |-
+                      Ночь - {{states ('sensor.second_phaze_energy_night')}} КВт*ч, на {{ (1.32 * (states ('sensor.second_phaze_energy_night')|float))|round (2)}} грн
+              layout: horizontal
+              entity: sensor.second_phaze_energy_day
+              icon_color: light-green
+              icon: mdi:home-lightning-bolt
+              tap_action:
+                action: more-info
+             
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Напряжение
+                  secondary: |-
+                      {{states ('sensor.0x187a3efffe355cf1_voltage')}} В
+                  layout: horizontal
+                  entity: sensor.0x187a3efffe355cf1_voltage
+                  icon_color: light-green
+                  icon: mdi:sine-wave
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x187a3efffe355cf1_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x187a3efffe355cf1_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Холодильник**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x00158d0001fa2934_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d0001fa2934_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x00158d0001fa2934_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x00158d0001fa2934_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x00158d0001fa2934_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+                    
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Шлюз**
+
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x00158d000114a1e1_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d000114a1e1_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x00158d000114a1e1_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x00158d000114a1e1_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x00158d000114a1e1_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+                    
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Телевизор**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x00158d0001291d12_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d0001291d12_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x00158d0001291d12_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x00158d0001291d12_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x00158d0001291d12_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Стиральная машина**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x842e14fffe51c5ae_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x842e14fffe51c5ae_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x842e14fffe51c5ae_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x842e14fffe51c5ae_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x842e14fffe51c5ae_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Ноутбук Acer**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c1388c89a46970_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c1388c89a46970_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c1388c89a46970_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c1388c89a46970_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c1388c89a46970_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Ноутбук Asus**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c138f41459f92a_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c138f41459f92a_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c138f41459f92a_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c138f41459f92a_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c138f41459f92a_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Гостиная шлюз Mi**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c1387c6584d955_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c1387c6584d955_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c1387c6584d955_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c1387c6584d955_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c1387c6584d955_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Гостиная лампа за ТВ**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c138131a85d3ff_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c138131a85d3ff_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c138131a85d3ff_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c138131a85d3ff_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c138131a85d3ff_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Гостиная UPS 1 in**
+
+            - type: custom:mushroom-template-card
+              primary: |-
+                      День - {{states ('sensor.0xa4c1382dc9fecb3e_meter_day')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c1382dc9fecb3e_meter_day')|float))|round (2)}} грн
+              secondary: |-
+                      Ночь - {{states ('sensor.0xa4c1382dc9fecb3e_meter_night')}} КВт*ч, на {{ (1.32 * (states ('sensor.0xa4c1382dc9fecb3e_meter_night')|float))|round (2)}} грн
+              layout: horizontal
+              entity: sensor.0xa4c1382dc9fecb3e_meter_day
+              icon_color: light-green
+              icon: mdi:home-lightning-bolt
+              tap_action:
+                action: more-info
+
+            - type: custom:mushroom-template-card
+              primary: Мощность
+              secondary: |-
+                  {{states ('sensor.0xa4c1382dc9fecb3e_power')}} Ватт
+              layout: horizontal
+              entity: sensor.0xa4c1382dc9fecb3e_power
+              icon_color: light-green
+              icon: mdi:lightning-bolt-circle
+              tap_action:
+                action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Гостиная UPS 2 in**
+
+
+            - type: custom:mushroom-template-card
+              primary: |-
+                      День - {{states ('sensor.0xa4c138ee9e1e5451_meter_day')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c138ee9e1e5451_meter_day')|float))|round (2)}} грн
+              secondary: |-
+                      Ночь - {{states ('sensor.0xa4c138ee9e1e5451_meter_night')}} КВт*ч, на {{ (1.32 * (states ('sensor.0xa4c138ee9e1e5451_meter_night')|float))|round (2)}} грн
+              layout: horizontal
+              entity: sensor.0xa4c138ee9e1e5451_meter_day
+              icon_color: light-green
+              icon: mdi:home-lightning-bolt
+              tap_action:
+                action: more-info
+
+            - type: custom:mushroom-template-card
+              primary: Мощность
+              secondary: |-
+                  {{states ('sensor.0xa4c138ee9e1e5451_power')}} Ватт
+              layout: horizontal
+              entity: sensor.0xa4c138ee9e1e5451_power
+              icon_color: light-green
+              icon: mdi:lightning-bolt-circle
+              tap_action:
+                action: more-info
+                    
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Гостиная Orico стойка ТВ**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c1382600c57620_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c1382600c57620_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c1382600c57620_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c1382600c57620_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c1382600c57620_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Ванная бойлер**
+
+
+
+            - type: custom:mushroom-template-card
+              primary: |-
+                      День - {{states ('sensor.0x00158d0003584401_meter_day')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d0003584401_meter_day')|float))|round (2)}} грн
+              secondary: |-
+                      Ночь - {{states ('sensor.0x00158d0003584401_meter_night')}} КВт*ч, на {{ (1.32 * (states ('sensor.0x00158d0003584401_meter_night')|float))|round (2)}} грн
+              layout: horizontal
+              entity: sensor.0x00158d0003584401_meter_day
+              icon_color: light-green
+              icon: mdi:home-lightning-bolt
+              tap_action:
+                action: more-info
+
+            - type: custom:mushroom-template-card
+              primary: Мощность
+              secondary: |-
+                  {{states ('sensor.0x00158d0003584401_power')}} Ватт
+              layout: horizontal
+              entity: sensor.0x00158d0003584401_power
+              icon_color: light-green
+              icon: mdi:lightning-bolt-circle
+              tap_action:
+                action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Ванная розетка**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x540f57fffe78ba20_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x540f57fffe78ba20_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x540f57fffe78ba20_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x540f57fffe78ba20_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x540f57fffe78ba20_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+############################ Колонка 4 ############################
+
+
+    - type: vertical-stack
+      cards:
+
+        - type: markdown
+          style: |
+              ha-card {
+                font-size: 26px;
+              }          
+          content: >
+             **Фаза 3**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Энергия за {{states ('sensor.current_month')}}**
+
+            - type: custom:mushroom-template-card
+              primary: |-
+                      День - {{states ('sensor.third_phaze_energy_day')}} КВт*ч, на {{ (2.64 * (states ('sensor.third_phaze_energy_day')|float))|round (2)}} грн
+              secondary: |-
+                      Ночь - {{states ('sensor.third_phaze_energy_night')}} КВт*ч, на {{ (1.32 * (states ('sensor.third_phaze_energy_night')|float))|round (2)}} грн
+              layout: horizontal
+              entity: sensor.third_phaze_energy_day
+              icon_color: light-green
+              icon: mdi:home-lightning-bolt
+              tap_action:
+                action: more-info
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: Напряжение
+                  secondary: |-
+                      {{states ('sensor.0x187a3efffe303832_voltage')}} В
+                  layout: horizontal
+                  entity: sensor.0x187a3efffe303832_voltage
+                  icon_color: light-green
+                  icon: mdi:sine-wave
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x187a3efffe303832_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x187a3efffe303832_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **ДД настольная лампа**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x00158d00030a6e78_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d00030a6e78_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x00158d00030a6e78_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x00158d00030a6e78_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x00158d00030a6e78_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **ДД ноутбук Acer 15**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x00158d000153dd8e_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d000153dd8e_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x00158d000153dd8e_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x00158d000153dd8e_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x00158d000153dd8e_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **ДД выключатель Aqara с нулем**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x00158d0001a2ccab_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d0001a2ccab_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x00158d0001a2ccab_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x00158d0001a2ccab_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x00158d0001a2ccab_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **ДА увлажнитель воздуха**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x00158d00010ec4b8_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d00010ec4b8_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x00158d00010ec4b8_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x00158d00010ec4b8_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x00158d00010ec4b8_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **ДА лента Yeelight**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x00158d00012896cb_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x00158d00012896cb_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x00158d00012896cb_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x00158d00012896cb_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x00158d00012896cb_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **ДА рекуператор**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0x04cf8cdf3c764e0a_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0x04cf8cdf3c764e0a_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0x04cf8cdf3c764e0a_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0x04cf8cdf3c764e0a_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0x04cf8cdf3c764e0a_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info
+                    
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **ДА USB светильник**
+
+            - type: horizontal-stack
+              cards:
+
+                - type: custom:mushroom-template-card
+                  primary: |-
+                          Энергия за {{states ('sensor.current_month')}}
+                  secondary: |-
+                      {{states ('sensor.0xa4c138e22148db3a_meter')}} КВт*ч, на {{ (2.64 * (states ('sensor.0xa4c138e22148db3a_meter')|float))|round (2)}} грн
+                  layout: horizontal
+                  entity: sensor.0xa4c138e22148db3a_meter
+                  icon_color: light-green
+                  icon: mdi:home-lightning-bolt
+                  tap_action:
+                    action: more-info
+
+                - type: custom:mushroom-template-card
+                  primary: Мощность
+                  secondary: |-
+                      {{states ('sensor.0xa4c138e22148db3a_power')}} Ватт
+                  layout: horizontal
+                  entity: sensor.0xa4c138e22148db3a_power
+                  icon_color: light-green
+                  icon: mdi:lightning-bolt-circle
+                  tap_action:
+                    action: more-info

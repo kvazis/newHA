@@ -1,0 +1,91 @@
+title: Потребление
+panel: true
+icon: mdi:chart-gantt
+cards:
+
+    - type: custom:sankey-chart
+      show_names: true
+      height: 900
+      wide: true
+      sections:
+        - entities:
+          - entity_id: sensor.three_phaze_total_power
+            color: white
+            children:
+               - sensor.0x70ac08fffe99c363_power
+               - sensor.0x187a3efffe355cf1_power
+               - sensor.0x187a3efffe303832_power
+
+
+        - entities:
+              - entity_id: sensor.0x70ac08fffe99c363_power
+                color: yellow
+                children:
+                - sensor.0x00158d0001d35bc0_power
+                - sensor.0xa4c138d571b656c5_power
+                - sensor.0xa4c138273b49e4d0_power
+                - sensor.0xa4c1385bcf7d00c9_power
+                - sensor.0xa4c138201dcb67f6_power
+                - sensor.0xa4c13874f3d1d1c0_power
+               
+              - entity_id: sensor.0x187a3efffe355cf1_power
+                color: green
+                children:
+                - sensor.0x00158d0001fa2934_power
+                - sensor.0x00158d000114a1e1_power
+                - sensor.0x00158d0001291d12_power
+                - sensor.0x842e14fffe51c5ae_power
+                - sensor.0xa4c1388c89a46970_power
+                - sensor.0xa4c138f41459f92a_power
+                - sensor.0xa4c1387c6584d955_power
+                - sensor.0xa4c138131a85d3ff_power
+                - sensor.0xa4c1382dc9fecb3e_power
+                - sensor.0xa4c138ee9e1e5451_power
+                - sensor.0xa4c1382600c57620_power
+                - sensor.0x00158d0003584401_power
+                - sensor.0x540f57fffe78ba20_power
+                
+              - entity_id: sensor.0x187a3efffe303832_power
+                color: red
+                children:
+                - sensor.0x00158d00030a6e78_power
+                - sensor.0x00158d000153dd8e_power
+                - sensor.0x00158d0001a2ccab_power
+                - sensor.0x00158d00010ec4b8_power
+                - sensor.0x00158d00012896cb_power
+                - sensor.0x04cf8cdf3c764e0a_power
+                - sensor.0xa4c138e22148db3a_power
+                
+                
+
+                   
+        - entities:
+          - sensor.0x00158d0001d35bc0_power
+          - sensor.0xa4c138d571b656c5_power
+          - sensor.0xa4c138273b49e4d0_power
+          - sensor.0xa4c1385bcf7d00c9_power
+          - sensor.0xa4c138201dcb67f6_power
+          - sensor.0xa4c13874f3d1d1c0_power
+          
+          - sensor.0x00158d0001fa2934_power
+          - sensor.0x00158d000114a1e1_power
+          - sensor.0x00158d0001291d12_power
+          - sensor.0x842e14fffe51c5ae_power
+          - sensor.0xa4c1388c89a46970_power
+          - sensor.0xa4c138f41459f92a_power
+          - sensor.0xa4c1387c6584d955_power
+          - sensor.0xa4c138131a85d3ff_power
+          - sensor.0xa4c1382dc9fecb3e_power
+          - sensor.0xa4c138ee9e1e5451_power
+          - sensor.0xa4c1382600c57620_power
+          - sensor.0x00158d0003584401_power
+          - sensor.0x540f57fffe78ba20_power
+          
+          - sensor.0x00158d00030a6e78_power
+          - sensor.0x00158d000153dd8e_power
+          - sensor.0x00158d0001a2ccab_power
+          - sensor.0x00158d00010ec4b8_power
+          - sensor.0x00158d00012896cb_power
+          - sensor.0x04cf8cdf3c764e0a_power
+          - sensor.0xa4c138e22148db3a_power
+

@@ -1,0 +1,168 @@
+da_light:
+
+    homeassistant:
+      customize:
+        
+        light.da_ceiling_light:
+          friendly_name: Детская А, люстра
+          icon: mdi:ceiling-light
+
+        light.gateway_light_f0b429cc1f11:
+          friendly_name: Детская А, ночник
+          icon: phu:aqara-hub-n15-g2
+          
+        light.da_led_strip:
+          friendly_name: Детская А, LED лента
+          icon: mdi:led-strip-variant
+        
+        light.smart_desk_lamp:
+          friendly_name: Детская А, настольная лампа
+          icon: mdi:desk-lamp
+        
+        sensor.0x00158d00010b5c6e_action:
+          friendly_name: Детская А, беспроводный выключатель на входе
+        sensor.0x00158d00010b5c6e_battery:
+          friendly_name: Детская А, беспроводный выключатель на входе
+
+        sensor.0x00158d000186d9a9_action:
+          friendly_name: Детская А, кнопка на столе
+        sensor.0x00158d000186d9a9_battery:
+          friendly_name: Детская А, кнопка на столе
+
+
+    template:
+
+      - binary_sensor:
+      
+    # Сенсор определяющий недоступность LED ленты
+          - name: da_led_strip_unavailable
+            unique_id: da_led_strip_unavailable
+            state: >
+              {{ is_state('light.da_led_strip', 'unavailable')  
+                 and states('sensor.count_light_unavailable')|int < 3 }}
+            delay_on: 
+                minutes: 3
+            device_class: problem
+
+    light:
+
+########## Перевод сущности switch в light - для удобства и единообразия управления ########## 
+      - platform: switch
+        name: da_ceiling_light
+        entity_id: switch.0x00158d000635ded8_right
+        
+    automation:
+
+      - alias: dа_light_ceiling
+        id: dа_light_ceiling
+        description: Детская A, ручное управление люстрой
+        initial_state: true          
+        trigger:
+    # Выключатель возле двери
+        - platform: state
+          entity_id: sensor.0x00158d00010b5c6e_action
+          to: 'single'
+    # Кнопка на столе
+        - platform: state
+          entity_id: sensor.0x00158d000186d9a9_action
+          to: 'single'
+    # Aqara Opple
+        - platform: state
+          entity_id: sensor.0x54ef4410004c16d9_action
+          to: 'button_1_single' 
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.toggle
+          entity_id: light.da_ceiling_light
+
+      - alias: dа_light_table_lamp_manual_control
+        id: dа_light_table_lamp_light_manual_control
+        description: Детская A, ручное управление настольной лампой
+        initial_state: true          
+        trigger:
+    # Выключатель на входе
+        - platform: state
+          entity_id: sensor.0x00158d000635ded8_action
+          to: 'single_left'
+    # Aqara Opple
+        - platform: state
+          entity_id: sensor.0x54ef4410004c16d9_action
+          to: 'button_1_triple' 
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.toggle
+          entity_id: light.smart_desk_lamp
+        - delay: 00:00:03
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            entity_id: light.smart_desk_lamp
+
+      - alias: dа_light_auto_nightlight
+        id: dа_light_auto_nightlight
+        description: Детская A, ночник в темноте
+        initial_state: true
+        trigger:
+        ## Условия для срабатывания ночника
+        - platform: state
+          entity_id: binary_sensor.0x00158d00016d56f5_occupancy
+          to: 'on'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: light.da_ceiling_light
+          state: 'off'
+        - condition: state
+          entity_id: light.smart_desk_lamp
+          state: 'off'
+        - condition: state
+          entity_id: light.da_projector
+          state: 'off'
+        - condition: numeric_state
+          entity_id: sensor.0x04cf8cdf3c78ca91_illuminance_lux
+          below: 25
+        action:
+        - service: light.turn_on
+          entity_id: 
+           - light.gateway_light_f0b429cc1f11
+          data_template:
+             brightness_pct: 50
+             rgb_color: [0, 100, 255]
+        - delay: 00:00:20
+        - service: light.turn_off
+          entity_id: 
+           - light.gateway_light_f0b429cc1f11
+           
+#################### ПЕРЕЗАГРУЗКА ЛЕНТЫ ####################
+      - alias: da_led_strip_reboot
+        id: da_led_strip_reboot
+        description: Детская A перезагрузка зависшей ленты
+        initial_state: true
+        trigger:
+    # Проверка раз в 5 минут, перезагрузка если лента недоступна
+        - platform: time_pattern
+          minutes: '/5'
+        condition:
+    # Сенсор определяющий недоступность ленты
+        - condition: state
+          entity_id: binary_sensor.da_led_strip_unavailable
+          state: 'on'
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Перезагрузка по питанию
+        - service: switch.turn_off
+          entity_id: switch.0x00158d00012896cb
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00012896cb

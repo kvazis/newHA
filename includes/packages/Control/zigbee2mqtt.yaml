@@ -1,0 +1,80 @@
+zigbee2mqtt:
+
+    homeassistant:
+      customize:
+        
+        automation.control_zigstar_lan:
+          friendly_name: Активация zigstar LAN bridge
+          icon: mdi:zigbee
+          
+        automation.control_zigstar_poe:
+          friendly_name: Активация zigstar POE bridge
+          icon: mdi:zigbee
+
+        sensor.zigstar_lan_state:
+          friendly_name: ZigStar LAN State
+          icon: mdi:zigbee
+
+        sensor.zigstar_poe_state:
+          friendly_name: ZigStar POE State
+          icon: mdi:zigbee
+
+
+    mqtt:
+
+      sensor:
+        - name: zigstar_lan_state
+          state_topic: "zigstar/bridge/state"
+          
+        - name: zigstar_poe_state
+          state_topic: "zigstar_poe/bridge/state"
+          
+          
+    template:
+     
+      - binary_sensor:
+
+          - name: zigstar_lan_state
+            state: >
+              {{ is_state('sensor.zigstar_lan_state', 'offline')  
+              }}
+            delay_on: 00:00:15
+            
+          - name: zigstar_poe_state
+            state: >
+              {{ is_state('sensor.zigstar_poe_state', 'offline')  
+              }}
+            delay_on: 00:00:15
+
+
+    automation:
+    
+      - alias: control_zigstar_lan
+        description: Активация zigstar LAN bridge
+        initial_state: true
+        trigger:
+         - platform: state
+           entity_id: binary_sensor.zigstar_lan_state
+           from: 'off'    
+           to: 'on'
+        action:
+         - service: mqtt.publish
+           data:
+             topic: zigstar/bridge/state
+             payload: online
+             
+      - alias: control_zigstar_poe
+        description: Активация zigstar POE bridge
+        initial_state: true
+        trigger:
+         - platform: state
+           entity_id: binary_sensor.zigstar_poe_state
+           from: 'off'    
+           to: 'on'
+        action:
+         - service: mqtt.publish
+           data:
+             topic: zigstar_poe/bridge/state
+             payload: online 
+        
+        

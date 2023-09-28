@@ -1,0 +1,399 @@
+cr_light:
+
+    homeassistant:
+      customize:
+        
+        light.cr_ceiling_light:
+          friendly_name: Коридор - люстра
+          icon: phu:ceiling-adore-alt-flush
+
+        light.cr_ceiling_light_ambilight:
+          friendly_name: Коридор - амбилайт
+          icon: phu:recessed-ceiling
+
+        sensor.0x00158d0001f3fefe_action:
+          friendly_name: Коридор - круглая кнопка шкаф
+        sensor.0x00158d0001f3fefe_battery:
+          friendly_name: Коридор - круглая кнопка шкаф
+          
+        sensor.0x00158d0002a4f77e_action:
+          friendly_name: Коридор - датчик вибрации
+        binary_sensor.0x00158d0002a4f77e_vibration:
+          friendly_name: Коридор - датчик вибрации
+        sensor.0x00158d0002a4f77e_battery:
+          friendly_name: Коридор - датчик вибрации
+          
+        binary_sensor.0x00158d00010f8920_raw_occupancy:
+          friendly_name: Коридор - датчик движения
+        sensor.0x00158d00010f8920_battery:
+          friendly_name: Коридор - датчик движения
+
+        automation.cr_ceiling_reboot:
+          friendly_name: Коридор - перезагрузка зависшей люстры
+          icon: mdi:reload
+          
+        automation.cr_ceiling_light_manual_control:
+          friendly_name: Коридор - ручное управление люстрой
+          icon: phu:ceiling-adore-alt-flush
+          
+        automation.cr_ceiling_light_vibration:
+          friendly_name: Коридор - включение по датчику вибрации
+          icon: phu:aqara-vibration
+          
+        automation.cr_ceiling_light_auto_off:
+          friendly_name: Коридор - отключение по датчику движения
+          icon: phu:aqara-motion
+          
+        automation.cr_ceiling_light_moving:
+          friendly_name: Коридор - включение по датчику движения ночью
+          icon: phu:aqara-motion
+          
+        automation.cr_en_light_control:
+          friendly_name: Коридор и прихожая, управление освещением
+          icon: phu:bulb-group-ceiling-round
+
+        automation.cr_switch_turn_on:
+          friendly_name: Коридор - включение выключателя
+          icon: phu:aqara-h1-switch
+
+
+    template:
+     
+      - binary_sensor:
+
+    # Свет без движения в коридоре днем
+          - name: cr_light_day
+            state: >
+              {{ is_state('light.cr_ceiling_light', 'on')  
+                 and is_state('binary_sensor.0x00158d00010f8920_raw_occupancy', 'off')
+                 and is_state('binary_sensor.cr_night', 'off')
+              }}
+            delay_on: 00:05:00
+            icon: >
+              {% if is_state("binary_sensor.cr_light_day", "on") %}
+              mdi:timer
+              {% else %}
+              mdi:timer-off
+              {% endif %}
+              
+    # Свет без движения в коридоре ночью
+          - name: cr_light_night
+            state: >
+              {{ is_state('light.cr_ceiling_light', 'on')  
+                 and is_state('binary_sensor.0x00158d00010f8920_raw_occupancy', 'off')
+                 and is_state('binary_sensor.cr_night', 'on')
+              }}
+            delay_on: 00:01:00
+            icon: >
+              {% if is_state("binary_sensor.cr_light_night", "on") %}
+              mdi:timer
+              {% else %}
+              mdi:timer-off
+              {% endif %}
+
+    # Отслеживание включения лампочки в течении 10 сек
+          - name: 0x00158d0003e74c31_on
+            state: >
+              {{ is_state('light.0x00158d0003e74c31', 'on')  
+              }}
+            delay_on: 00:00:10
+            icon: >
+              {% if is_state("binary_sensor.0x00158d0003e74c31_on", "on") %}
+              mdi:radiobox-marked
+              {% else %}
+              mdi:radiobox-blank
+              {% endif %}
+
+    # Сенсор определяющий недоступность люстры
+          - name: cr_ceiling_unavailable
+            state: >
+              {{ is_state('light.cr_ceiling_light', 'unavailable')  
+              }}
+            delay_on: 
+                minutes: 3
+            device_class: problem
+            icon: >
+              {% if is_state("binary_sensor.cr_ceiling_unavailable", "on") %}
+              mdi:ceiling-light-outline
+              {% else %}
+              mdi:ceiling-light
+              {% endif %}
+          
+    binary_sensor:
+    
+      - platform: tod
+        name: cr_night
+        after: '22:00'
+        before: '08:00'
+
+    automation:
+
+      - alias: cr_switch_turn_on
+        id: cr_switch_turn_on
+        description: Коридор - включение выключателя
+        initial_state: true
+        trigger:
+    # Выключение выключателя
+        - platform: state
+          entity_id: switch.0x00158d00057305ac_left
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Включение
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00057305ac_left
+
+    
+      - alias: cr_ceiling_reboot
+        id: cr_ceiling_reboot
+        description: Коридор - перезагрузка зависшей люстры
+        initial_state: true
+        trigger:
+    # Проверка раз в 5 минут, перезагрузка если люстра недоступна
+        - platform: time_pattern
+          minutes: '/5'
+        condition:
+    # Сенсор определяющий недоступность люстры
+        - condition: state
+          entity_id: binary_sensor.cr_ceiling_unavailable
+          state: 'on'
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Перезагрузка по питанию
+        - service: switch.turn_off
+          entity_id: switch.0x00158d00057305ac_left
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00057305ac_left
+          
+      - alias: cr_ceiling_light_manual_control
+        id: cr_ceiling_light_manual_control
+        description: Коридор - ручное управление люстрой
+        initial_state: true
+        trigger:
+    # Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.cr_ceiling_light
+    # Выключатель на стене у входа
+        - platform: state
+          entity_id: sensor.0x00158d00057305ac_action
+          to: 'single_left'
+    # Круглая кнопка в шкафу
+        - platform: state
+          entity_id: sensor.0x00158d0001f3fefe_action
+          to: 'single' 
+    # 6 клавишник на входе в кухню
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c794209_action
+          to: 'button_3_single'
+    # 4 клавишник на комоде
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c7942ca_action
+          to: 'button_3_single'
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_3_double'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.cr_ceiling_light
+                    state: 'off'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.cr_ceiling_light
+                    data_template:
+                      brightness_pct: 75
+                      kelvin: 4000
+              - conditions:
+                  - condition: state
+                    entity_id: light.cr_ceiling_light
+                    state: 'on'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.cr_ceiling_light
+                      
+      - alias: cr_ceiling_light_vibration
+        id: cr_ceiling_light_vibration
+        description: Коридор - включение по датчику вибрации
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: sensor.0x00158d0002a4f77e_action
+          to: 'vibration'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.0x00158d00010f8920_raw_occupancy
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.cr_night
+          state: 'off'
+        - condition: state
+          entity_id: light.cr_ceiling_light
+          state: 'off'
+        action:
+        - service: light.turn_on
+          entity_id:
+            - light.cr_ceiling_light
+          data_template:
+            brightness_pct: 75
+            kelvin: 4000
+        - delay: 00:00:15
+        - service: light.turn_off
+          entity_id:
+            - light.cr_ceiling_light
+            
+      - alias: cr_ceiling_light_auto_off
+        id: cr_ceiling_light_auto_off
+        description: Коридор - отключение по датчику движения
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: binary_sensor.cr_light_day
+          to: 'on'
+        - platform: state
+          entity_id: binary_sensor.cr_light_night
+          to: 'on'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.turn_off
+          entity_id:
+            - light.cr_ceiling_light
+            
+      - alias: cr_ceiling_light_moving
+        id: cr_ceiling_light_moving
+        description: Коридор - включение по датчику движения ночью
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: binary_sensor.0x00158d00010f8920_raw_occupancy
+          to: 'on'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: binary_sensor.cr_night
+          state: 'on'
+        - condition: state
+          entity_id: light.cr_ceiling_light
+          state: 'off'
+        action:
+        - service: light.turn_on
+          entity_id:
+            - light.cr_ceiling_light_ambilight
+          data_template:
+            brightness_pct: 75
+            kelvin: 4000
+        - delay: 00:00:10
+        - service: light.turn_off
+          entity_id:
+            - light.cr_ceiling_light_ambilight
+            
+      - alias: cr_en_light_control
+        id: cr_en_light_control
+        description: Коридор и прихожая, управление освещением
+        initial_state: true
+        trigger:
+    # Выключатель на стене у входа в гостиную
+        - platform: state
+          entity_id: sensor.0x00158d00013fc3bc_action
+          to: 'single_both'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+            # Оба светильника выключены - включается лампочка в прихожей
+              - conditions:
+                  - condition: state
+                    entity_id: light.0x00158d0003e74c31
+                    state: 'off'
+                  - condition: state
+                    entity_id: light.cr_ceiling_light
+                    state: 'off'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.0x00158d0003e74c31
+                    data_template:
+                      brightness_pct: 100
+                      kelvin: 4000
+            # Лампочка включена менее 10 сек, люстра выключена - включается люстра в коридоре
+              - conditions:
+                  - condition: state
+                    entity_id: light.0x00158d0003e74c31
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.0x00158d0003e74c31_on
+                    state: 'off'
+                  - condition: state
+                    entity_id: light.cr_ceiling_light
+                    state: 'off'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.cr_ceiling_light
+                    data_template:
+                      brightness_pct: 75
+                      kelvin: 4000
+            # Оба светильника включены - оба выключается
+              - conditions:
+                  - condition: state
+                    entity_id: light.0x00158d0003e74c31
+                    state: 'on'
+                  - condition: state
+                    entity_id: light.cr_ceiling_light
+                    state: 'on'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.0x00158d0003e74c31
+                      - light.cr_ceiling_light
+            # Лампочка включена более 10 сек, люстра выключена - выключается лампочка в прихожей
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.0x00158d0003e74c31_on
+                    state: 'on'
+                  - condition: state
+                    entity_id: light.cr_ceiling_light
+                    state: 'off'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.0x00158d0003e74c31
+            # Лампочка выключена, люстра включена - выключается люстра в коридоре
+              - conditions:
+                  - condition: state
+                    entity_id: light.0x00158d0003e74c31
+                    state: 'off'
+                  - condition: state
+                    entity_id: light.cr_ceiling_light
+                    state: 'on'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.cr_ceiling_light
+                      

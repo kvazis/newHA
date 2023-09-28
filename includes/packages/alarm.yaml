@@ -1,0 +1,290 @@
+alarm:
+
+    homeassistant:
+      customize:
+
+        automation.lr_ceiling_threat_notification:
+          friendly_name: Включение световой индикации в гостиной при сработке сенсоров тревоги
+          icon: mdi:alarm-light
+
+        automation.lr_ceiling_threat_cancel_notification:
+          friendly_name: Включение световой индикации в гостиной при отбое тревоги
+          icon: mdi:alarm-light-off
+          
+        automation.kn_gateway_threat_notification:
+          friendly_name: Кухня - включение световой индикации кухне при сработке сенсоров тревоги
+          icon: mdi:alarm-light
+
+        automation.kn_gateway_threat_cancel_notification:
+          friendly_name: Кухня - включение световой индикации кухне при отбое тревоги
+          icon: mdi:alarm-light-off
+
+    # Сохранение в базе состояний сенсоров тревоги
+    recorder:
+      include:
+        entities:
+           - binary_sensor.m_kiyiv_air
+           - binary_sensor.m_kiyiv_artillery
+           - binary_sensor.m_kiyiv_unknown
+           - binary_sensor.m_kiyiv_urban_fights
+           - binary_sensor.m_kiyiv_chemical
+           - binary_sensor.m_kiyiv_nuclear
+
+    template:
+
+      - binary_sensor:
+
+    # Сборный сенсор тревоги - будет активен при любой из видов тревог
+          - name: threat
+            state: >
+              {{ is_state('binary_sensor.m_kiyiv_air', 'on')  
+                 or is_state('binary_sensor.m_kiyiv_artillery', 'on')
+                 or is_state('binary_sensor.m_kiyiv_unknown', 'on')
+                 or is_state('binary_sensor.m_kiyiv_urban_fights', 'on')
+                 or is_state('binary_sensor.m_kiyiv_chemical', 'on')
+                 or is_state('binary_sensor.m_kiyiv_nuclear', 'on')
+              }}
+            device_class: safety
+            icon: >
+              {% if is_state("binary_sensor.threat", "on") %}
+              mdi:skull
+              {% else %}
+              mdi:shield-check
+              {% endif %}
+
+    automation:
+
+      - alias: lr_ceiling_threat_notification
+        description: Включение световой индикации в гостиной при сработке сенсоров тревоги
+        initial_state: true
+        trigger:
+    # Сборный сенсор тревоги
+        - platform: state
+          entity_id: binary_sensor.m_kiyiv_air
+          from: 'off'
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+    # Отключен ночной режим работы
+          - condition: state
+            entity_id: binary_sensor.night_time
+            state: 'off'
+        action:
+    # Сохранение состояния потолочных люстр, оснвное и задняя подсветка
+         - service: scene.create
+           data:
+            scene_id: light_before
+            snapshot_entities:
+             - light.cr_ceiling_light
+             - light.lr_ceiling_light_1
+             - light.lr_ceiling_light_2
+             - light.cr_ceiling_light_ambilight
+             - light.lr_ceiling_light_1_ambilight
+             - light.lr_ceiling_light_2_ambilight
+             - light.da_led_strip
+    # Отключение основного освещения
+         - service: light.turn_off
+           entity_id: 
+             - light.cr_ceiling_light
+             - light.lr_ceiling_light_1
+             - light.lr_ceiling_light_2
+             - light.da_led_strip
+    # Включение эффекта Alarm на задней подсветке на 30 секунд
+         - service: light.turn_on
+           data:
+             transition: 2
+             brightness_pct: 70
+             effect: Alarm
+           target:
+             entity_id:
+               - light.lr_ceiling_light_1_ambilight
+               - light.lr_ceiling_light_2_ambilight
+               - light.cr_ceiling_light_ambilight
+               - light.da_led_strip
+         - delay: 00:00:30
+    # Включение эффекта Stop на задней подсветке, иначе эффект Alarm применится при следующем включении
+         - service: light.turn_on
+           data:
+             effect: Stop
+           target:
+             entity_id:
+               - light.lr_ceiling_light_1_ambilight
+               - light.lr_ceiling_light_2_ambilight
+               - light.cr_ceiling_light_ambilight
+               - light.da_led_strip
+    # Отключение подсветки
+         - service: light.turn_off
+           entity_id: 
+             - light.cr_ceiling_light_ambilight
+             - light.lr_ceiling_light_1_ambilight
+             - light.lr_ceiling_light_2_ambilight
+             - light.da_led_strip
+    # Возврат к предыдущему состоянию
+         - service: scene.turn_on
+           target:
+             entity_id: scene.light_before
+             
+      - alias: lr_ceiling_threat_cancel_notification
+        description: Включение световой индикации в гостиной при отбое тревоги
+        initial_state: true
+        trigger:
+    # Сборный сенсор тревоги
+        - platform: state
+          entity_id: binary_sensor.m_kiyiv_air
+          from: 'on'
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+    # Отключен ночной режим работы
+          - condition: state
+            entity_id: binary_sensor.night_time
+            state: 'off'
+        action:
+    # Сохранение состояния потолочных люстр, оснвное и задняя подсветка
+         - service: scene.create
+           data:
+            scene_id: light_before
+            snapshot_entities:
+             - light.cr_ceiling_light
+             - light.lr_ceiling_light_1
+             - light.lr_ceiling_light_2
+             - light.cr_ceiling_light_ambilight
+             - light.lr_ceiling_light_1_ambilight
+             - light.lr_ceiling_light_2_ambilight
+             - light.da_led_strip
+    # Отключение основного освещения
+         - service: light.turn_off
+           entity_id: 
+             - light.cr_ceiling_light
+             - light.lr_ceiling_light_1
+             - light.lr_ceiling_light_2
+             - light.da_led_strip
+    # Запуск скрипта светового уведомления и ожидание 20 сек
+         - service: script.turn_on
+           entity_id: script.lr_threat_cancel_notification
+         - delay: 00:00:20
+    # Отключение подсветки
+         - service: light.turn_off
+           entity_id: 
+             - light.cr_ceiling_light_ambilight
+             - light.lr_ceiling_light_1_ambilight
+             - light.lr_ceiling_light_2_ambilight
+             - light.da_led_strip
+    # Возврат к предыдущему состоянию
+         - service: scene.turn_on
+           target:
+             entity_id: scene.light_before
+             
+      - alias: kn_gateway_threat_notification
+        description: Кухня - включение световой индикации кухне при сработке сенсоров тревоги
+        initial_state: true
+        trigger:
+    # Сборный сенсор тревоги
+        - platform: state
+          entity_id: binary_sensor.m_kiyiv_air
+          from: 'off'
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+         - service: script.turn_on
+           entity_id: script.kn_threat_notification
+
+      - alias: kn_gateway_threat_cancel_notification
+        description: Кухня - включение световой индикации кухне при отбое тревоги
+        initial_state: true
+        trigger:
+    # Сборный сенсор тревоги
+        - platform: state
+          entity_id: binary_sensor.m_kiyiv_air
+          from: 'on'
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+          - condition: state
+            entity_id: switch.control_mode
+            state: 'on'
+        action:
+         - service: script.turn_on
+           entity_id: script.kn_threat_cancel_notification
+             
+    script:
+    
+      lr_threat_cancel_notification:
+        alias: Амбилайт в гостиной 5 зеленых вспышек
+        sequence:
+            repeat:
+              count: 5 
+              sequence:
+              - service: light.turn_on
+                entity_id: 
+                   - light.cr_ceiling_light_ambilight
+                   - light.lr_ceiling_light_1_ambilight
+                   - light.lr_ceiling_light_2_ambilight
+                   - light.da_led_strip
+                data:
+                  brightness_pct: 70
+                  color_name: green
+                  transition: 2
+              - delay: 2
+              - service: light.turn_off
+                entity_id: 
+                   - light.cr_ceiling_light_ambilight
+                   - light.lr_ceiling_light_1_ambilight
+                   - light.lr_ceiling_light_2_ambilight
+                   - light.da_led_strip
+                data:
+                  transition: 2
+              - delay: 2
+              
+      kn_threat_notification:
+        alias: Шлюз в кухне 5 красных вспышек
+        sequence:
+            repeat:
+              count: 5 
+              sequence:
+              - service: light.turn_on
+                entity_id: 
+                   - light.gateway_light_7811dc64f4c8
+                data:
+                  brightness_pct: 70
+                  color_name: red
+                  transition: 2
+              - delay: 2
+              - service: light.turn_off
+                entity_id: 
+                   - light.gateway_light_7811dc64f4c8
+                data:
+                  transition: 2
+              - delay: 2              
+              
+      kn_threat_cancel_notification:
+        alias: Шлюз в кухне 5 красных вспышек
+        sequence:
+            repeat:
+              count: 5 
+              sequence:
+              - service: light.turn_on
+                entity_id: 
+                   - light.gateway_light_7811dc64f4c8
+                data:
+                  brightness_pct: 70
+                  color_name: green
+                  transition: 2
+              - delay: 2
+              - service: light.turn_off
+                entity_id: 
+                   - light.gateway_light_7811dc64f4c8
+                data:
+                  transition: 2
+              - delay: 2        
+        

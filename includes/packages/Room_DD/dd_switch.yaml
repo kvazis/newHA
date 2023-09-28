@@ -1,0 +1,149 @@
+dd_switch:
+
+    recorder:
+      include:
+        entities:
+        
+           - sensor.0x00158d00030a6e78_power
+           - sensor.0x00158d00030a6e78_meter
+           - sensor.0x00158d000153dd8e_power
+           - sensor.0x00158d000153dd8e_meter
+           - sensor.0x00158d0001a2ccab_power
+           - sensor.0x00158d0001a2ccab_meter
+
+    utility_meter:
+
+      0x00158d00030a6e78_meter:
+        source: sensor.0x00158d00030a6e78_energy
+        unique_id: 0x00158d00030a6e78
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+      0x00158d000153dd8e_meter:
+        source: sensor.0x00158d000153dd8e_energy
+        unique_id: 0x00158d000153dd8e
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+      0x00158d0001a2ccab_meter:
+        source: sensor.0x00158d0001a2ccab_energy
+        unique_id: 0x00158d0001a2ccab
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+
+    homeassistant:
+      customize:
+      
+        switch.0x00158d00030a6e78:
+          friendly_name: ДД настольная лампа, питание
+          icon: mdi:power-socket-eu
+        sensor.0x00158d00030a6e78_power:
+          friendly_name: ДД настольная лампа, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x00158d00030a6e78_energy:
+          friendly_name: ДД настольная лампа, энергия
+          icon: mdi:chart-line
+        sensor.0x00158d00030a6e78_device_temperature:
+          friendly_name: ДД настольная лампа
+          icon: mdi:thermometer-check
+        sensor.0x00158d00030a6e78_meter:
+          friendly_name: ДД настольная лампа
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+          
+        switch.0x00158d000153dd8e:
+          friendly_name: ДД ноутбук Acer 15, питание
+          icon: phu:laptop-windows
+        sensor.0x00158d000153dd8e_power:
+          friendly_name: ДД ноутбук Acer 15, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x00158d000153dd8e_energy:
+          friendly_name: ДД ноутбук Acer 15, энергия
+          icon: mdi:chart-line
+        sensor.0x00158d000153dd8e_device_temperature:
+          friendly_name: ДД ноутбук Acer 15
+          icon: mdi:thermometer-check
+        sensor.0x00158d000153dd8e_meter:
+          friendly_name: ДД ноутбук Acer 15
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0x00158d0001a2ccab_left:
+          friendly_name: ДД увлажнитель, питание
+        switch.0x00158d0001a2ccab_right:
+          friendly_name: ДД питание адресной ленты
+        sensor.0x00158d0001a2ccab_action:
+          friendly_name: ДД выключатель Aqara с нулем
+        sensor.0x00158d0001a2ccab_power:
+          friendly_name: ДД выключатель Aqara с нулем, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x00158d0001a2ccab_energy:
+          friendly_name: ДД выключатель Aqara с нулем, энергия
+          icon: mdi:chart-line
+        sensor.0x00158d0001a2ccab_device_temperature:
+          friendly_name: ДД выключатель Aqara с нулем
+          icon: mdi:thermometer-check       
+        sensor.0x00158d0001a2ccab_meter:
+          friendly_name: ДД выключатель Aqara с нулем
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total        
+        
+        switch.0x842e14fffefd9721_l1:
+          friendly_name: ДД удлинитель розетка 1
+          icon: mdi:power-socket-eu
+        switch.0x842e14fffefd9721_l2:
+          friendly_name: ДД Switch Zyxel
+          icon: mdi:power-socket-eu
+        switch.0x842e14fffefd9721_l3:
+          friendly_name: ДД зарядная станция
+          icon: mdi:power-socket-eu
+        switch.0x842e14fffefd9721_l4:
+          friendly_name: ДД принтер
+          icon: mdi:power-socket-eu
+        switch.0x842e14fffefd9721_l5:
+          friendly_name: ДД удлинитель USB
+          icon: mdi:usb
+          
+        sensor.0x00158d00013f82b7_action:
+          friendly_name: ДД кнопка на принтере
+        sensor.0x00158d00013f82b7_battery:
+          friendly_name: ДД кнопка на принтере
+
+        automation.dd_printer_control:
+          friendly_name: Детская Д - управление принтером
+          icon: mdi:printer-check
+
+    automation:
+
+      - alias: dd_printer_control
+        id: dd_printer_control
+        description: Детская Д - управление принтером
+        initial_state: false
+        trigger:
+    # Кнопка на принтере
+        - platform: state
+          entity_id: sensor.0x00158d00013f82b7_action
+          to: 'single'           
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: switch.toggle
+          entity_id: switch.0x842e14fffefd9721_l4

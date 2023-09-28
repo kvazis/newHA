@@ -1,0 +1,163 @@
+lr_balcony_light:
+
+    homeassistant:
+      customize:
+
+        light.0xa4c13812b94c8365:
+          friendly_name: Гостиная балкон
+          icon: phu:ceiling-adore-alt
+          
+        sensor.0x54ef441000681a6f_action:
+          friendly_name: Гостиная выключатель вход балкона
+        switch.0x54ef441000681a6f_right:
+          friendly_name: Гостиная питание люстры балкона
+        sensor.0x54ef441000681a6f_device_temperature:
+          friendly_name: Гостиная выключатель вход балкона          
+          
+        sensor.0x00158d0001b86d2e_action:
+          friendly_name: Гостиная балкон кнопка
+        sensor.0x00158d0001b86d2e_battery:
+          friendly_name: Гостиная балкон кнопка
+
+        binary_sensor.0x00158d000449b773_occupancy:
+          friendly_name: Гостиная балкон движение
+        sensor.0x00158d000449b773_illuminance_lux:
+          friendly_name: Гостиная балкон освещенность
+        sensor.0x00158d000449b773_battery:
+          friendly_name: Гостиная балкон движение
+
+        automation.lr_light_balcony_turn_on:
+          friendly_name: Гостиная - ручное включение люстры на балконе
+          icon: phu:ceiling-adore-alt
+
+        automation.lr_light_balcony_turn_off:
+          friendly_name: Гостиная - ручное выключение люстры на балконе
+          icon: phu:ceiling-adore-alt
+
+        automation.lr_light_balcony_turn_on_control:
+          friendly_name: Гостиная - контроль включения люстры на балконе
+          icon: mdi:check-bold 
+
+
+    template:
+     
+      - binary_sensor:
+
+    # Движение без света
+          - name: lr_balcony_moving_in_dark
+            state: >
+              {{ is_state('binary_sensor.0x00158d000449b773_occupancy', 'on')
+                 and states('sensor.0x00158d000449b773_illuminance_lux')|float < 100 
+              }}
+
+    # Свет без движения
+          - name: lr_balcony_light_no_move
+            state: >
+              {{ is_state('light.0xa4c13812b94c8365', 'on')  
+                 and is_state('binary_sensor.0x00158d000449b773_occupancy', 'off')
+              }}
+            delay_on: 00:02:00
+            device_class: light
+          
+    automation:
+
+      - alias: lr_light_balcony_turn_on
+        id: lr_light_balcony_turn_on
+        description: Гостиная - ручное включение люстры на балконе
+        initial_state: true
+        trigger:
+    # Выключатель на входе
+        - platform: state
+          entity_id: sensor.0x54ef441000681a6f_action
+          to: 'single_right'
+    # Кнопка на балконе
+        - platform: state
+          entity_id: sensor.0x00158d0001b86d2e_action
+          to: 'single'
+    # Движение в темноте
+        - platform: state
+          entity_id: binary_sensor.lr_balcony_moving_in_dark
+          to: 'on'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: light.0xa4c13812b94c8365
+          state: 'off'
+        action:
+        - service: light.turn_on
+          entity_id:
+            - light.0xa4c13812b94c8365
+          data_template:
+            brightness_pct: 100
+            kelvin: 4000
+
+      - alias: lr_light_balcony_turn_off
+        id: lr_light_balcony_turn_off
+        description: Гостиная - ручное выключение люстры на балконе
+        initial_state: true
+        trigger:
+    # Выключатель на входе
+        - platform: state
+          entity_id: sensor.0x54ef441000681a6f_action
+          to: 'single_right'
+    # Кнопка на балконе
+        - platform: state
+          entity_id: sensor.0x00158d0001b86d2e_action
+          to: 'single'
+    # Свет без движения
+        - platform: state
+          entity_id: binary_sensor.lr_balcony_light_no_move
+          to: 'on'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: light.0xa4c13812b94c8365
+          state: 'on'
+        action:
+        - service: light.turn_off
+          entity_id:
+           - light.0xa4c13812b94c8365
+           
+      - alias: lr_light_balcony_reload
+        id: lr_light_balcony_reload
+        description: Балкон, перезагрузка выключателя
+        initial_state: true
+        trigger:
+    # Проверка раз в 10 минут
+        - platform: time_pattern
+          minutes: '/10'
+        condition:
+    # Сервер
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Только днем
+        - condition: state
+          entity_id: binary_sensor.night_time
+          state: 'off'
+    # Выключатель недоступен
+        - condition: state
+          entity_id: switch.0x54ef441000681a6f_right
+          state: 'unavailable'
+        action:
+        - service: light.turn_on
+          entity_id:
+            - light.0xa4c13812b94c8365
+          data_template:
+            brightness_pct: 30
+            kelvin: 4000
+        - delay: 00:00:03
+        - service: light.turn_off
+          entity_id:
+           - light.0xa4c13812b94c8365
+        - service: telegram_bot.send_message
+          data_template:
+            target:
+                - !secret chat_id_log
+            message: | 
+                 {{"\U0001F916"}} Балкон, перезагрузка выключателя {{ states('sensor.time_date') }} 
+            

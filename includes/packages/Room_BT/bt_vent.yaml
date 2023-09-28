@@ -1,0 +1,90 @@
+bt_vent:
+
+    homeassistant:
+      customize:
+
+        switch.0x00158d0001117040_left:
+          friendly_name: Ванная, вентилятор
+          icon: mdi:fan
+
+    timer:
+    
+        bt_vent:
+          name: Вентиляция ванная - 
+          duration: '00:10:00'
+          restore: true
+
+    automation:
+
+      - id: Ванная, включение вентиляции
+        alias: bt_vent_on
+        initial_state: true
+        trigger:
+      ## Влажность более 70 процентов
+        - platform: numeric_state
+          entity_id: sensor.0x00158d0001dcd47e_raw_humidity
+          above: 70
+      ## Беспроводный выключатель
+        - platform: state
+          entity_id: sensor.0x00158d000238a140_action
+          to: 'single_right'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'  
+        - condition: state
+          entity_id: switch.0x00158d0001117040_left
+          state: 'off'
+        - condition: time
+          after: '08:00:00'
+          before: '22:00:00'
+        action:
+        - service: switch.turn_on
+          entity_id: switch.0x00158d0001117040_left
+
+      - id: Ванная, выключение вентиляции
+        alias: bt_vent_off
+        initial_state: true
+        trigger:    
+      ## Завершение таймера
+        - platform: event
+          event_type: timer.finished
+          event_data:
+            entity_id: timer.bt_vent
+      ## Беспроводный выключатель
+        - platform: state
+          entity_id: sensor.0x00158d000238a140_action
+          to: 'single_right'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'  
+        - condition: state
+          entity_id: switch.0x00158d0001117040_left
+          state: 'on'
+        action:
+        - service: switch.turn_off
+          entity_id: switch.0x00158d0001117040_left
+          
+      - id: Ванная, включение таймера вентиляции
+        alias: bt_vent_timer_on
+        initial_state: true
+        trigger:       
+        - platform: state
+          entity_id: switch.0x00158d0001117040_left
+          to: 'on'
+        action:
+        - service: timer.start
+          entity_id: timer.bt_vent
+
+      - id: Ванная, выключение таймера вентиляции
+        alias: bt_vent_timer_off
+        initial_state: true
+        trigger:       
+        - platform: state
+          entity_id: switch.0x00158d0001117040_left
+          to: 'off'
+        action:
+        - service: timer.cancel
+          entity_id: timer.bt_vent
+    

@@ -1,0 +1,66 @@
+en_sensor:
+
+
+    recorder:
+      include:
+        entities:
+           - sensor.0x54ef44100001b68d_temperature
+           - sensor.0x54ef44100001b68d_humidity
+           - sensor.0x54ef44100001b68d_voc
+           - binary_sensor.0x00158d00013f7894_occupancy
+
+    homeassistant:
+      customize:
+        
+        binary_sensor.0x00158d000119378d_contact:
+          friendly_name: Прихожая, дверь
+          device_class: door
+        sensor.0x00158d000119378d_battery:
+          friendly_name: Прихожая, дверь
+
+        sensor.0x54ef44100001b68d_humidity:
+          friendly_name: Прихожая влажность
+          icon: mdi:water-percent
+          unit_of_measurement: '%'
+        sensor.0x54ef44100001b68d_temperature:
+          friendly_name: Прихожая температура
+          icon: mdi:temperature-celsius
+          unit_of_measurement: '°C'
+        sensor.0x54ef44100001b68d_voc:
+          friendly_name: Прихожая ЛОВ
+          icon: phu:aqara-air-quality
+          unit_of_measurement: '%'
+          
+        sensor.0x54ef44100001b68d_battery:
+          friendly_name: Прихожая климат
+
+    template:
+    
+      - binary_sensor:
+      
+          - name: '0x00158d00013f7894_occupancy'
+            unique_id: '0x00158d00013f7894_occupancy'
+            state: >
+              {{is_state("binary_sensor.0x00158d00013f7894_raw_occupancy", "on")}}
+            device_class: occupancy
+    
+      - sensor:
+
+          - name: '0x54ef44100001b68d_temperature'
+            unique_id: '0x54ef44100001b68d_temperature'
+            state: >
+                {{ states('sensor.0x54ef44100001b68d_raw_temperature')|float(20) }}
+            device_class: temperature
+
+                
+          - name: '0x54ef44100001b68d_humidity'
+            unique_id: '0x54ef44100001b68d_humidity'
+            state: >
+                {{ states('sensor.0x54ef44100001b68d_raw_humidity')|float(50) }}
+            device_class: humidity
+            
+          - name: '0x54ef44100001b68d_voc'
+            unique_id: '0x54ef44100001b68d_voc'
+            state: >
+                {{ states('sensor.0x54ef44100001b68d_raw_voc')|float(100) }}
+            device_class: volatile_organic_compounds

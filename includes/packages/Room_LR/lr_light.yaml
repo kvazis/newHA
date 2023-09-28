@@ -1,0 +1,721 @@
+lr_light:
+
+    homeassistant:
+      customize:
+
+        light.lr_ceiling_light_1:
+          friendly_name: Гостиная люстра 1
+          icon: phu:ceiling-adore-alt-flush
+          
+        light.lr_ceiling_light_1_ambilight:
+          friendly_name: Гостиная амбилайт люстра 1 
+          icon: phu:recessed-ceiling
+          
+        light.lr_ceiling_light_2:
+          friendly_name: Гостиная люстра 2
+          icon: phu:ceiling-adore-alt-flush
+          
+        light.lr_ceiling_light_2_ambilight:
+          friendly_name: Гостиная амбилайт люстра 2 
+          icon: phu:recessed-ceiling
+          
+        light.lr_table_lamp:
+          friendly_name: Гостиная настольная лампа
+          icon: phu:smart-desk-lamp
+
+        light.0xa4c138b72a314e97:
+          friendly_name: Гостиная ТВ подсветка
+          icon: phu:lightstrip-tv-alt
+          
+        light.lr_bedside:
+          friendly_name: Гостиная прикроватник
+          icon: phu:bollard
+          
+        light.gateway_light_34ce0088b039:
+          friendly_name: Гостиная шлюз
+          icon: phu:aqara-hub-n15-g2
+          
+        light.0x00158d00062fbb54_left:
+          friendly_name: Гостиная свет стена
+          icon: phu:wall-fuzo
+          
+        switch.0x00158d00062fbb54_right:
+          friendly_name: Гостиная питание люстра 1
+        sensor.0x00158d00062fbb54_device_temperature:
+          friendly_name: Гостиная питание люстра 1, температура
+          icon: mdi:thermometer-check
+        
+        switch.0x842e14fffee5451a:
+          friendly_name: Гостиная питание люстра 2
+
+        sensor.0x00158d00013fc3bc_action:
+          friendly_name: Гостиная выключатель на стене снаружи у входа
+        sensor.0x00158d00013fc3bc_battery:
+          friendly_name: Гостиная выключатель на стене снаружи у входа
+          
+        # sensor.0x00158d00027c0e2b_action:
+        #   friendly_name: Гостиная выключатель на столе
+        # sensor.0x00158d00027c0e2b_battery:
+        #   friendly_name: Гостиная выключатель на столе
+
+        sensor.0x54ef4410004c1707_action:
+          friendly_name: Гостиная выключатель на столе 6 клавиш
+        sensor.0x54ef4410004c1707_battery:
+          friendly_name: Гостиная выключатель на столе 6 клавиш
+          
+        sensor.0x04cf8cdf3c79360a_action:
+          friendly_name: Гостиная выключатель на комоде 6 клавиш
+        sensor.0x04cf8cdf3c79360a_battery:
+          friendly_name: Гостиная выключатель на комоде 6 клавиш
+          
+        sensor.0x04cf8cdf3c7942ca_action:
+          friendly_name: Гостиная выключатель на комоде 4 клавиши
+        sensor.0x04cf8cdf3c7942ca_battery:
+          friendly_name: Гостиная выключатель на комоде 4 клавиши
+
+        sensor.0x70ac08fffe263e24_action:
+          friendly_name: Гостиная крутилка Moes
+        select.0x70ac08fffe263e24_operation_mode:
+          friendly_name: Гостиная крутилка Moes
+        sensor.0x70ac08fffe263e24_battery:
+          friendly_name: Гостиная крутилка Moes
+
+        automation.lr_gateway_reload:
+          friendly_name: Гостиная - перезагрузка шлюза xiaomi
+          icon: mdi:reload
+
+        automation.lr_gateway_block_off_reload:
+          friendly_name: Гостиная - отключение блокировки перезагрузки шлюза xiaomi
+          icon: mdi:lock-off
+
+        automation.lr_ceiling_1_reboot:
+          friendly_name: Гостиная - перезагрузка зависшей люстры 1
+          icon: mdi:reload
+
+        automation.lr_ceiling_2_reboot:
+          friendly_name: Гостиная - перезагрузка зависшей люстры 2
+          icon: mdi:reload
+          
+        automation.lr_ceiling_1_manual_control:
+          friendly_name: Гостиная - ручное управление люстра 1
+          icon: phu:ceiling-adore-alt-flush         
+
+        automation.lr_ceiling_1_turn_on_control:
+          friendly_name: Гостиная - контроль включения люстры 1
+          icon: mdi:check-bold          
+
+        automation.lr_ceiling_2_manual_control:
+          friendly_name: Гостиная - ручное управление люстра 2
+          icon: phu:ceiling-adore-alt-flush         
+
+        automation.lr_ceiling_2_turn_on_control:
+          friendly_name: Гостиная - контроль включения люстры 2
+          icon: mdi:check-bold          
+
+        automation.lr_ceiling_both_full_brigtness:
+          friendly_name: Гостиная - обе люстры на полной яркости 
+          icon: phu:bulb-group-ceiling-flush-circular           
+ 
+        automation.lr_light_wall_toggle:
+          friendly_name: Гостиная - ручное управление светильник на стене 
+          icon: phu:wall-econic 
+
+        automation.lr_light_table_lamp_toggle:
+          friendly_name: Гостиная - ручное управление настольной лампой
+          icon: phu:smart-desk-lamp
+          
+    # Виртуальные светильники, для управления в интерфейсе
+    light:
+      - platform: template
+        lights:
+          lr_ceiling_light_1_virtual:
+            friendly_name: "Гостиная виртуальная люстра 1"
+            value_template: >-
+              {{ is_state('light.lr_ceiling_light_1', 'on')  
+              }}
+            icon_template: >-
+              {% if is_state("light.lr_ceiling_light_1_virtual", "on") %}
+              phu:ceiling-adore-alt-flush
+              {% else %}
+              phu:ceiling-adore-alt-flush
+              {% endif %}
+            turn_on:
+              service: input_button.press
+              target:
+                entity_id: input_button.lr_ceiling_1
+            turn_off:
+              service: input_button.press
+              target:
+                entity_id: input_button.lr_ceiling_1
+            level_template: >-
+                {{ state_attr('light.lr_ceiling_light_1', 'brightness') | int }}
+            set_level:
+              service: light.turn_on
+              entity_id: light.lr_ceiling_light_1
+              data_template:
+                brightness: "{{ brightness }}"
+            temperature_template: >-
+                {{ state_attr('light.lr_ceiling_light_1', 'color_temp') | int }}
+            set_temperature:
+              service: light.turn_on
+              entity_id: light.lr_ceiling_light_1
+              data_template:
+                color_temp: "{{ color_temp }}"
+
+              
+          lr_ceiling_light_2_virtual:
+            friendly_name: "Гостиная виртуальная люстра 2"
+            value_template: >-
+              {{ is_state('light.lr_ceiling_light_2', 'on')  
+              }}
+            icon_template: >-
+              {% if is_state("light.lr_ceiling_light_2_virtual", "on") %}
+              phu:ceiling-adore-alt-flush
+              {% else %}
+              phu:ceiling-adore-alt-flush
+              {% endif %}
+            turn_on:
+              service: input_button.press
+              target:
+                entity_id: input_button.lr_ceiling_2
+            turn_off:
+              service: input_button.press
+              target:
+                entity_id: input_button.lr_ceiling_2
+            level_template: >-
+                {{ state_attr('light.lr_ceiling_light_2', 'brightness') | int }}
+            set_level:
+              service: light.turn_on
+              entity_id: light.lr_ceiling_light_2
+              data_template:
+                brightness: "{{ brightness }}"
+            temperature_template: >-
+                {{ state_attr('light.lr_ceiling_light_2', 'color_temp') | int }}
+            set_temperature:
+              service: light.turn_on
+              entity_id: light.lr_ceiling_light_2
+              data_template:
+                color_temp: "{{ color_temp }}"
+
+    input_boolean:
+    
+    # Переключатель для определения того, что свет включен вручную
+      lr_ceiling_1:
+        name: Гостиная ручное включение люстры 1
+        icon: mdi:lightbulb-off-outline
+        
+      lr_ceiling_2:
+        name: Гостиная ручное включение люстры 2
+        icon: mdi:lightbulb-off-outline
+
+      lr_xiaomi_gateway:
+        name: Предохранитель, гостиная шлюз
+        icon: mdi:lightbulb-off-outline
+
+    template:
+    
+      - binary_sensor:
+
+          - name: lr_ceiling
+            state: >
+              {{ is_state('light.lr_ceiling_light_1', 'on')  
+                 or is_state('light.lr_ceiling_light_2', 'on')
+              }}
+            device_class: light
+            icon: >
+              {% if is_state("binary_sensor.lr_ceiling", "on") %}
+              mdi:ceiling-light-multiple
+              {% else %}
+              mdi:ceiling-light-multiple-outline
+              {% endif %}
+
+    # Сенсор определяющий недоступность люстры 1
+          - name: lr_ceiling_unavailable_1
+            state: >
+              {{ is_state('light.lr_ceiling_light_1', 'unavailable') 
+                 and states('sensor.count_light_unavailable')|int < 5
+              }}
+            delay_on: 
+                minutes: 3
+            device_class: problem
+            icon: >
+              {% if is_state("binary_sensor.lr_ceiling_unavailable_1", "on") %}
+              mdi:ceiling-light-outline
+              {% else %}
+              mdi:ceiling-light
+              {% endif %}
+              
+    # Сенсор определяющий недоступность люстры 2
+          - name: lr_ceiling_unavailable_2
+            state: >
+              {{ is_state('light.lr_ceiling_light_2', 'unavailable')
+                 and states('sensor.count_light_unavailable')|int < 5
+              }}
+            delay_on: 
+                minutes: 3
+            device_class: problem
+            icon: >
+              {% if is_state("binary_sensor.lr_ceiling_unavailable_2", "on") %}
+              mdi:ceiling-light-outline
+              {% else %}
+              mdi:ceiling-light
+              {% endif %}
+
+    automation:
+#################### ПЕРЕЗАГРУЗКА ШЛЮЗА ####################
+
+      - alias: lr_gateway_reload
+        id: lr_gateway_reload
+        description: Гостиная - перезагрузка шлюза xiaomi
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_gateway_reload
+    # Проверка раз в 10 минут
+        - platform: time_pattern
+          minutes: '/10'
+        condition:
+    # Шлюз недоступен
+        - condition: state
+          entity_id: light.gateway_light_34ce0088b039
+          state: 'unavailable'
+    # Предохранитель
+        - condition: state
+          entity_id: input_boolean.lr_xiaomi_gateway
+          state: 'off'
+        action:  
+        - service: switch.turn_off
+          entity_id:
+            - switch.0xa4c1387c6584d955
+        - delay: 00:00:03
+        - service: switch.turn_on
+          entity_id:
+            - switch.0xa4c1387c6584d955
+        - delay: 00:00:15 
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            device_id: 5519c03a52f44692503cbf20df607876
+        - wait_template: "{{ not is_state('light.gateway_light_34ce0088b039', 'unavailable') }}"
+          timeout: 10
+        - if:
+             - "{{ not wait.completed }}"
+          then:
+             - service: telegram_bot.send_message
+               data_template:
+                 target:
+                     - !secret chat_id_group_tech
+                 message: | 
+                      Внимание!
+                      Шлюз гостиная недоступен, перезагрузка не имела успеха
+    # Включение предохранителя
+             - service: input_boolean.turn_on
+               entity_id: input_boolean.lr_xiaomi_gateway
+
+
+      - alias: lr_gateway_block_off_reload
+        id: lr_gateway_block_off_reload
+        description: Гостиная - отключение блокировки перезагрузки шлюза xiaomi
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: light.gateway_light_34ce0088b039
+          from: 'unavailable'
+        action:                
+        - service: input_boolean.turn_off
+          entity_id: input_boolean.lr_xiaomi_gateway
+
+
+#################### ПЕРЕЗАГРУЗКА ЛЮСТР ####################
+              
+      - alias: lr_ceiling_1_reboot
+        id: lr_ceiling_1_reboot
+        description: Гостиная - перезагрузка зависшей люстры 1
+        initial_state: true
+        trigger:
+    # Проверка раз в 5 минут, перезагрузка если люстра недоступна
+        - platform: time_pattern
+          minutes: '/5'
+        condition:
+    # Сенсор определяющий недоступность люстры
+        - condition: state
+          entity_id: binary_sensor.lr_ceiling_unavailable_1
+          state: 'on'
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Перезагрузка по питанию
+        - service: switch.turn_off
+          entity_id: switch.0x00158d00062fbb54_right
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00062fbb54_right
+          
+      - alias: lr_ceiling_2_reboot
+        id: lr_ceiling_2_reboot
+        description: Гостиная - перезагрузка зависшей люстры 2
+        initial_state: true
+        trigger:
+    # Проверка раз в 5 минут, перезагрузка если люстра недоступна
+        - platform: time_pattern
+          minutes: '/5'
+        condition:
+    # Сенсор определяющий недоступность люстры
+        - condition: state
+          entity_id: binary_sensor.lr_ceiling_unavailable_2
+          state: 'on'
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Перезагрузка по питанию
+        - service: switch.turn_off
+          entity_id: switch.0x842e14fffee5451a
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x842e14fffee5451a
+
+#################### ВКЛЮЧЕНИЕ СВЕТА ####################          
+
+      - alias: lr_ceiling_1_manual_control
+        id: lr_ceiling_1_manual_control
+        description: Гостиная - ручное управление люстра 1
+        initial_state: true
+        trigger:
+    # Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_ceiling_1
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_1_double'
+    # Выключатель на стене внутри у входа
+        - platform: state
+          entity_id: sensor.0x00158d00062fbb54_action
+          to: 'single_right'
+    ## Крутилка Moes
+        - platform: state
+          entity_id: sensor.0x70ac08fffe263e24_action
+          to: "rotate_right"
+    # Выключатель на стене снаружи у входа
+        - platform: state
+          entity_id: sensor.0x00158d00013fc3bc_action
+          to: 'single_left'          
+    ## 3 кнопка Aqara Opple
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c79360a_action
+          to: 'button_3_single'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_ceiling_light_1
+                    state: 'off'
+                sequence:
+                  - service: input_boolean.turn_on
+                    target:
+                      entity_id: input_boolean.lr_ceiling_1
+                  - service: light.turn_on
+                    entity_id:
+                      - light.lr_ceiling_light_1
+                    data_template:
+                      brightness_pct: 60
+                      kelvin: 4000
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_ceiling_light_1
+                    state: 'on'
+                sequence:
+                  - service: input_boolean.turn_off
+                    target:
+                      entity_id: input_boolean.lr_ceiling_1
+                  - service: light.turn_off
+                    entity_id:
+                      - light.lr_ceiling_light_1
+
+      - alias: lr_ceiling_1_turn_on_control
+        id: lr_ceiling_1_turn_on_control
+        description: Гостиная - контроль включения люстры 1
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: light.lr_ceiling_light_1
+          to: 'on'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.lr_ceiling_1
+          state: 'off'
+        action:
+        - service: light.turn_off
+          entity_id:
+            - light.lr_ceiling_light_1
+
+      - alias: lr_ceiling_2_manual_control
+        id: lr_ceiling_2_manual_control
+        description: Гостиная - ручное управление люстра 2   
+        initial_state: true
+        trigger:
+    # Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_ceiling_2
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_2_double'
+    ## Крутилка Moes
+        - platform: state
+          entity_id: sensor.0x70ac08fffe263e24_action
+          to: "rotate_left"
+    ## 4 кнопка Aqara Opple
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c79360a_action
+          to: 'button_4_single' 
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_ceiling_light_2
+                    state: 'off'
+                sequence:
+                  - service: input_boolean.turn_on
+                    target:
+                      entity_id: input_boolean.lr_ceiling_2
+                  - service: light.turn_on
+                    entity_id:
+                      - light.lr_ceiling_light_2
+                    data_template:
+                      brightness_pct: 60
+                      kelvin: 4000
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_ceiling_light_2
+                    state: 'on'
+                sequence:
+                  - service: input_boolean.turn_off
+                    target:
+                      entity_id: input_boolean.lr_ceiling_2
+                  - service: light.turn_off
+                    entity_id:
+                      - light.lr_ceiling_light_2
+                      
+      - alias: lr_ceiling_2_turn_on_control
+        id: lr_ceiling_2_turn_on_control
+        description: Гостиная - контроль включения люстры 2
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: light.lr_ceiling_light_2
+          to: 'on'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        - condition: state
+          entity_id: input_boolean.lr_ceiling_2
+          state: 'off'
+        action:
+        - service: light.turn_off
+          entity_id:
+            - light.lr_ceiling_light_2
+
+      - alias: lr_ceiling_both_full_brigtness
+        id: lr_ceiling_both_full_brigtness
+        description: Гостиная - обе люстры на полной яркости                     
+        initial_state: true
+        trigger:
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_1_triple'
+    # Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_full_light
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.lr_ceiling
+                    state: 'off'
+                sequence:
+                  - service: input_boolean.turn_on
+                    target:
+                      entity_id: 
+                       - input_boolean.lr_ceiling_1
+                       - input_boolean.lr_ceiling_2
+                  - service: light.turn_on
+                    entity_id:
+                      - light.lr_ceiling_light_1
+                      - light.lr_ceiling_light_2
+                    data_template:
+                      brightness_pct: 100
+                      kelvin: 5000
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.lr_ceiling
+                    state: 'on'
+                sequence:
+                  - service: input_boolean.turn_off
+                    target:
+                      entity_id: 
+                       - input_boolean.lr_ceiling_1
+                       - input_boolean.lr_ceiling_2
+                  - service: light.turn_off
+                    entity_id:
+                      - light.lr_ceiling_light_1
+                      - light.lr_ceiling_light_2
+
+      - alias: lr_light_wall_toggle
+        id: lr_light_wall_toggle
+        description: Гостиная - ручное управление светильник на стене
+        initial_state: true
+        trigger:
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_2_single'
+    # Выключатель на стене снаружи у входа
+        - platform: state
+          entity_id: sensor.0x00158d00013fc3bc_action
+          to: 'single_right' 
+    ## Крутилка Moes
+        - platform: state
+          entity_id: sensor.0x70ac08fffe263e24_action
+          to: "single"
+    ## 2 кнопка Aqara Opple
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c79360a_action
+          to: 'button_2_single' 
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.toggle
+          entity_id: light.0x00158d00062fbb54_left
+
+      - alias: lr_light_table_lamp_toggle
+        id: lr_light_table_lamp_toggle
+        description: Гостиная - ручное управление настольной лампой
+        initial_state: true
+        trigger:
+    ## 1 кнопка Aqara Opple
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c79360a_action
+          to: 'button_1_single' 
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_1_single'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_table_lamp
+                    state: 'off'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.lr_table_lamp
+                    data_template:
+                      brightness_pct: 100
+                      kelvin: 2700
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_table_lamp
+                    state: 'on'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.lr_table_lamp
+                      
+      - alias: lr_bedside_lamp_toggle
+        id: lr_bedside_lamp_toggle
+        description: Гостиная - ручное управление прикроватником
+        initial_state: true
+        trigger:
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_2_triple'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_bedside
+                    state: 'off'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.lr_bedside
+                    data_template:
+                      brightness_pct: 100
+                      kelvin: 4000
+              - conditions:
+                  - condition: state
+                    entity_id: light.lr_bedside
+                    state: 'on'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.lr_bedside
+                      
+      - alias: lr_light_off_and_exit
+        id: lr_light_off_and_exit
+        description: Гостиная - отключение всего освещения с временной подсветкой
+        initial_state: true
+        trigger:
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_6_triple'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.turn_off
+          entity_id:
+            - light.lr_ceiling_light_1
+            - light.lr_ceiling_light_2
+            - light.lr_ceiling_light_1_ambilight
+            - light.lr_ceiling_light_2_ambilight
+            - light.0x00158d00062fbb54_left
+            - light.lr_table_lamp
+        - service: light.turn_on
+          entity_id:
+            - light.lr_bedside
+          data_template:
+            brightness_pct: 70
+            kelvin: 4000
+        - delay: 00:00:15
+        - service: light.turn_off
+          entity_id:
+            - light.lr_bedside

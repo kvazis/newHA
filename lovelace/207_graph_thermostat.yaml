@@ -1,0 +1,103 @@
+title: Термостаты
+panel: true
+icon: phu:wiser-thermostat-off
+cards:
+
+
+    - type: custom:history-explorer-card
+      header: Мощность
+      defaultTimeRange: 12h
+      lineMode: stepped
+      decimation: true
+      uimode: dark
+      recordedEntitiesOnly: true
+      labelsVisible: false
+      uiColors:
+        gridlines: rgb(100,100,100)
+      uiLayout:
+        toolbar: top
+        selector: hide
+      graphs:
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0x00158d0001581109_temperature
+             color: rgb(125,246,255)
+             fill: rgba(125,246,255,0.1)
+           - entity: sensor.kn_thermostat_local_temperature
+             color: rgb(16,255,140)
+             fill: rgba(16,255,140,0.1)
+           - entity: sensor.kn_thermostat_current_heating_setpoint
+             color: rgb(255,124,203)
+             fill: rgba(255,124,203,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0x00158d00015aebb6_temperature
+             color: rgb(125,246,255)
+             fill: rgba(125,246,255,0.1)
+           - entity: sensor.lr_thermostat_local_temperature_1
+             color: rgb(16,255,140)
+             fill: rgba(16,255,140,0.1)
+           - entity: sensor.lr_thermostat_current_heating_setpoint_1
+             color: rgb(255,124,203)
+             fill: rgba(255,124,203,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0x00158d00015aebb6_temperature
+             color: rgb(125,246,255)
+             fill: rgba(125,246,255,0.1)
+           - entity: sensor.lr_thermostat_local_temperature_2
+             color: rgb(16,255,140)
+             fill: rgba(16,255,140,0.1)
+           - entity: sensor.lr_thermostat_current_heating_setpoint_2
+             color: rgb(255,124,203)
+             fill: rgba(255,124,203,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0x00158d000156e92e_temperature
+             color: rgb(125,246,255)
+             fill: rgba(125,246,255,0.1)
+           - entity: sensor.dd_thermostat_local_temperature
+             color: rgb(16,255,140)
+             fill: rgba(16,255,140,0.1)
+           - entity: sensor.dd_thermostat_current_heating_setpoint
+             color: rgb(255,124,203)
+             fill: rgba(255,124,203,0.1)
+      - type: line
+        options:
+          ymin: 0
+        entities:
+           - entity: sensor.0x00158d000159c7e6_temperature
+             color: rgb(125,246,255)
+             fill: rgba(125,246,255,0.1)
+           - entity: sensor.da_thermostat_local_temperature
+             color: rgb(16,255,140)
+             fill: rgba(16,255,140,0.1)
+           - entity: sensor.da_thermostat_current_heating_setpoint
+             color: rgb(255,124,203)
+             fill: rgba(255,124,203,0.1)
+      - type: line
+        options:
+        entities:
+           - entity: sensor.kn_thermostat_local_temperature_calibration
+             color: rgb(255,117,245)
+             fill: rgba(255,117,245,0.1)
+           - entity: sensor.lr_thermostat_local_temperature_calibration_1
+             color: rgb(0,184,255)
+             fill: rgba(0,184,255,0.1)
+           - entity: sensor.lr_thermostat_local_temperature_calibration_2
+             color: rgb(0,255,229)
+             fill: rgba(0,255,229,0.1)
+           - entity: sensor.dd_thermostat_local_temperature_calibration
+             color: rgb(255,195,120)
+             fill: rgba(255,195,120,0.1)
+           - entity: sensor.da_thermostat_local_temperature_calibration
+             color: rgb(241,255,106)
+             fill: rgba(241,255,106,0.1)  

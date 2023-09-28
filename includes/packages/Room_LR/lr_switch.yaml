@@ -1,0 +1,167 @@
+lr_switch:
+
+    recorder:
+      include:
+        entities:
+           - sensor.lr_total_load
+           - sensor.0xa4c1388c89a46970_power
+           - sensor.0xa4c1388c89a46970_meter
+           - sensor.0xa4c138f41459f92a_power
+           - sensor.0xa4c138f41459f92a_meter
+           - sensor.0xa4c1387c6584d955_power
+           - sensor.0xa4c1387c6584d955_meter
+           - sensor.0xa4c1384452a34172_power
+           - sensor.0xa4c1384452a34172_meter
+           - sensor.0xa4c1382600c57620_power
+           - sensor.0xa4c1382600c57620_meter
+
+
+    utility_meter:
+
+      0xa4c1388c89a46970_meter:
+        source: sensor.0xa4c1388c89a46970_energy
+        unique_id: 0xa4c1388c89a46970
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+
+      0xa4c138f41459f92a_meter:
+        source: sensor.0xa4c138f41459f92a_energy
+        unique_id: 0xa4c138f41459f92a
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+
+      0xa4c1387c6584d955_meter:
+        source: sensor.0xa4c1387c6584d955_energy
+        unique_id: 0xa4c1387c6584d955
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+
+      0xa4c1384452a34172_meter:
+        source: sensor.0xa4c1384452a34172_energy
+        unique_id: 0xa4c1384452a34172
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+        
+      0xa4c1382600c57620_meter:
+        source: sensor.0xa4c1382600c57620_energy
+        unique_id: 0xa4c1382600c57620
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+        
+
+    homeassistant:
+      customize:
+        
+        switch.0xa4c1388c89a46970:
+          friendly_name: Гостиная ноутбук Acer, питание
+          icon: phu:laptop-windows
+        sensor.0xa4c1388c89a46970_power:
+          friendly_name: Гостиная ноутбук Acer, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c1388c89a46970_energy:
+          friendly_name: Гостиная ноутбук Acer, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c1388c89a46970_voltage:
+          friendly_name: Гостиная ноутбук Acer, напряжение
+        sensor.0xa4c1388c89a46970_integration:
+          friendly_name: Гостиная ноутбук Acer
+        sensor.0xa4c1388c89a46970_meter:
+          friendly_name: Гостиная ноутбук Acer
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+          
+        switch.0xa4c138f41459f92a:
+          friendly_name: Гостиная ноутбук Asus, питание
+          icon: phu:laptop-windows
+        sensor.0xa4c138f41459f92a_power:
+          friendly_name: Гостиная ноутбук Asus, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c138f41459f92a_energy:
+          friendly_name: Гостиная ноутбук Asus, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c138f41459f92a_voltage:
+          friendly_name: Гостиная ноутбук Asus, напряжение
+        sensor.0xa4c138f41459f92a_integration:
+          friendly_name: Гостиная ноутбук Asus
+        sensor.0xa4c138f41459f92a_meter:
+          friendly_name: Гостиная ноутбук Asus
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0xa4c1387c6584d955:
+          friendly_name: Гостиная шлюз Mi
+          icon: mdi:power-socket-eu
+        sensor.0xa4c1387c6584d955_power:
+          friendly_name: Гостиная шлюз Mi, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c1387c6584d955_energy:
+          friendly_name: Гостиная шлюз Mi, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c1387c6584d955_voltage:
+          friendly_name: Гостиная шлюз Mi, напряжение
+        sensor.0xa4c1387c6584d955_meter:
+          friendly_name: Гостиная шлюз Mi
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0xa4c1384452a34172:
+          friendly_name: Гостиная телевизор, питание
+          icon: mdi:television
+        sensor.0xa4c1384452a34172_power:
+          friendly_name: Гостиная телевизор, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c1384452a34172_energy:
+          friendly_name: Гостиная телевизор, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c1384452a34172_voltage:
+          friendly_name: Гостиная телевизор, напряжение
+        sensor.0xa4c1384452a34172_meter:
+          friendly_name: Гостиная телевизор
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0xa4c1382600c57620:
+          friendly_name: Гостиная Orico
+          icon: mdi:power-socket-eu
+        sensor.0xa4c1382600c57620_power:
+          friendly_name: Гостиная Orico, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c1382600c57620_energy:
+          friendly_name: Гостиная Orico, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c1382600c57620_voltage:
+          friendly_name: Гостиная Orico, напряжение
+        sensor.0xa4c1382600c57620_meter:
+          friendly_name: Гостиная Orico
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+          
+        switch.0x00124b00246ef1a8:
+          friendly_name: Гостиная, вентилятор роутера
+
+                

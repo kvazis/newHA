@@ -1,0 +1,169 @@
+lr_hum:
+
+    homeassistant:
+      customize:
+        
+        binary_sensor.lr_hydration:
+          friendly_name: Гостиная, увлажнение воздуха
+        binary_sensor.lr_humidifier_time:
+          friendly_name: Гостиная, время увлажнения воздуха
+        humidifier.lr_humidifier:
+          friendly_name: Гостиная, увлажнитель
+        sensor.lr_humidifier_humidity:
+          friendly_name: Гостиная, влажность на увлажнителе
+        sensor.lr_humidifier_temperature:
+          friendly_name: Гостиная, температура на увлажнителе
+        sensor.lr_humidifier_motor_speed:
+          friendly_name: Гостиная, увлажнитель, скорость двигателя
+        sensor.lr_humidifier_water_level:
+          friendly_name: Гостиная, увлажнитель, уровень воды
+        binary_sensor.lr_humidifier_water_tank:
+          friendly_name: Гостиная, увлажнитель, бак
+
+    mqtt:
+      binary_sensor:
+        - name: lr_humidifier
+          state_topic: "states/lr_humidifier"
+
+    binary_sensor:
+    
+      - platform: tod
+        name: lr_humidifier_time
+        after: '10:00'
+        before: '22:00'
+        
+    template:
+     
+      - sensor:
+    
+        #Сенсор определяющий режим работы, в зависимости от времени суток, влажности и окна 
+          - name: lr_hydration_mode
+            state: >
+              {% set current = states('input_number.humidity_level_lr') | float %}
+              {% set low = (states('input_number.humidity_level_lr') | float) - 5 %}
+              {% set medium = (states('input_number.humidity_level_lr') | float) - 10 %}
+              {% set high = (states('input_number.humidity_level_lr') | float) - 15 %}
+              {% set humidity = states('sensor.0x00158d00015aebb6_humidity') | float %}
+              {% 
+              if is_state('binary_sensor.lr_humidifier_time', 'off') 
+              or is_state('binary_sensor.lr_aeration', 'on')
+              or is_state('switch.lr_humidifier_mode', 'off')
+              or is_state('binary_sensor.lr_silent', 'on') 
+              %}
+              Disable
+              {% elif humidity < high %} 
+              High
+              {% elif humidity < medium %} 
+              Medium
+              {% elif humidity < low %} 
+              Silent
+              {% else %}
+              Auto
+              {% endif %}
+              
+    switch:
+    
+      - platform: template
+        switches:
+          lr_humidifier_mode:
+            friendly_name: "Гостиная, режим увлажнения воздуха"
+            value_template: "{{ is_state('binary_sensor.lr_humidifier', 'on') }}"
+            turn_on:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_humidifier"
+                payload_template: 'ON'
+                retain: true 
+            turn_off:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_humidifier"
+                payload_template: 'OFF'
+                retain: true 
+            icon_template: >-
+              {% if is_state('switch.lr_humidifier_mode', 'on') %}
+                mdi:air-humidifier
+              {% else %}
+                mdi:air-humidifier-off
+              {% endif %}
+              
+    automation:
+    
+      - id: Гостиная, увлажнение
+        alias: lr_hydration       
+        initial_state: true
+        trigger:
+    # Ловим любое изменение состояния сенсора
+        - platform: state
+          entity_id: sensor.lr_hydration_mode
+    # Ловим любое изменение состояния увлажнителя
+        - platform: state
+          entity_id: humidifier.lr_humidifier
+        action:
+            - choose:
+
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_hydration_mode
+                    state: 'Disable'
+                sequence:
+                  - service: humidifier.turn_off
+                    entity_id: humidifier.lr_humidifier
+
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_hydration_mode
+                    state: 'High'
+                sequence:
+                  - service: humidifier.set_mode
+                    target:
+                      entity_id: humidifier.lr_humidifier
+                    data:
+                      mode: High
+                      
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_hydration_mode
+                    state: 'Medium'
+                sequence:
+                  - service: humidifier.set_mode
+                    target:
+                      entity_id: humidifier.lr_humidifier
+                    data:
+                      mode: Medium
+                      
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_hydration_mode
+                    state: 'Silent'
+                sequence:
+                  - service: humidifier.set_mode
+                    target:
+                      entity_id: humidifier.lr_humidifier
+                    data:
+                      mode: Silent
+                      
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.lr_hydration_mode
+                    state: 'Auto'
+                sequence:
+                  - service: humidifier.set_mode
+                    target:
+                      entity_id: humidifier.lr_humidifier
+                    data:
+                      mode: Auto
+
+      - id: Перезагрузка увлажнителя Гостиная
+        alias: reload_humidifier_lr
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_humidifier
+        action:  
+            - service: homeassistant.reload_config_entry
+              data:
+                entry_id: 0ef3b266c0ef685856772748513534a8
+              target:
+                device_id: 7175042dc58ff86a46ed62641cd76085

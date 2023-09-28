@@ -1,0 +1,114 @@
+rest_control:
+
+    recorder:
+      include:
+        entities:
+           - sensor.reserve_state
+           - sensor.server_telemetry
+           - sensor.reserve_telemetry
+
+    homeassistant:
+
+      customize:
+        sensor.server_telemetry:
+          friendly_name: Уровень отказа - 
+        sensor.reserve_telemetry:
+          friendly_name: Уровень отказа резерва - 
+
+        automation.control_return_control_to_main:
+          friendly_name: Контроль - возврат управления на основной сервер
+          icon: mdi:server
+
+        automation.control_notification_about_reserve:
+          friendly_name: Контроль - уведомление о сбое резервного сервера
+          icon: mdi:server-remove
+
+    sensor:
+         - platform: rest
+           resource: http://192.168.0.61:8123/api/states/sensor.online_custom
+           name: reserve_state
+           force_update: true
+           headers: 
+             Authorization: !secret reserve_secret_token
+             content-type: 'application/json'
+           value_template: '{{ value_json.state }}'
+           
+         - platform: rest
+           resource: http://192.168.0.61:8123/api/states/sensor.server_telemetry
+           name: reserve_telemetry
+           force_update: true
+           headers: 
+             Authorization: !secret reserve_secret_token
+             content-type: 'application/json'
+           value_template: '{{ value_json.state }}'
+           
+         
+    template:
+     
+      - sensor:
+      
+          - name: server_telemetry
+            state: >
+                {% set light = (states('sensor.count_light_unavailable') | int) *20 %} 
+                {% set switch = (states('sensor.count_switch_unavailable') | int) *20 %}
+                {% set sensor = (states('sensor.count_sensor_unavailable') | int) *5 %}
+                {% set binary_sensor = (states('sensor.count_binary_sensor_unavailable') | int) *5 %}
+                {{light + switch + sensor + binary_sensor}}
+
+            
+            
+    automation:
+    
+      - alias: control_return_control_to_main
+        description: Контроль - возврат управления на основной сервер
+        initial_state: true
+        trigger:
+    # Сенсор состояния основного сервера
+        - platform: state
+          entity_id: sensor.server_telemetry
+    # Сенсор состояния резервного сервера
+        - platform: state
+          entity_id: sensor.reserve_telemetry
+          to: 'unavailable'  
+        condition:
+    # Режима работы сервера выключен
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'off'
+        - condition: template
+          value_template: "{{ (states('sensor.server_telemetry')|int) < 100 }}"
+        - condition: template
+          value_template: "{{ (states('sensor.server_telemetry')|int) <= (states('sensor.reserve_telemetry')|int) }}"
+        action:
+        - service: telegram_bot.send_message
+          data_template:
+            target:
+              - !secret chat_id_group_tech
+            message: |
+               *Луиджи возвращает себе управление в {{ states('sensor.time_date') }} *
+        - service: switch.turn_on
+          entity_id: switch.control_mode
+
+      - alias: control_notification_about_reserve
+        description: Контроль - уведомление о сбое резервного сервера
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: sensor.reserve_telemetry
+          to: 'unavailable'      
+        condition:
+    # Режима работы сервера выключен
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: telegram_bot.send_message
+          data_template:
+            target:
+              - !secret chat_id_group_tech
+            message: |
+               *Джованни покинул нас в {{ states('sensor.time_date') }} *
+               *Контроль у Луиджи*
+               
+               
+               

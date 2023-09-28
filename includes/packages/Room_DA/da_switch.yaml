@@ -1,0 +1,145 @@
+da_switch:
+
+    recorder:
+      include:
+        entities:
+           - switch.0x00158d00010ec4b8
+           - sensor.0x00158d00010ec4b8_power
+           - sensor.0x00158d00010ec4b8_meter
+           - sensor.0x00158d00012896cb_power
+           - sensor.0x00158d00012896cb_meter
+           - sensor.0x04cf8cdf3c764e0a_power
+           - sensor.0x04cf8cdf3c764e0a_meter
+           - sensor.0xa4c138e22148db3a_power
+           - sensor.0xa4c138e22148db3a_meter
+
+    utility_meter:
+
+      0x00158d00010ec4b8_meter:
+        source: sensor.0x00158d00010ec4b8_energy
+        unique_id: 0x00158d00010ec4b8
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+      0x00158d00012896cb_meter:
+        source: sensor.0x00158d00012896cb_energy
+        unique_id: 0x00158d00012896cb
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+
+      0x04cf8cdf3c764e0a_meter:
+        source: sensor.0x04cf8cdf3c764e0a_energy
+        unique_id: 0x04cf8cdf3c764e0a
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+          
+      0xa4c138e22148db3a_meter:
+        source: sensor.0xa4c138e22148db3a_energy
+        unique_id: 0xa4c138e22148db3a
+        cycle: monthly
+        offset:
+          days: 0
+          hours: 9
+          minutes: 0
+
+
+    homeassistant:
+      customize:
+      
+        switch.0x00158d00010ec4b8:
+          friendly_name: ДА увлажнитель воздуха, питание
+          icon: mdi:power-socket-eu
+        sensor.0x00158d00010ec4b8_power:
+          friendly_name: ДА увлажнитель воздуха, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x00158d00010ec4b8_energy:
+          friendly_name: ДА увлажнитель воздуха, энергия
+          icon: mdi:chart-line
+        sensor.0x00158d00010ec4b8_device_temperature:
+          friendly_name: ДА увлажнитель воздуха, температура
+          icon: mdi:thermometer-check
+        sensor.0x00158d00010ec4b8_meter:
+          friendly_name: ДА увлажнитель воздуха
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+
+        switch.0x00158d00012896cb:
+          friendly_name: ДА лента Yeelight, питание
+          icon: phu:laptop-windows
+        sensor.0x00158d00012896cb_power:
+          friendly_name: ДА лента Yeelight, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x00158d00012896cb_energy:
+          friendly_name: ДА лента Yeelight, энергия
+          icon: mdi:chart-line
+        sensor.0x00158d00012896cb_device_temperature:
+          friendly_name: ДА лента Yeelight, температура
+          icon: mdi:thermometer-check
+        sensor.0x00158d00012896cb_meter:
+          friendly_name: ДА лента Yeelight
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0x04cf8cdf3c764e0a:
+          friendly_name: ДА рекуператор, питание
+          icon: mdi:hvac
+        sensor.0x04cf8cdf3c764e0a_power:
+          friendly_name: ДА рекуператор, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0x04cf8cdf3c764e0a_energy:
+          friendly_name: ДА рекуператор, энергия
+          icon: mdi:chart-line
+        sensor.0x04cf8cdf3c764e0a_device_temperature:
+          friendly_name: ДА рекуператор, температура
+          icon: mdi:thermometer-check
+        sensor.0x04cf8cdf3c764e0a_voltage:
+          friendly_name: ДА рекуператор, напряжение
+        sensor.0x04cf8cdf3c764e0a_meter:
+          friendly_name: ДА рекуператор
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+          
+        switch.0xa4c138e22148db3a:
+          friendly_name: ДА, USB светильник
+          icon: mdi:power-socket-eu
+        sensor.0xa4c138e22148db3a_power:
+          friendly_name: ДА, USB светильник, мощность
+          unit_of_measurement: Вт
+          device_class: power
+        sensor.0xa4c138e22148db3a_energy:
+          friendly_name: ДА, USB светильник, энергия
+          icon: mdi:chart-line
+        sensor.0xa4c138e22148db3a_voltage:
+          friendly_name: ДА, USB светильник, напряжение
+        sensor.0xa4c138e22148db3a_meter:
+          friendly_name: ДА, USB светильник
+          unit_of_measurement: kWh
+          device_class: energy
+          state_class: total
+
+        switch.0x00158d000635ded8_left:
+          friendly_name: ДА проводной выключатель на входе
+          icon: mdi:light-switch
+        switch.0x00158d000635ded8_right:
+          friendly_name: ДА питание люстры
+          icon: mdi:light-switch
+        sensor.0x00158d000635ded8_action:
+          friendly_name: ДА проводной выключатель на входе
+
+          

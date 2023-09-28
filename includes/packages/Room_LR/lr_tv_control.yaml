@@ -1,0 +1,83 @@
+lr_tv_control:
+
+    template:
+     
+      - binary_sensor:
+
+        #   - name: lr_tv_work
+        #     state: >
+        #       {{ states('sensor.0xa4c1384452a34172_power')|int > 50 
+        #       }}
+        #     icon: >
+        #       {% if is_state("binary_sensor.lr_tv_work", "on") %}
+        #       mdi:television
+        #       {% else %}
+        #       mdi:television-off
+        #       {% endif %}
+        
+          - name: lr_tv_work
+            state: >
+              {{ not is_state ('remote.mitv', 'unavailable') }}
+            icon: >
+              {% if is_state("binary_sensor.lr_tv_work", "on") %}
+              mdi:television
+              {% else %}
+              mdi:television-off
+              {% endif %}
+              
+    automation:
+    
+      - alias: lr_tv_control
+        id: lr_tv_control
+        description: Гостиная управление ТВ
+        initial_state: true
+        trigger:
+    ## 5 кнопка Aqara Opple
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c79360a_action
+          to: 'button_5_single' 
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_6_double'
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_tv_control
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.lr_tv_work
+                    state: 'off'
+                sequence:
+                  - service: remote.send_command
+                    data:
+                      entity_id: remote.lr_ir_base_remote
+                      command:
+                        - b64:JgBoACQRFhAWLRYtFhEWLBYRFi0WERUtFi0WAAFhJBEWERYtFS0WERYtFhEVLRYRFi0WLRYAAWEjEhURFi0WLRYQFi0WERYtFREWLRYtFgABYSQRFhAWLRYtFhEWLBYRFi0WERUtFi0WAA0F==
+                  - delay: 00:00:15
+                  - service: homeassistant.reload_config_entry
+                    data: {}
+                    target:
+                      entity_id: remote.mitv
+
+
+
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.lr_tv_work
+                    state: 'on'
+                sequence:
+                  - service: remote.send_command
+                    data:
+                      entity_id: remote.lr_ir_base_remote
+                      command:
+                        - b64:JgCCACQRFiQWEBYbFSQWERURFhoWLRYkFhoWAAGcJBEWJBYQFhsVJBYRFhAWGxUtFiQWGhYAAZwkERYkFhEVGxYjFhEWEBYbFS0WJBYaFgABnCUQFiQWERUbFiMWERYQFhsWLBYkFhoWAAGdJBEVJBYRFhoWIxYRFhEVGxYtFiMWGhYADQUAAAAAAAA==
+                        - b64:JgCCACQRFiQWEBYbFSQWERURFhoWLRYkFhoWAAGcJBEWJBYQFhsVJBYRFhAWGxUtFiQWGhYAAZwkERYkFhEVGxYjFhEWEBYbFS0WJBYaFgABnCUQFiQWERUbFiMWERYQFhsWLBYkFhoWAAGdJBEVJBYRFhoWIxYRFhEVGxYtFiMWGhYADQUAAAAAAAA==
+                        - b64:JgCCACQRFiQWEBYbFSQWERURFhoWLRYkFhoWAAGcJBEWJBYQFhsVJBYRFhAWGxUtFiQWGhYAAZwkERYkFhEVGxYjFhEWEBYbFS0WJBYaFgABnCUQFiQWERUbFiMWERYQFhsWLBYkFhoWAAGdJBEVJBYRFhoWIxYRFhEVGxYtFiMWGhYADQUAAAAAAAA==
+                        - b64:JgCCACQRFiQWEBYbFSQWERURFhoWLRYkFhoWAAGcJBEWJBYQFhsVJBYRFhAWGxUtFiQWGhYAAZwkERYkFhEVGxYjFhEWEBYbFS0WJBYaFgABnCUQFiQWERUbFiMWERYQFhsWLBYkFhoWAAGdJBEVJBYRFhoWIxYRFhEVGxYtFiMWGhYADQUAAAAAAAA==
+                        - b64:JgBoACQRFhAWLRYtFhEWLBYRFi0WERUtFi0WAAFhJBEWERYtFS0WERYtFhEVLRYRFi0WLRYAAWEjEhURFi0WLRYQFi0WERYtFREWLRYtFgABYSQRFhAWLRYtFhEWLBYRFi0WERUtFi0WAA0F==

@@ -1,0 +1,547 @@
+tt_light:
+
+    homeassistant:
+      customize:
+      
+        light.tt_ceiling_light:
+          friendly_name: Туалет люстра
+          icon: phu:ceiling-devere
+
+        binary_sensor.0x00158d0001a24e71_raw_occupancy:
+          friendly_name: Туалет датчик движения
+        sensor.0x00158d0001a24e71_battery:
+          friendly_name: Туалет датчик движения
+          
+        binary_sensor.0x70ac08fffe63561c_presence:
+          friendly_name: Туалет датчик присутствия
+        sensor.0x70ac08fffe63561c_target_distance:
+          friendly_name: Туалет датчик присутствия, расстояние
+          
+        switch.0x00158d00014dceb3_left:
+          friendly_name: Туалет люстра, питание
+        fan.0x00158d00014dceb3_right:
+          friendly_name: Туалет вытяжка, питание
+        sensor.0x00158d00014dceb3_action:
+          friendly_name: Туалет выключатель на входе
+        sensor.0x00158d00014dceb3_device_temperature:
+          friendly_name: Туалет выключатель на входе, температура
+          icon: mdi:thermometer-check
+          
+        sensor.0x54ef441000279090_action:
+          friendly_name: Туалет Aqara E1
+        sensor.0x54ef441000279090_battery:
+          friendly_name: Туалет Aqara E1
+
+    input_boolean:
+    
+      tt_occupancy:
+        name: Туалет присуствие
+        icon: mdi:toilet
+
+
+    light:
+      - platform: template
+        lights:
+          tt_ceiling_virtual:
+            friendly_name: "Tуалет, виртуальная люстра"
+            value_template: >-
+              {{ is_state('light.tt_ceiling_light', 'on')
+                 or is_state('light.0x00124b0023ae464d_right', 'on')
+              }}
+            icon_template: phu:ceiling-devere
+            turn_on:
+              service: light.turn_on
+              data_template:
+                entity_id: > 
+                  {% if is_state('light.tt_ceiling_light', 'unavailable') %}
+                    light.0x00124b0023ae464d_right
+                  {% else %}
+                    light.tt_ceiling_light
+                  {% endif %}
+                brightness_pct: > 
+                  {% if is_state("binary_sensor.tt_night", "off") %}
+                    100
+                  {% else %} 
+                    50
+                  {% endif %}
+                kelvin: > 
+                  {% if is_state("binary_sensor.tt_night", "off") %}
+                    4000
+                  {% else %} 
+                    3000
+                  {% endif %}
+            turn_off:
+              service: light.turn_off
+              entity_id:
+               - light.tt_ceiling_light
+               - light.0x00124b0023ae464d_right
+            level_template: >-
+                {% if is_state('light.tt_ceiling_light', 'unavailable')
+                   or is_state('light.tt_ceiling_light', 'off')
+                %}
+                  255
+                {% else %}
+                  {{ state_attr('light.tt_ceiling_light', 'brightness') | int }}
+                {% endif %}
+            set_level:
+              service: light.turn_on
+              entity_id: light.tt_ceiling_light
+              data_template:
+                brightness: "{{ brightness }}"
+            temperature_template: >-
+                {% if is_state('light.tt_ceiling_light', 'unavailable')
+                   or is_state('light.tt_ceiling_light', 'off')
+                %}
+                  250
+                {% else %}
+                  {{ state_attr('light.tt_ceiling_light', 'color_temp') | int }}
+                {% endif %}
+            set_temperature:
+              service: light.turn_on
+              entity_id: light.tt_ceiling_light
+              data_template:
+                color_temp: "{{ color_temp }}"
+
+    template:
+     
+      - binary_sensor:
+      
+    # Определение работы освещения
+          - name: tt_light_on
+            state: >
+              {{ is_state('light.tt_ceiling_virtual', 'on')
+                 or is_state('light.0x00124b0023ae464d_left', 'on') }}
+            device_class: light
+
+    # Блокировка самопроизвольного включения света
+          - name: tt_light_block
+            state: >
+              {{ is_state('light.tt_ceiling_virtual', 'off')  
+                 and is_state('binary_sensor.0xa4c1384e55f274ef_contact', 'off') }}
+            delay_on: 00:00:30
+
+    # Сенсор определяющий недоступность люстры 
+          - name: tt_ceiling_unavailable
+            state: >
+              {{  is_state('light.tt_ceiling_light', 'unavailable')  
+                 and states('sensor.count_light_unavailable')|int < 3 }}
+            delay_on: 
+                minutes: 5
+            device_class: problem
+
+    # Свет без движения в туалете днем
+          - name: tt_light_day
+            state: >
+              {{ is_state('light.tt_ceiling_virtual', 'on')  
+                 and is_state('binary_sensor.0x00158d0001a24e71_raw_occupancy', 'off')
+                 and is_state('binary_sensor.0x70ac08fffe63561c_presence', 'off')
+                 and is_state('binary_sensor.tt_night', 'off')
+                 and is_state('input_boolean.tt_occupancy', 'off')
+              }}
+            delay_on: 00:01:00
+            device_class: light
+              
+    # Свет без движения в туалете ночью
+          - name: tt_light_night
+            state: >
+              {{ is_state('light.tt_ceiling_virtual', 'on')  
+                 and is_state('binary_sensor.0x00158d0001a24e71_raw_occupancy', 'off')
+                 and is_state('binary_sensor.0x70ac08fffe63561c_presence', 'off')
+                 and is_state('binary_sensor.tt_night', 'on')
+                 and is_state('input_boolean.tt_occupancy', 'off')
+              }}
+            # delay_on: 00:01:00
+            device_class: light
+              
+    # Свет более 5 минут, условие для включения вентиляции
+          - name: tt_fan_on
+            state: >
+              {{ is_state('light.tt_ceiling_virtual', 'on') 
+                 and is_state('fan.0x00158d00014dceb3_right', 'off')
+              }}
+            delay_on: 00:05:00
+            icon: >
+              {% if is_state("binary_sensor.tt_fan_on", "on") %}
+              mdi:timer
+              {% else %}
+              mdi:timer-off
+              {% endif %}
+              
+    # Вентиляция более 10 минут с выключенным светом, условие для выключения вентиляции
+          - name: tt_fan_off
+            state: >
+              {{ is_state('light.tt_ceiling_virtual', 'off') 
+                 and is_state('fan.0x00158d00014dceb3_right', 'on')
+              }}
+            delay_on: 00:10:00
+            icon: >
+              {% if is_state("binary_sensor.tt_fan_off", "on") %}
+              mdi:timer
+              {% else %}
+              mdi:timer-off
+              {% endif %}
+
+
+    binary_sensor:
+    
+      - platform: tod
+        name: tt_night
+        after: '23:00'
+        before: '07:00'
+
+    automation:
+
+      - alias: tt_switch_turn_on
+        id: tt_switch_turn_on
+        description: Туалет включение выключателя
+        initial_state: true
+        trigger:
+    # Выключение выключателя
+        - platform: state
+          entity_id: switch.0x00158d00014dceb3_left
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Включение
+        - delay: 00:00:15
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00014dceb3_left
+
+      - alias: tt_ceiling_reboot
+        id: tt_ceiling_reboot
+        description: Туалет перезагрузка зависшей люстры 
+        initial_state: true
+        trigger:
+    # Проверка раз в 5 минут, перезагрузка если люстра недоступна
+        - platform: time_pattern
+          minutes: '/5'
+        condition:
+    # Сенсор электричества - электропитание есть
+        - condition: state
+          entity_id: binary_sensor.electricity
+          state: 'off'
+    # Сенсор определяющий недоступность люстры
+        - condition: state
+          entity_id: binary_sensor.tt_ceiling_unavailable
+          state: 'on'
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Перезагрузка по питанию
+        - service: switch.turn_off
+          entity_id: switch.0x00158d00014dceb3_left
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00014dceb3_left
+
+      - alias: tt_light_control_presence_on
+        id: tt_light_control_presence_on
+        description: Туалет включение света по датчику присутствия
+        initial_state: true
+        trigger:
+    # Датчик присутствия
+        - platform: state
+          entity_id: binary_sensor.0x70ac08fffe63561c_presence
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Свет выключен
+        - condition: state
+          entity_id: binary_sensor.tt_light_on
+          state: 'off'
+    # Нет блокировки      
+        - condition: state
+          entity_id: binary_sensor.tt_light_block
+          state: 'off'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.electricity
+                    state: 'off'                   
+                sequence:        
+                  - service: light.turn_on
+                    entity_id: light.tt_ceiling_virtual
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.electricity
+                    state: 'on'                   
+                sequence:        
+                  - service: light.turn_on
+                    entity_id: light.0x00124b0023ae464d_left
+
+
+      - alias: tt_light_control_on
+        id: tt_light_control_on
+        description: Туалет включение света
+        initial_state: true
+        trigger:
+    # Физические сущности 
+    # Датчик движения
+        - platform: state
+          entity_id: binary_sensor.0x00158d0001a24e71_raw_occupancy
+          to: 'on'
+    # Выключатель на стене у входа
+        - platform: state
+          entity_id: sensor.0x00158d00014dceb3_action
+          to: 'single_left'
+    # Выключатель в туалете
+        - platform: state
+          entity_id: sensor.0x54ef441000279090_action
+          to: 'single_left'
+    # 4 клавишник на комоде
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c7942ca_action
+          to: 'button_2_single' 
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_3_triple'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Свет выключен
+        - condition: state
+          entity_id: binary_sensor.tt_light_on
+          state: 'off'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.electricity
+                    state: 'off'                   
+                sequence:        
+                  - service: light.turn_on
+                    entity_id: light.tt_ceiling_virtual
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.electricity
+                    state: 'on'                   
+                sequence:        
+                  - service: light.turn_on
+                    entity_id: light.0x00124b0023ae464d_left
+
+      - alias: tt_light_control_off
+        id: tt_light_control_off
+        description: Туалет выключение света
+        initial_state: true
+        trigger:
+    # Виртуальные сущности 
+    # Выключение света без движения днем
+        - platform: state
+          entity_id: binary_sensor.tt_light_day
+          to: 'on'
+    # Выключение света без движения ночью
+        - platform: state
+          entity_id: binary_sensor.tt_light_night
+          to: 'on'
+    # Физические сущности 
+    # Выключатель на стене у входа
+        - platform: state
+          entity_id: sensor.0x00158d00014dceb3_action
+          to: 'single_left'
+    # Выключатель в туалете
+        - platform: state
+          entity_id: sensor.0x54ef441000279090_action
+          to: 'single_left'
+    # 4 клавишник на комоде
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c7942ca_action
+          to: 'button_2_single' 
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Свет включен
+        - condition: state
+          entity_id: binary_sensor.tt_light_on
+          state: 'on'
+        action:
+        - service: light.turn_off
+          entity_id:
+            - light.tt_ceiling_virtual
+            - light.0x00124b0023ae464d_left
+
+    # Управление вентиляцией   
+      - alias: tt_fan_control
+        id: tt_fan_control
+        description: Туалет управление вентилятором
+        initial_state: true
+        trigger:
+    # Виртуальные сущности 
+    # Включение через 5 минут
+        - platform: state
+          entity_id: binary_sensor.tt_fan_on
+          to: 'on'
+    # Выключение через 10 минут
+        - platform: state
+          entity_id: binary_sensor.tt_fan_off
+          to: 'on'    
+    # Физические сущности 
+    # Выключатель в туалете
+        - platform: state
+          entity_id: sensor.0x54ef441000279090_action
+          to: 'single_right' 
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: fan.toggle
+          entity_id: fan.0x00158d00014dceb3_right
+
+    # Управление подсветкой зеркала
+      - alias: tt_mirror_control
+        id: tt_mirror_control
+        description: Туалет управление подсветкой зеркала
+        initial_state: true
+        trigger:
+    # Выключатель в туалете
+        - platform: state
+          entity_id: sensor.0x54ef441000279090_action
+          to: 'single_both'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.toggle
+          entity_id: light.0x00124b0023ae464d_right
+          
+    # Переключение основного и аварийного освещения
+      - alias: tt_light_switch
+        id: tt_light_switch
+        description: Туалет переключение основного и аварийного освещения
+        initial_state: true
+        trigger:
+    # Сработка сенсора электричества
+        - platform: state
+          entity_id: binary_sensor.electricity
+          from: 'off'
+          to: 'on'
+        - platform: state
+          entity_id: binary_sensor.electricity
+          from: 'on'
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Свет включен
+        - condition: state
+          entity_id: binary_sensor.tt_light_on
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.electricity
+                    state: 'on'
+                  - condition: state
+                    entity_id: light.tt_ceiling_virtual
+                    state: 'on' 
+                sequence:
+                  - service: light.turn_off
+                    entity_id: light.tt_ceiling_virtual
+                  - service: light.turn_on
+                    entity_id: light.0x00124b0023ae464d_left
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.electricity
+                    state: 'off'
+                  - condition: state
+                    entity_id: light.0x00124b0023ae464d_left
+                    state: 'on' 
+                sequence:
+                  - service: light.turn_off
+                    entity_id: light.0x00124b0023ae464d_left
+                  - service: light.turn_on
+                    entity_id: light.tt_ceiling_virtual
+                    
+    # Переключение люстры и подсветки
+      - alias: tt_light_main_sublight_toggle
+        id: tt_light_main_sublight_toggle
+        description: Туалет переключение люстры и подсветки
+        initial_state: true
+        trigger:
+    # Выход люстры из состояния недоступно
+        - platform: state
+          entity_id: light.tt_ceiling_light
+          from: 'unavailable'
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+    # Свет включен
+        - condition: state
+          entity_id: light.0x00124b0023ae464d_right
+          state: 'on'
+        action:
+        - service: light.turn_on
+          entity_id:
+            - light.tt_ceiling_light
+        - wait_template: "{{ is_state('light.tt_ceiling_light', 'on') }}"
+          timeout: 10
+        - if:
+             - "{{ wait.completed }}"
+          then:        
+        - service: light.turn_off
+          entity_id:
+            - light.0x00124b0023ae464d_right
+               
+    # Фиксация присуствия в туалете
+      - alias: tt_presence
+        id: tt_presence
+        description: Туалет фиксация присуствия
+        initial_state: true
+        trigger:
+    # Датчик присуствия активен дольше интервала присуствия
+        - platform: state
+          entity_id: binary_sensor.0x70ac08fffe63561c_presence
+          to: 'on'
+          for:
+             seconds: 30
+          id: tt_presence_on
+    # Датчик открытия - дверь открылась
+        - platform: state
+          entity_id: binary_sensor.0xa4c1384e55f274ef_contact
+          to: 'on'
+          id: tt_presence_off
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: tt_presence_on
+                  - condition: state
+                    entity_id: binary_sensor.0xa4c1384e55f274ef_contact
+                    state: 'off'
+                sequence:         
+                  - service: input_boolean.turn_on
+                    entity_id: input_boolean.tt_occupancy
+              - conditions:
+                  - condition: trigger
+                    id: tt_presence_off
+                sequence:         
+                  - service: input_boolean.turn_off
+                    entity_id: input_boolean.tt_occupancy                    
+                    
+                    
+                    

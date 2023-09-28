@@ -1,0 +1,167 @@
+lr_fan_router:
+
+    binary_sensor:
+    
+      - platform: tod
+        name: lr_night
+        after: '22:00'
+        before: '09:00' 
+
+    mqtt:
+      binary_sensor:
+        - name: lr_silent
+          state_topic: "states/lr_silent"
+
+    switch:
+
+      - platform: template
+        switches:
+          lr_silent_mode:
+            friendly_name: "Режим тишины Гостиная"
+            value_template: "{{  is_state('binary_sensor.lr_silent', 'on') }}"
+            turn_on:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_silent"
+                payload_template: 'ON'
+                retain: true 
+            turn_off:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_silent"
+                payload_template: 'OFF'
+                retain: true 
+            icon_template: >-
+              {% if is_state('switch.lr_silent_mode', 'on') %}
+                mdi:volume-off
+              {% else %}
+                mdi:volume-medium
+              {% endif %}
+          
+    template:
+
+      - binary_sensor:
+
+          - name: lr_noise
+            state: >
+              {{ is_state('binary_sensor.lr_silent', 'off')  
+                 and is_state('binary_sensor.lr_night', 'off')
+              }}
+            device_class: sound
+            icon: >
+              {% if is_state("binary_sensor.lr_noise", "on") %}
+              mdi:volume-off
+              {% else %}
+              mdi:volume-medium
+              {% endif %}
+
+    timer:
+    
+        lr_silent_mode:
+          name: Режим тишины
+          duration: '01:00:00'
+          restore: true
+
+    automation:
+
+
+      - alias: lr_control_silent_mode
+        id: lr_control_silent_mode
+        description: Гостиная режим тишины
+        initial_state: true          
+        trigger:
+    # Пульт Loratap
+        - platform: state
+          entity_id: sensor.0x60a423fffe942cf2_action
+          to: '3_double'
+          id: lr_loratap_button
+        - platform: event
+          event_type: timer.finished
+          event_data:
+            entity_id: timer.lr_silent_mode
+          id: timer_finished
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: lr_loratap_button
+                sequence:
+                  - service: switch.toggle
+                    entity_id: switch.lr_silent_mode
+              - conditions:
+                  - condition: trigger
+                    id: timer_finished
+                sequence:
+                  - service: switch.turn_off
+                    entity_id: switch.lr_silent_mode
+
+      - alias: lr_control_silent_mode_timer
+        id: lr_control_silent_mode_timer
+        description: Гостиная таймер режима тишины
+        initial_state: true
+        trigger:
+        - platform: state
+          entity_id: switch.lr_silent_mode
+          from: 'on'
+          to: 'off'
+        - platform: state
+          entity_id: switch.lr_silent_mode
+          from: 'off'
+          to: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: switch.lr_silent_mode
+                    state: 'on'
+                sequence:
+                 - service: timer.start
+                   entity_id: timer.lr_silent_mode
+              - conditions:
+                  - condition: state
+                    entity_id: switch.lr_silent_mode
+                    state: 'off'
+                sequence:
+                  - service: timer.cancel
+                    entity_id: timer.lr_silent_mode
+
+      - alias: lr_control_usb_fan
+        id: lr_control_usb_fan
+        description: Гостиная вентилятор роутера
+        initial_state: true
+        trigger:
+        - platform: time_pattern
+          minutes: '/5'
+        - platform: state
+          entity_id: binary_sensor.lr_noise
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: switch.0x00124b00246ef1a8
+                    state: 'on'
+                  - condition: state
+                    entity_id: binary_sensor.lr_noise
+                    state: 'off'
+                sequence:
+                  - service: switch.turn_off
+                    entity_id: switch.0x00124b00246ef1a8
+              - conditions:
+                  - condition: state
+                    entity_id: switch.0x00124b00246ef1a8
+                    state: 'off'
+                  - condition: state
+                    entity_id: binary_sensor.lr_noise
+                    state: 'on'
+                sequence:
+                  - service: switch.turn_on
+                    entity_id: switch.0x00124b00246ef1a8

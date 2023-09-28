@@ -1,0 +1,67 @@
+tg_electricity:
+
+
+    input_button:
+
+      tg_electricity:
+        name: Уведомление о потреблении
+
+    automation:
+    
+### Уведомление о потреблении энергии
+      - alias: tg_electricity_notification
+        id: tg_electricity_notification
+        description: Уведомление о потреблении энергии
+        initial_state: false
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.tg_electricity
+          id: current_month
+    ## Автоматически 
+        - platform: time
+          at: '08:30:00'
+          id: last_month
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: trigger
+                    id: current_month
+                sequence:  
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      title: |
+                            {{"\U000026A1"}} Отчет за {{states ('sensor.current_month')}}
+                      message: &msg_elctr | 
+                            {{"\U0001F374"}} Кухня :
+                            {{"\U0001F50C"}} Бойлер - {{states ('sensor.0x00158d0001d35bc0_meter')}} КВтч, на {{ (2.64 * (states ('sensor.0x00158d0001d35bc0_meter')|float))|round (2)}} грн
+                            {{"\U0001F50C"}} Аэрогриль - {{states ('sensor.0xa4c138d571b656c5_meter')}} КВтч, на {{ (2.64 * (states ('sensor.0xa4c138d571b656c5_meter')|float))|round (2)}} грн
+                            {{"\U0001F50C"}} Микроволновка - {{states ('sensor.0xa4c138273b49e4d0_meter')}} КВтч, на {{ (2.64 * (states ('sensor.0xa4c138273b49e4d0_meter')|float))|round (2)}} грн
+                            {{"\U0001F50C"}} Чайник - {{states ('sensor.0xa4c1385bcf7d00c9_meter')}} КВтч, на {{ (2.64 * (states ('sensor.0xa4c1385bcf7d00c9_meter')|float))|round (2)}} грн
+                            {{"\U0001F50C"}} Электрогриль - {{states ('sensor.0xa4c138201dcb67f6_meter')}} КВтч, на {{ (2.64 * (states ('sensor.0xa4c138201dcb67f6_meter')|float))|round (2)}} грн
+                            {{"\U0001F50C"}} Кофемашина - {{states ('sensor.0xa4c13874f3d1d1c0_meter')}} КВтч, на {{ (2.64 * (states ('sensor.0xa4c13874f3d1d1c0_meter')|float))|round (2)}} грн
+                            {{"\U0001F50C"}} Холодильник - {{states ('sensor.0x00158d0001fa2934_meter')}} КВтч, на {{ (2.64 * (states ('sensor.0x00158d0001fa2934_meter')|float))|round (2)}} грн
+                            {{"\U0001F50C"}} Телевизор - {{states ('sensor.0x00158d0001291d12_meter')}} КВтч, на {{ (2.64 * (states ('sensor.0x00158d0001291d12_meter')|float))|round (2)}} грн
+                            {{"\U0001F6C0"}} Санузел :
+                            {{"\U0001F50C"}} Стиральная машина - {{states ('sensor.0x842e14fffe51c5ae_meter')}} КВтч, на {{ (2.64 * (states ('sensor.0x842e14fffe51c5ae_meter')|float))|round (2)}} грн
+                            
+              - conditions:
+                  - condition: trigger
+                    id: last_month
+                  - condition: template
+                    value_template: '{{ now().day == 1 }}'
+                sequence:  
+                  - service: telegram_bot.send_message
+                    data_template:
+                      target:
+                        - !secret chat_id_group_tech
+                      title: |
+                            {{"\U000026A1"}} Отчет за {{states ('sensor.last_month')}}
+                      message: *msg_elctr

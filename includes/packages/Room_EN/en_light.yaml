@@ -1,0 +1,228 @@
+en_light:
+
+    homeassistant:
+      customize:
+      
+        light.0x00158d0003e74c31:
+          friendly_name: Прихожая лампочка
+          icon: phu:bulbs-classic
+          
+        binary_sensor.0x00158d00013f7894_raw_occupancy:
+          friendly_name: Прихожая датчик движения
+        binary_sensor.0x00158d00013f7894_occupancy:
+          friendly_name: Прихожая датчик движения
+        sensor.0x00158d00013f7894_battery:
+          friendly_name: Прихожая датчик движения
+          
+        sensor.0x00158d00010b1963_action:
+          friendly_name: Прихожая кнопка на шкафу
+        sensor.0x00158d00010b1963_battery:
+          friendly_name: Прихожая кнопка на шкафу
+
+        automation.en_bulb_reboot:
+          friendly_name: Прихожая - перезагрузка зависшей лампочки
+          icon: mdi:reload
+          
+        automation.en_light_control:
+          friendly_name: Прихожая - управление лампочкой
+          icon: phu:bulbs-classic
+          
+        automation.en_switch_turn_on:
+          friendly_name: Прихожая - включение выключателя
+          icon: phu:aqara-h1-switch
+          
+    template:
+     
+      - binary_sensor:
+
+    # Сенсор определяющий недоступность лампочки
+          - name: en_light_unavailable
+            state: >
+              {{ is_state('light.0x00158d0003e74c31', 'unavailable')  
+              }}
+            delay_on: 
+                minutes: 3
+            device_class: problem
+            icon: >
+              {% if is_state("binary_sensor.en_light_unavailable", "on") %}
+              mdi:ceiling-light-outline
+              {% else %}
+              mdi:ceiling-light
+              {% endif %}
+
+    # Свет без движения в прихожей днем
+          - name: en_light_day
+            state: >
+              {{ is_state('light.0x00158d0003e74c31', 'on')  
+                 and is_state('binary_sensor.0x00158d00013f7894_raw_occupancy', 'off')
+                 and is_state('binary_sensor.en_night', 'off')
+              }}
+            delay_on: 00:03:00
+            icon: >
+              {% if is_state("binary_sensor.en_light_day", "on") %}
+              mdi:timer
+              {% else %}
+              mdi:timer-off
+              {% endif %}
+              
+    # Свет без движения в прихожей ночью
+          - name: en_light_night
+            state: >
+              {{ is_state('light.0x00158d0003e74c31', 'on')  
+                 and is_state('binary_sensor.0x00158d00013f7894_raw_occupancy', 'off')
+                 and is_state('binary_sensor.en_night', 'on')
+              }}
+            delay_on: 00:00:30
+            icon: >
+              {% if is_state("binary_sensor.en_light_night", "on") %}
+              mdi:timer
+              {% else %}
+              mdi:timer-off
+              {% endif %}
+              
+    # Открытие двери, лампочка выключена более 3 минут
+          - name: en_door_open
+            state: >
+              {{ is_state('binary_sensor.0x00158d000119378d_contact', 'on')
+                 and is_state('binary_sensor.en_light_off_3min', 'off')
+              }}
+            device_class: light
+            icon: >
+              {% if is_state("binary_sensor.en_door_open", "on") %}
+              mdi:lightbulb-spot
+              {% else %}
+              mdi:lightbulb-spot-off
+              {% endif %}
+
+    # Лампочка выключена менее 3х минут назад
+          - name: en_light_off_3min
+            state: >
+              {{ is_state('light.0x00158d0003e74c31', 'on')  
+              }}
+            delay_off: 
+                minutes: 3
+            device_class: light
+            icon: >
+              {% if is_state("binary_sensor.en_light_off_3min", "on") %}
+              mdi:lightbulb-on
+              {% else %}
+              mdi:lightbulb
+              {% endif %}
+          
+    binary_sensor:
+    
+      - platform: tod
+        name: en_night
+        after: '22:00'
+        before: '08:00'
+
+    automation:
+
+      - alias: en_switch_turn_on
+        id: en_switch_turn_on
+        description: Прихожая включение выключателя
+        initial_state: true
+        trigger:
+    # Выключение выключателя
+        - platform: state
+          entity_id: switch.0x00158d00057305ac_right
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Включение
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00057305ac_right
+
+
+      - alias: en_bulb_reboot
+        id: en_bulb_reboot
+        description: Прихожая перезагрузка зависшей лампочки
+        initial_state: true
+        trigger:
+    # Проверка раз в 5 минут, перезагрузка если лампочка недоступна
+        - platform: time_pattern
+          minutes: '/5'
+        condition:
+    # Сенсор определяющий недоступность люстры
+        - condition: state
+          entity_id: binary_sensor.en_light_unavailable
+          state: 'on'
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Перезагрузка по питанию
+        - service: switch.turn_off
+          entity_id: switch.0x00158d00057305ac_right
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00057305ac_right
+    
+      - alias: en_light_control
+        id: en_light_control
+        description: Прихожая управление лампочкой
+        initial_state: true
+        trigger:
+    # Выключение света без движения днем
+        - platform: state
+          entity_id: binary_sensor.en_light_day
+          to: 'on'
+    # Выключение света без движения ночью
+        - platform: state
+          entity_id: binary_sensor.en_light_night
+          to: 'on'
+    # Включение света при открытии двери
+        - platform: state
+          entity_id: binary_sensor.en_door_open
+          to: 'on'
+    # Выключатель на стене у входа
+        - platform: state
+          entity_id: sensor.0x00158d00057305ac_action
+          to: 'single_right'
+    # Круглая кнопка в шкафу
+        - platform: state
+          entity_id: sensor.0x00158d0001f3fefe_action
+          to: 'double' 
+    # 6 клавишник на входе в кухню
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c794209_action
+          to: 'button_4_single'
+    # 4 клавишник на комоде
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c7942ca_action
+          to: 'button_1_single' 
+    ## Aqara Opple на столе
+        - platform: state
+          entity_id: sensor.0x54ef4410004c1707_action
+          to: 'button_3_single'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.0x00158d0003e74c31
+                    state: 'off'
+                sequence:
+                  - service: light.turn_on
+                    entity_id:
+                      - light.0x00158d0003e74c31
+                    data_template:
+                      brightness_pct: 100
+                      kelvin: 4000
+              - conditions:
+                  - condition: state
+                    entity_id: light.0x00158d0003e74c31
+                    state: 'on'
+                sequence:
+                  - service: light.turn_off
+                    entity_id:
+                      - light.0x00158d0003e74c31

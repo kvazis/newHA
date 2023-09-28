@@ -1,0 +1,621 @@
+############################ Логика ############################
+title: Логика
+icon: mdi:format-list-bulleted
+cards:
+
+############################ Колонка 1 ############################
+    - type: vertical-stack
+      cards:
+
+################# Контроль #################
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Контроль**
+                 
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.control*
+                #   state: 'unavailable'
+                   options:
+                      secondary_info: last-changed
+                      state_color: true  
+
+################# Камеры #################
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Камеры**
+                 
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.cam_*
+                #   state: 'unavailable'
+                   options:
+                      secondary_info: last-changed
+                      state_color: true             
+
+################# Прихожая #################
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Прихожая**
+                 
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.en_*
+                #   state: 'unavailable'
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+################# Коридор #################
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Коридор**
+                 
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.cr_*
+                #   state: 'unavailable'
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+################# Ванная #################
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Ванная**
+                 
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.bt_*
+                #   state: 'unavailable'
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+
+    - type: vertical-stack
+      cards:
+
+################# Туалет #################
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Туалет**
+                 
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.tt_*
+                #   state: 'unavailable'
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+################# Кухня #################
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Кухня**
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Освещение люстра**
+
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.kn_ceiling_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Ночник**
+
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.kn_gateway_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Бойлер**
+
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.kn_boiler_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+                      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Термоголовка**
+
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.kn_heat_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+                      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Телевизор**
+
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.kn_tv_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+                      
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.kn_*
+                #   state: 'unavailable'
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+                exclude:
+                 - entity_id: automation.kn_ceiling_*
+                 - entity_id: automation.kn_gateway_*
+                 - entity_id: automation.kn_boiler_*
+                 - entity_id: automation.kn_heat_*
+                 - entity_id: automation.kn_tv_*
+
+    - type: vertical-stack
+      cards:
+
+################# Гостиная #################
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Гостиная**
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Освещение люстры**
+
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.lr_ceiling_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Световые уведомления**
+
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.lr_light_wled_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Освещение остальное**
+
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.lr_light_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+                exclude:
+                 - entity_id: automation.lr_light_wled_*
+
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Подсветка**
+
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.lr_gateway_*
+                 - entity_id: automation.lr_philips_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.lr_*
+                #   state: 'unavailable'
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+                exclude:
+                 - entity_id: automation.lr_ceiling_*
+                 - entity_id: automation.lr_light_*
+                 - entity_id: automation.lr_gateway_*
+                 - entity_id: automation.lr_philips_*
+
+################# Все #################
+    - type: vertical-stack
+      cards:
+################# Детская Д #################
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Детская Д**
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.dd_*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+################# Детская A #################
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #009933;
+                     font-weight: bold;
+                     font-size: 20px;
+                   }          
+              content: >
+                 **Детская A**
+
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     --paper-item-icon-color: #f8ffd8;
+                     --paper-item-icon-active-color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 14px;
+                   } 
+              content: >
+                 **Освещение**
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - entity_id: automation.da_light*
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+
+        - type: markdown
+          style: |
+               ha-card {
+                 color: #f8ffd8;
+                 --paper-item-icon-color: #f8ffd8;
+                 --paper-item-icon-active-color: #009933;
+                 font-weight: bold;
+                 font-size: 26px;
+               }          
+          content: >
+             **Все подряд**
+
+        - type: custom:stack-in-card
+          mode: vertical
+          cards:
+      
+            - type: markdown
+              style: |
+                   ha-card {
+                     color: #f8ffd8;
+                     font-weight: bold;
+                     font-size: 16px;
+                   }          
+              content: >
+                 **Автоматизации**
+
+            - type: custom:auto-entities
+              show_empty: false
+              card:
+                type: entities
+                show_header_toggle: false
+              filter:
+                include:
+                 - domain: automation
+                #   state: 'unavailable'
+                   options:
+                      secondary_info: last-changed
+                      state_color: true
+                exclude:
+                 - entity_id: automation.lr_*
+                 - entity_id: automation.en_*
+                 - entity_id: automation.cr_*
+                 - entity_id: automation.cam_*
+                 - entity_id: automation.control*
+                 - entity_id: automation.tt_*
+                 - entity_id: automation.kn_*
+                 - entity_id: automation.bt_*
+                 - entity_id: automation.dd_*
+                 - entity_id: automation.dа_light_*

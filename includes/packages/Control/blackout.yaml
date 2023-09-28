@@ -1,0 +1,184 @@
+blackout:
+
+
+    homeassistant:
+      customize:    
+        binary_sensor.blackout:
+          friendly_name: Blackout
+
+          
+    template:
+    
+      - binary_sensor:
+      
+    # Сенсор определения отключения электрики
+          - name: blackout
+            state: >
+              {{ states('sensor.server_telemetry') | float  > 800 
+                and is_state('binary_sensor.electricity', 'on')
+              }}              
+              
+            delay_on: 
+                minutes: 1
+            delay_off: 
+                minutes: 2
+            device_class: problem
+            
+            
+
+    automation:
+    
+      - alias: control_host_shotdown
+        id: control_host_shotdown
+        description: Действия при отключении электрики
+        initial_state: true
+        trigger:
+    # Сработка сенсора блекаута
+        - platform: state
+          entity_id: binary_sensor.blackout
+          from: 'off'
+          to: 'on'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.turn_off
+          entity_id:
+            - light.dd_wled_light
+            - light.dd_table_lamp
+          
+      - alias: control_host_after_shotdown_local
+        id: control_host_after_shotdown_local
+        description: Запуск после блекаута - локальный
+        initial_state: true
+        trigger:
+    # Сработка сенсора блекаута
+        - platform: state
+          entity_id: binary_sensor.blackout
+          from: 'on'
+          to: 'off'
+        action:
+    # Шлюз кухня  
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            device_id: 4063f2da86f527b793ff4d1e9790782e
+        - delay: 00:00:05
+    # Шлюз ДА
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            device_id: 686dc0bff60c982563531ee37679ed21
+        - delay: 00:00:05
+    # Шлюз LR
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            device_id: 5519c03a52f44692503cbf20df607876
+    #     - delay: 00:00:05
+    # # Стерилизация
+    #     - service: homeassistant.reload_config_entry
+    #       data: {}
+    #       target:
+    #         device_id: 85a7f09979b3725edce34363bc99f220
+          
+      - alias: control_after_shotdown
+        id: control_after_shotdown
+        description: Запуск после блекаута
+        initial_state: true
+        trigger:
+    # Сработка сенсора блекаута
+        - platform: state
+          entity_id: binary_sensor.blackout
+          from: 'on'
+          to: 'off'
+        condition:
+    # Переключатель режима работы сервера
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+    # Выключатель DD лента
+        - service: switch.turn_off
+          entity_id: switch.0x00158d0001a2ccab_right
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d0001a2ccab_right
+        - delay: 00:00:05
+    # Выключатель прихожая
+        - service: switch.turn_off
+          entity_id: switch.0x00158d00057305ac_right
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00057305ac_right
+        - delay: 00:00:05 
+    # Выключатель коридор
+        - service: switch.turn_off
+          entity_id: switch.0x00158d00057305ac_left
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00057305ac_left
+        - delay: 00:00:05 
+    # Выключатель ванная
+        - service: switch.turn_off
+          entity_id: switch.0x00158d0001117040_right
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d0001117040_right
+        - delay: 00:00:05 
+    # Выключатель гостиная
+        - service: switch.turn_off
+          entity_id: switch.0x00158d00062fbb54_right
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00062fbb54_right
+        - delay: 00:00:05  
+    # Выключатель туалет
+        - service: switch.turn_off
+          entity_id: switch.0x00158d00014dceb3_left
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00014dceb3_left
+        - delay: 00:00:05
+    # ИК база
+        - service: switch.turn_off
+          entity_id: switch.smart_power_strip_44eu_w_socket_5
+        - delay: 00:00:05
+        - service: switch.turn_on
+          entity_id: switch.smart_power_strip_44eu_w_socket_5
+        - delay: 00:00:30 
+    # Выключение света
+        - service: light.turn_off
+          entity_id:
+            - light.kn_ceiling_light
+            - light.cr_ceiling_light
+            - light.tt_ceiling_light
+            - light.lr_ceiling_light_1
+            - light.bt_ceiling_light
+            - light.dd_ceiling_light
+            - light.smart_cw_light
+            - light.24key_rbg_strip
+            - light.da_projector          
+    # Контрольная проверка для выключателей туалета и гостиной
+        - delay: 00:02:00
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00062fbb54_right          
+        - service: switch.turn_on
+          entity_id: switch.0x00158d00014dceb3_left          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          
+          

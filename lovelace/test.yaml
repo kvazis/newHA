@@ -1,0 +1,363 @@
+##################   Управление
+title: Remote control
+icon: mdi:remote-tv
+cards:
+
+############################ Колонка 1 ############################
+
+    - type: vertical-stack
+      cards:
+
+        - type: custom:mushroom-template-card
+          primary: Отправка сообщения
+          layout: horizontal
+          entity: input_button.message
+          icon: mdi:message-alert
+          multiline_secondary: true
+          icon_color: yellow
+          tap_action:
+            action: call-service
+            service: input_button.press
+            target:
+              entity_id: input_button.message
+
+
+
+        - type: horizontal-stack
+          cards:
+
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:power-off
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: POWER
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:power
+              entity: input_button.lr_tv_control
+              tap_action:
+                action: call-service
+                service: input_button.press
+                target:
+                  entity_id: input_button.lr_tv_control
+      
+        - type: horizontal-stack
+          cards:
+
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:home
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: HOME
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:arrow-up-bold-box
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_UP
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:arrow-u-left-top-bold
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: BACK
+                target:
+                  entity_id: remote.mitv
+
+        - type: horizontal-stack
+          cards:
+          
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:arrow-left-bold-box
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_LEFT
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:circle
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_CENTER
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:arrow-right-bold-box
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_RIGHT
+                target:
+                  entity_id: remote.mitv
+                  
+
+        - type: horizontal-stack
+          cards:
+
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:youtube
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.turn_on
+                data: 
+                  activity: https://www.youtube.com
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:arrow-down-bold-box
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_DOWN
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:dots-horizontal-circle
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_CENTER
+                  hold_secs: 0.5
+                target:
+                  entity_id: remote.mitv
+
+        - type: horizontal-stack
+          cards:
+
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:numeric-3-box
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_LEFT
+                  hold_secs: 3
+                target:
+                  entity_id: remote.mitv
+
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:numeric-2-box
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_LEFT
+                  hold_secs: 2
+                target:
+                  entity_id: remote.mitv                  
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:numeric-1-box
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_LEFT
+                  hold_secs: 1
+                target:
+                  entity_id: remote.mitv
+
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:numeric-1-box-outline
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_RIGHT
+                  hold_secs: 1
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:numeric-2-box-outline
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_RIGHT
+                  hold_secs: 2
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:numeric-3-box-outline
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: DPAD_RIGHT
+                  hold_secs: 3
+                target:
+                  entity_id: remote.mitv
+
+        - type: horizontal-stack
+          cards:
+          
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:skip-previous
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: MEDIA_PREVIOUS
+                target:
+                  entity_id: remote.mitv
+
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:play-pause
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: MEDIA_PLAY_PAUSE
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:stop
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: MEDIA_STOP
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:skip-next
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: MEDIA_NEXT
+                target:
+                  entity_id: remote.mitv
+
+        - type: horizontal-stack
+          cards:
+          
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:volume-minus
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: VOLUME_DOWN
+                target:
+                  entity_id: remote.mitv
+
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:volume-mute
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: VOLUME_MUTE
+                target:
+                  entity_id: remote.mitv
+                  
+            - type: button
+              show_name: false
+              show_icon: true
+              icon: mdi:volume-plus
+              entity: remote.mitv
+              tap_action:
+                action: call-service
+                service: remote.send_command
+                data: 
+                  command: VOLUME_UP
+                target:
+                  entity_id: remote.mitv

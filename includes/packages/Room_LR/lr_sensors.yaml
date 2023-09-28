@@ -1,0 +1,155 @@
+lr_sensors:
+
+    recorder:
+      include:
+        entities:
+           - sensor.0x00158d00015aebb6_temperature
+           - sensor.0x00158d00015aebb6_humidity
+           - sensor.0xec1bbdfffe4534c0_humidity
+           - sensor.0xec1bbdfffe4534c0_temperature
+           - sensor.0x00158d0001a4b9da_humidity
+           - sensor.0x00158d0001a4b9da_temperature
+           - sensor.0x00158d0001a4b9da_mmhg_pressure
+           - sensor.0x00158d000449b773_illuminance_lux
+           - binary_sensor.0x00158d0005414857_occupancy
+           - binary_sensor.0x00158d000449b773_occupancy
+           
+    homeassistant:
+      customize:
+        
+        binary_sensor.lr_aeration:
+          friendly_name: Гостиная проветривание
+
+        binary_sensor.lr_radiator:
+          friendly_name: Гостиная режим отопления      
+
+        sensor.0x00158d0001f47e10_action:
+          friendly_name: Гостиная беспроводный выключатель за комодом
+        sensor.0x00158d0001f47e10_battery:
+          friendly_name: Гостиная беспроводный выключатель за комодом
+         
+          
+        binary_sensor.0x00158d00013ed373_contact:
+          friendly_name: Гостиная окно
+          device_class: window
+        sensor.0x00158d00013ed373_battery:
+          friendly_name: Гостиная окно
+        binary_sensor.0xec1bbdfffedf6a6a_contact:
+          friendly_name: Гостиная окно 2
+          device_class: window
+        sensor.0xec1bbdfffedf6a6a_battery:
+          friendly_name: Гостиная окно 2
+        binary_sensor.0x00158d000445206b_contact:
+          friendly_name: Гостиная дверь на балкон
+          device_class: door
+        sensor.0x00158d000445206b_battery:
+          friendly_name: Гостиная дверь на балкон
+        binary_sensor.0x00158d0001a2f5f7_contact:
+          friendly_name: Гостиная окно на балконе
+          device_class: window
+        sensor.0x00158d0001a2f5f7_battery:
+          friendly_name: Гостиная окно на балконе
+
+        sensor.0x00158d00015aebb6_humidity:
+          friendly_name: Гостиная влажность
+          icon: mdi:water-percent
+        sensor.0x00158d00015aebb6_temperature:
+          friendly_name: Гостиная температура
+          icon: mdi:temperature-celsius
+        sensor.0x00158d00015aebb6_battery:
+          friendly_name: Гостиная климат  
+
+        sensor.0xec1bbdfffe4534c0_humidity:
+          friendly_name: Гостиная балкон влажность
+          icon: mdi:water-percent
+        sensor.0xec1bbdfffe4534c0_temperature:
+          friendly_name: Гостиная балкон температура
+          icon: mdi:temperature-celsius
+        sensor.0xec1bbdfffe4534c0_battery:
+          friendly_name: Гостиная балкон климат  
+
+        sensor.0x00158d0001a4b9da_humidity:
+          friendly_name: Гостиная балкон улица влажность
+          icon: mdi:water-percent
+        sensor.0x00158d0001a4b9da_temperature:
+          friendly_name: Гостиная балкон улица температура
+          icon: mdi:temperature-celsius
+        sensor.0x00158d0001a4b9da_pressure:
+          friendly_name: Гостиная балкон улица давление
+          device_class: pressure
+        sensor.0x00158d0001a4b9da_mmhg_pressure:
+          friendly_name: Гостиная балкон улица мм рт. ст
+          device_class: pressure
+        sensor.0x00158d0001a4b9da_battery:
+          friendly_name: Гостиная балкон улица климат  
+          device_class: battery
+          
+        binary_sensor.lr_notification_time:
+          friendly_name: Гостиная время уведомлений о плохом воздухе
+          device_class: running
+          icon: mdi:clock-digital
+          
+        binary_sensor.0x00158d0005414857_occupancy:
+          friendly_name: Гостиная движение
+        sensor.0x00158d0005414857_battery:
+          friendly_name: Гостиная движение
+
+    mqtt:
+      binary_sensor:
+        - name: lr_radiator
+          state_topic: "states/lr_radiator"
+        
+    switch:
+
+      - platform: template
+        switches:
+          lr_radiator_mode:
+            friendly_name: "Режим отопления Гостиная"
+            value_template: "{{  is_state('binary_sensor.lr_radiator', 'on') }}"
+            turn_on:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_radiator"
+                payload_template: 'ON'
+                retain: true 
+            turn_off:
+              service: mqtt.publish
+              data_template:
+                topic: "states/lr_radiator"
+                payload_template: 'OFF'
+                retain: true 
+            icon_template: >-
+              {% if is_state('switch.lr_radiator_mode', 'on') %}
+                mdi:radiator
+              {% else %}
+                mdi:radiator-off
+              {% endif %}
+          
+    template:
+     
+      - binary_sensor:
+
+          - name: lr_aeration
+            state: >
+              {{ is_state('binary_sensor.0x00158d00013ed373_contact', 'on')  
+                 or is_state('binary_sensor.0xec1bbdfffedf6a6a_contact', 'on')
+                 or is_state('binary_sensor.0x00158d000445206b_contact', 'on')
+              }}
+            delay_on: 
+                seconds: 30
+            delay_off: 
+                seconds: 30
+            device_class: opening
+            icon: >
+              {% if is_state("binary_sensor.lr_aeration", "on") %}
+              mdi:window-open-variant
+              {% else %}
+              mdi:window-closed-variant
+              {% endif %}
+              
+      - sensor:
+          - name: 0x00158d0001a4b9da_mmhg_pressure
+            state: "{{ (states('sensor.0x00158d0001a4b9da_pressure')|float * 0.7500637)|round(2) }}"
+            availability: "{{ (states('sensor.0x00158d0001a4b9da_pressure')|float > 850 ) }}" 
+            unit_of_measurement: mmHg
+            icon: mdi:gauge 

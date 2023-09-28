@@ -1,0 +1,64 @@
+da_misc_light:
+
+    automation:
+
+      - alias: da_light_neon_light
+        id: da_light_neon_light
+        description: Детская A, управление неоновой лентой
+        initial_state: true
+        trigger:
+    # Aqara Opple
+        - platform: state
+          entity_id: sensor.0x54ef4410004c16d9_action
+          to: 'button_2_single'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'  
+        action:
+        - service: light.toggle
+          entity_id: light.24key_rbg_strip
+        - delay: 00:00:03
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            entity_id: light.24key_rbg_strip
+
+      - alias: da_light_alien_usb
+        id: da_light_alien_usb
+        description: Детская A, управление USB светильником
+        initial_state: true
+        trigger:
+    # Aqara Opple
+        - platform: state
+          entity_id: sensor.0x54ef4410004c16d9_action
+          to: 'button_2_double'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'  
+        action:
+        - service: light.toggle
+          entity_id: light.0xa4c138e22148db3a
+
+      - alias: da_light_projector
+        id: da_light_projector
+        description: Детская A, управление проектором
+        initial_state: true
+        trigger:
+    # Aqara Opple
+        - platform: state
+          entity_id: sensor.0x54ef4410004c16d9_action
+          to: 'button_2_triple'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'  
+        action:
+        - service: light.toggle
+          entity_id: light.da_projector
+        - delay: 00:00:03
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            entity_id: light.da_projector

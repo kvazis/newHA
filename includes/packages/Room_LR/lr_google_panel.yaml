@@ -1,0 +1,46 @@
+lr_google_panel:
+
+    homeassistant:
+      customize:
+      
+        automation.lr_cast_lovelace_google_nest:
+          friendly_name: Cast lovelace на Google Nest
+          
+    input_button:
+
+      lr_cast_lovelace:
+        name: Cast lovelace на Google Nest
+        icon: mdi:cast-connected        
+        
+    automation:
+    
+      - alias: lr_cast_lovelace_google_nest
+        initial_state: true
+        trigger:
+    ## Виртуальная кнопка
+        - platform: state
+          entity_id: input_button.lr_cast_lovelace
+        condition:
+         - condition: state
+           entity_id: switch.control_mode
+           state: 'on'
+        action:
+            - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: media_player.nesthub7a33
+                    state: 'off'
+                sequence:
+                  - service: cast.show_lovelace_view
+                    data:
+                      entity_id: media_player.nesthub7a33
+                      dashboard_path: lovelace
+                      view_path: "0"
+              - conditions:
+                  - condition: state
+                    entity_id: media_player.nesthub7a33
+                    state: 'playing'
+                sequence:
+                  - service: media_player.turn_off
+                    target:
+                      entity_id: media_player.nesthub7a33
