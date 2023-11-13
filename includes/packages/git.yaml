@@ -2,7 +2,7 @@ git:
 
 
     shell_command:
-      git_config: 'bash /homeassistant/ha_git.sh'
+      git_config: 'bash ./ha_git.sh'
 
 
     input_button:
