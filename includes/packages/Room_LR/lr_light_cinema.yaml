@@ -107,6 +107,7 @@ lr_light_cinema:
                       - light.lr_ceiling_light_1
                       - light.lr_ceiling_light_2
                       - light.0x00158d00062fbb54_left
+                      - light.lr_bedside
                   - service: light.turn_on
                     entity_id:
                       - light.lr_ceiling_light_1_ambilight

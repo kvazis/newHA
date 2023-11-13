@@ -305,6 +305,8 @@ telemetry:
             state: "{{states.sensor | selectattr ('state', 'equalto', 'unavailable') | list | length}}"
             icon: mdi:eye-off
             
+
+            
 ################# Бинарные сенсоры #################
 
           - name: count_binary_sensor

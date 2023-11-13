@@ -20,15 +20,15 @@ cards:
         # options:
         #   ymin: 0
         entities:
-          - entity: sensor.asus_rt_ac88u_cpu
+          - entity: sensor.rt_ac88u_cpu
             color: rgb(255,225,247)
             fill: rgba(255,225,247,0.1)
             lineMode: lines
-          - entity: sensor.asus_rt_ac88u_temperature_cpu
+          - entity: sensor.rt_ac88u_temperature_cpu
             color: rgb(255,70,62)
             fill: rgba(255,70,62,0.05)
             lineMode: lines
-          - entity: sensor.asus_rt_ac88u_ram
+          - entity: sensor.rt_ac88u_ram
             color: rgb(245,255,187)
             fill: rgba(245,255,187,0.05)
             lineMode: lines
@@ -36,17 +36,17 @@ cards:
         options:
           ymin: 0
         entities:
-          - entity: sensor.asus_rt_ac88u_wan_download_speed
+          - entity: sensor.rt_ac88u_wan_download_speed
             color: rgb(131,145,255)
             fill: rgba(131,145,255,0.1)
             lineMode: curves
-          - entity: sensor.asus_rt_ac88u_wan_upload_speed
+          - entity: sensor.rt_ac88u_wan_upload_speed
             color: rgb(174,255,190)
             fill: rgba(174,255,190,0.05)
             lineMode: curves
       - type: line
         entities:
-          - entity: sensor.asus_rt_ac88u_connected_devices
+          - entity: sensor.rt_ac88u_connected_devices
             color: rgb(0,255,0)
             fill: rgba(0,255,0,0.1)
             lineMode: stepped
@@ -54,15 +54,15 @@ cards:
         # options:
         #   ymin: 0
         entities:
-          - entity: sensor.asus_rt_ac68u_cpu
+          - entity: sensor.rt_ac68u_cpu
             color: rgb(255,225,247)
             fill: rgba(255,225,247,0.1)
             lineMode: lines
-          - entity: sensor.asus_rt_ac68u_temperature_cpu
+          - entity: sensor.rt_ac68u_temperature_cpu
             color: rgb(255,70,62)
             fill: rgba(255,70,62,0.05)
             lineMode: lines
-          - entity: sensor.asus_rt_ac68u_ram
+          - entity: sensor.rt_ac68u_ram
             color: rgb(245,255,187)
             fill: rgba(245,255,187,0.05)
             lineMode: lines
@@ -70,11 +70,11 @@ cards:
         options:
           ymin: 0
         entities:
-          - entity: sensor.asus_rt_ac68u_wan_download_speed
+          - entity: sensor.rt_ac68u_wan_download_speed
             color: rgb(131,145,255)
             fill: rgba(131,145,255,0.1)
             lineMode: curves
-          - entity: sensor.asus_rt_ac68u_wan_upload_speed
+          - entity: sensor.rt_ac68u_wan_upload_speed
             color: rgb(174,255,190)
             fill: rgba(174,255,190,0.05)
             lineMode: curves

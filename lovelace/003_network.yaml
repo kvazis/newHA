@@ -46,68 +46,105 @@ cards:
                 secondary_info: last-changed
                 state_header: Вентиляция
                 entities:
-                - entity: sensor.asus_rt_ac88u_cpu
+                - entity: sensor.rt_ac88u_cpu
                   name: Загрузка
                   unit: '%'
-                - entity: sensor.asus_rt_ac88u_temperature_cpu
+                - entity: sensor.rt_ac88u_temperature_cpu
                   name: Температура
                   unit: 'С'
 
-              - entity: sensor.asus_rt_ac88u_connected_devices
-                name: Подключенных устройств 
+            #   - entity: sensor.rt_ac88u_connected_devices
+            #     name: Подключенных устройств 
 
-              - entity: sensor.asus_rt_ac88u_wan_download_speed
+              - entity: sensor.rt_ac88u_wan_download_speed_template
                 type: custom:multiple-entity-row
                 name: WAN
                 state_header: Download
                 entities:
-                  - entity: sensor.asus_rt_ac88u_wan_upload_speed
+                  - entity: sensor.rt_ac88u_wan_upload_speed_template
                     name: Upload
 
-              - entity: sensor.rt_ac88u_wired_download_speed
-                type: custom:multiple-entity-row
-                name: Wired
-                state_header: Download
-                entities:
-                  - entity: sensor.rt_ac88u_wired_upload_speed
-                    name: Upload
+        - type: custom:history-explorer-card
+          header: CPU
+          defaultTimeRange: 4h
+          lineMode: curves
+          showCurrentValues: true
+          decimation: fast
+          uimode: dark
+          recordedEntitiesOnly: true
+          labelsVisible: false
+          uiColors:
+            gridlines: rgb(100,100,100)
+          uiLayout:
+            toolbar: top
+            selector: hide
+          graphs:
+          - type: line
+            options:
+              ymin: 0
+            #   ymax: 15000
+            entities:
+               - entity: sensor.rt_ac88u_cpu
+                 color: rgb(251,255,98)
+                 fill: rgba(251,255,98,0.1)
 
-              - entity: sensor.rt_ac88u_5_ghz_download_speed
-                type: custom:multiple-entity-row
-                name: 5 GHz
-                state_header: Download
-                entities:
-                  - entity: sensor.rt_ac88u_5_ghz_upload_speed
-                    name: Upload
 
-              - entity: sensor.rt_ac88u_2_4_ghz_download_speed
-                type: custom:multiple-entity-row
-                name: 2.4 GHz
-                state_header: Download
-                entities:
-                  - entity: sensor.rt_ac88u_2_4_ghz_upload_speed
-                    name: Upload
-
-
-        - type: custom:mini-graph-card
-          entities:
-           - entity: sensor.asus_rt_ac88u_temperature_cpu
-             name: Температура
-          color_thresholds:
-            - value: 50
-              color: "#63ff70"
-            - value: 70
-              color: "#fff960"
-            - value: 80
-              color: "#ec6d00"
-            - value: 90
-              color: "#ff351b"
-          animate: true
-          line_width: 2
-          hour24: true
-          points_per_hour: 1
-          group_by: hour
-          hours_to_show: 36
+        - type: custom:history-explorer-card
+          header: CPU temp
+          defaultTimeRange: 12h
+          lineMode: curves
+          showCurrentValues: true
+          decimation: fast
+          uimode: dark
+          recordedEntitiesOnly: true
+          labelsVisible: false
+        #   refresh:
+        #     automatic: true
+        #     interval: 30
+          uiColors:
+            gridlines: rgb(100,100,100)
+          uiLayout:
+            toolbar: top
+            selector: hide
+          graphs:
+          - type: line
+            options:
+              ymin: 0
+            #   ymax: 15000
+            entities:
+               - entity: sensor.rt_ac88u_temperature_cpu
+                 color: rgb(255,142,69)
+                 fill: rgba(255,142,69,0.1)
+                 
+        - type: custom:history-explorer-card
+          header: Devices
+          defaultTimeRange: 4h
+          lineMode: curves
+          showCurrentValues: true
+          decimation: fast
+          uimode: dark
+          recordedEntitiesOnly: true
+          labelsVisible: false
+        #   refresh:
+        #     automatic: true
+        #     interval: 30
+          uiColors:
+            gridlines: rgb(100,100,100)
+          uiLayout:
+            toolbar: top
+            selector: hide
+          graphs:
+          - type: line
+            options:
+              ymin: 0
+            #   ymax: 15000
+            entities:
+               - entity: sensor.rt_ac88u_wan_download_speed_template
+                 color: rgb(146,235,255)
+                 fill: rgba(146,235,255,0.1)
+               - entity: sensor.rt_ac88u_wan_upload_speed_template
+                 color: rgb(0,255,95)
+                 fill: rgba(0,255,95,0.1)
 
     - type: vertical-stack
       cards:
@@ -155,61 +192,99 @@ cards:
                 entities:
                 - entity: binary_sensor.da_router_fan_control
                   name: Авторежим
-                - entity: sensor.asus_rt_ac68u_cpu
+                - entity: sensor.rt_ac68u_cpu
                   name: Загрузка
                   unit: '%'
-                - entity: sensor.asus_rt_ac68u_temperature_cpu
+                - entity: sensor.rt_ac68u_temperature_cpu
                   name: Температура
                   unit: 'С'
 
-              - entity: sensor.asus_rt_ac68u_wan_download_speed
+              - entity: sensor.rt_ac68u_wan_download_speed_template
                 type: custom:multiple-entity-row
                 name: WAN
                 state_header: Download
                 entities:
-                  - entity: sensor.asus_rt_ac68u_wan_upload_speed
+                  - entity: sensor.rt_ac68u_wan_upload_speed_template
                     name: Upload
                     
-              - entity: sensor.rt_ac68u_wired_download_speed
-                type: custom:multiple-entity-row
-                name: Wired
-                state_header: Download
-                entities:
-                  - entity: sensor.rt_ac68u_wired_upload_speed
-                    name: Upload
-                    
-              - entity: sensor.rt_ac68u_5_ghz_download_speed
-                type: custom:multiple-entity-row
-                name: 5 GHz
-                state_header: Download
-                entities:
-                  - entity: sensor.rt_ac68u_5_ghz_upload_speed
-                    name: Upload
+        - type: custom:history-explorer-card
+          header: CPU
+          defaultTimeRange: 4h
+          lineMode: curves
+          showCurrentValues: true
+          decimation: fast
+          uimode: dark
+          recordedEntitiesOnly: true
+          labelsVisible: false
+          uiColors:
+            gridlines: rgb(100,100,100)
+          uiLayout:
+            toolbar: top
+            selector: hide
+          graphs:
+          - type: line
+            options:
+              ymin: 0
+            #   ymax: 15000
+            entities:
+               - entity: sensor.rt_ac68u_cpu
+                 color: rgb(251,255,98)
+                 fill: rgba(251,255,98,0.1)
 
-              - entity: sensor.rt_ac68u_2_4_ghz_download_speed
-                type: custom:multiple-entity-row
-                name: 2.4 GHz
-                state_header: Download
-                entities:
-                  - entity: sensor.rt_ac68u_2_4_ghz_upload_speed
-                    name: Upload   
-                    
-        - type: custom:mini-graph-card
-          entities:
-           - entity: sensor.asus_rt_ac68u_temperature_cpu
-             name: Температура
-          color_thresholds:
-            - value: 50
-              color: "#63ff70"
-            - value: 70
-              color: "#fff960"
-            - value: 80
-              color: "#ec6d00"
-            - value: 90
-              color: "#ff351b"
-          animate: true
-          line_width: 2
-          hour24: true
-          points_per_hour: 1
-          group_by: hour
-          hours_to_show: 36
+
+        - type: custom:history-explorer-card
+          header: CPU temp
+          defaultTimeRange: 12h
+          lineMode: curves
+          showCurrentValues: true
+          decimation: fast
+          uimode: dark
+          recordedEntitiesOnly: true
+          labelsVisible: false
+        #   refresh:
+        #     automatic: true
+        #     interval: 30
+          uiColors:
+            gridlines: rgb(100,100,100)
+          uiLayout:
+            toolbar: top
+            selector: hide
+          graphs:
+          - type: line
+            options:
+              ymin: 0
+            #   ymax: 15000
+            entities:
+               - entity: sensor.rt_ac68u_temperature_cpu
+                 color: rgb(255,142,69)
+                 fill: rgba(255,142,69,0.1)
+                 
+        - type: custom:history-explorer-card
+          header: Devices
+          defaultTimeRange: 4h
+          lineMode: curves
+          showCurrentValues: true
+          decimation: fast
+          uimode: dark
+          recordedEntitiesOnly: true
+          labelsVisible: false
+        #   refresh:
+        #     automatic: true
+        #     interval: 30
+          uiColors:
+            gridlines: rgb(100,100,100)
+          uiLayout:
+            toolbar: top
+            selector: hide
+          graphs:
+          - type: line
+            options:
+              ymin: 0
+            #   ymax: 15000
+            entities:
+               - entity: sensor.rt_ac68u_wan_download_speed_template
+                 color: rgb(146,235,255)
+                 fill: rgba(146,235,255,0.1)
+               - entity: sensor.rt_ac68u_wan_upload_speed_template
+                 color: rgb(0,255,95)
+                 fill: rgba(0,255,95,0.1)

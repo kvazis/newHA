@@ -719,3 +719,57 @@ lr_light:
         - service: light.turn_off
           entity_id:
             - light.lr_bedside
+            
+      - alias: lr_light_off_and_philips_on
+        id: lr_light_off_and_philips_on
+        description: Гостиная - отключение всего освещения и включение прикроватника
+        initial_state: true
+        trigger:
+    ## 5 кнопка Aqara Opple
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c79360a_action
+          to: 'button_5_double'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.turn_off
+          entity_id:
+            - light.lr_ceiling_light_1
+            - light.lr_ceiling_light_2
+            - light.lr_ceiling_light_1_ambilight
+            - light.lr_ceiling_light_2_ambilight
+            - light.0x00158d00062fbb54_left
+            - light.lr_table_lamp
+            - light.0xa4c138b72a314e97
+        - service: light.turn_on
+          entity_id:
+            - light.lr_bedside
+          data_template:
+            brightness_pct: 100
+            kelvin: 4000
+            
+      - alias: lr_philips_off_and_table_on
+        id: lr_philips_off_and_table_on
+        description: Гостиная - отключение прикроватника и включение настольной лампы
+        initial_state: true
+        trigger:
+    ## 6 кнопка Aqara Opple
+        - platform: state
+          entity_id: sensor.0x04cf8cdf3c79360a_action
+          to: 'button_6_double'
+        condition:
+        - condition: state
+          entity_id: switch.control_mode
+          state: 'on'
+        action:
+        - service: light.turn_off
+          entity_id:
+            - light.lr_bedside
+        - service: light.turn_on
+          entity_id:
+            - light.lr_table_lamp
+          data_template:
+            brightness_pct: 100
+            kelvin: 4000

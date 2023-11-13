@@ -1,6 +1,5 @@
 boiler:
 
-
     recorder:
       include:
         entities:

@@ -1,31 +1,49 @@
 test:
 
 
+    # template:
+
+    #   - sensor:
+    #       - name: sensor_lenght_custom
+    #         state: >
+    #             {% set variable = namespace(value = {}) %}
+    #             {% for entity in states.sensor if not (entity.name.find("lr_humidifier")) 
+    #              and not (entity.name.find("epson"))
+    #              and not (entity.name.find("openweathermap"))
+    #              and is_state(entity.entity_id, 'unavailable')  %}
+    #              {% set variable.value = dict(variable.value, **{entity.name: entity.state }) %}
+    #             {% endfor %}
+    #             {% if (variable.value | length) | int > 0 %}
+    #             {{ variable.value | length }}
+    #             {% else %}
+    #              0
+    #             {% endif %}
+
     shell_command:
       reboot_bluetooth: sudo systemctl restart bluetooth
 
-    input_button:
+    # input_button:
 
-      message:
-        name: Отправка сообщения
+    #   message:
+    #     name: Отправка сообщения
 
-    automation:
+    # automation:
 
-      - alias: test_message
-        id: test_message
-        description: Тестовое сообщение
-        initial_state: true
-        trigger:
-    ## Виртуальная кнопка авто
-        - platform: state
-          entity_id: input_button.message
-        action:
-        - service: telegram_bot.send_message
-          data_template:
-            target:
-              - !secret chat_id_log
-            message: | 
-               {{"\U0001F916"}} тестовое сообщение
+    #   - alias: test_message
+    #     id: test_message
+    #     description: Тестовое сообщение
+    #     initial_state: true
+    #     trigger:
+    # ## Виртуальная кнопка авто
+    #     - platform: state
+    #       entity_id: input_button.message
+    #     action:
+    #     - service: telegram_bot.send_message
+    #       data_template:
+    #         target:
+    #           - !secret chat_id_log
+    #         message: | 
+    #           {{"\U0001F916"}} тестовое сообщение
           
           
 

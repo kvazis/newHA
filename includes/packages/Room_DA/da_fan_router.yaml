@@ -22,15 +22,17 @@ da_fan_router:
       - binary_sensor:
       
           - name: da_router_fan_work
+            unique_id: da_router_fan_work
             state: >
               {{ is_state('binary_sensor.da_router_fan', 'on')  
                  or is_state('binary_sensor.da_router_fan_2', 'on') }}
 
 
           - name: da_router_fan_control
+            unique_id: da_router_fan_control
             state: >
               {{ is_state('binary_sensor.da_router_fan_work', 'on')  
-                 and states('sensor.asus_rt_ac68u_temperature_cpu')|int > 60 }}
+                 and states('sensor.rt_ac68u_temperature_cpu')|int > 60 }}
             delay_on: 
                 minutes: 15
             delay_off: 

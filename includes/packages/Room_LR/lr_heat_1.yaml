@@ -200,6 +200,26 @@ lr_heat_1:
                   - condition: state
                     entity_id: binary_sensor.night_time
                     state: 'off'
+                  - condition: numeric_state
+                    entity_id: sensor.0x00158d00015aebb6_temperature
+                    below: 19
+                sequence:
+                  - service: climate.set_temperature
+                    data:
+                      entity_id: climate.0x2c1165fffec61c89
+                      temperature: "{{ states('number.0x2c1165fffec61c89_comfort_temperature')}}"
+                  - service: number.set_value
+                    data:
+                      value: "180"
+                    target:
+                      entity_id: number.0x2c1165fffec61c89_boost_timeset_countdown
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.lr_aeration
+                    state: 'off'
+                  - condition: state
+                    entity_id: binary_sensor.night_time
+                    state: 'off'
                 sequence:
                   - service: climate.set_temperature
                     data:
@@ -217,7 +237,11 @@ lr_heat_1:
                     data:
                       entity_id: climate.0x2c1165fffec61c89
                       temperature: "{{ states('number.0x2c1165fffec61c89_eco_temperature')}}"
-
+                  - service: number.set_value
+                    data:
+                      value: "180"
+                    target:
+                      entity_id: number.0x2c1165fffec61c89_boost_timeset_countdown
 
       - alias: lr_heat_night_mode_1
         description: Гостиная TRV левый - ночной режим

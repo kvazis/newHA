@@ -487,3 +487,6 @@ en_switch:
             topic: "states/total_enter_energy"
             payload_template: "{{states('sensor.total_temp_energy')|float }}"
             retain: true 
+            
+            
+            

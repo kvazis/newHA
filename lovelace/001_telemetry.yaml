@@ -317,7 +317,17 @@ cards:
                 > {{ repo.display_name }} {{ repo["installed_version"] }} -> {{ repo["available_version"] }}
                 > {% endfor %}
 
-
+            - type: custom:mushroom-template-card
+              layout: horizontal
+              entity: input_button.git_update
+              icon: mdi:git
+              multiline_secondary: true
+              icon_color: blue
+              tap_action:
+                action: call-service
+                service: input_button.press
+                target:
+                  entity_id: input_button.git_update
 
         - type: custom:stack-in-card
           mode: vertical

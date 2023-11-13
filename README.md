@@ -1,6 +1,21 @@
 <a href="https://www.youtube.com/channel/UCcq9onYHbs6go3kDpfBoqhg?sub_confirmation=1" target="_blank"><img src="https://raw.githubusercontent.com/kvazis/training/master/lessons/img/subscribe.png" alt="Subscribe" style="height: 71px !important;width: 174px !important;box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;-webkit-box-shadow: 0px 3px 2px 0px rgba(190, 190, 190, 0.5) !important;" ></a>
 
 
+### 2023 11 13 Итерация 37
+
+:point_up: Много разных изменений, многие показаны в видеоуроках, в ряде случаев - просто косметика    
+#### Пакаджи    
+:arrow_right: [asus_router.yaml](https://github.com/kvazis/newHA/blob/master/includes/packages/asus_router.yaml) - Из за того что у меня два роутера Asus, одноименная интеграция глючила дублируя данные. Вышел из положения подключив роутеры на разных сереверах    
+:arrow_right: [git.yaml](https://github.com/kvazis/newHA/blob/master/includes/packages/Control/git.yaml) - запуск скрипта для синхронизации с git, наконец дошли руки написать    
+:arrow_right: [en_switch.yaml](https://github.com/kvazis/newHA/blob/master/includes/packages/Room_EN/en_switch.yaml) - счетчики энергии на входе, тут можно посмотреть как реальные сущности перевести в темплейты, чтобы на засорять БД дублями данных (из-за изменения атрибутов)    
+:arrow_right: [lr_heat_1.yaml](https://github.com/kvazis/newHA/blob/master/includes/packages/Room_LR/lr_heat_1.yaml) - в этом и пакадже для второй термоголовки добавлено условие, при переходе из режима проветривания при t ниже 19 С включать на 5 минут boost режим    
+:arrow_right: [boiler.yaml](https://github.com/kvazis/newHA/blob/master/includes/packages/Room_BT/boiler.yaml) - управление бойлером изменено на логику показанную в уроке [планировщик включения питания](https://youtu.be/554WOsyl0-Y)    
+
+
+#### Другое    
+:arrow_right: [ha_git.sh](https://github.com/kvazis/newHA/blob/master/ha_git.sh) - скрипт для синхронизации с git. аутентификация через Personal Access Token    
+____
+
 ### 2023 06 25 Итерация 36
 
 
