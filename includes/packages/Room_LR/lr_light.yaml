@@ -398,10 +398,14 @@ lr_light:
         - platform: state
           entity_id: sensor.0x00158d00062fbb54_action
           to: 'single_right'
-    ## Крутилка Moes
+    ## Sonoff button
         - platform: state
-          entity_id: sensor.0x70ac08fffe263e24_action
-          to: "rotate_right"
+          entity_id: sensor.0x84ba20fffed2331e_action
+          to: "long"
+    # ## Крутилка Moes
+    #     - platform: state
+    #       entity_id: sensor.0x70ac08fffe263e24_action
+    #       to: "rotate_right"
     # Выключатель на стене снаружи у входа
         - platform: state
           entity_id: sensor.0x00158d00013fc3bc_action
@@ -474,10 +478,10 @@ lr_light:
         - platform: state
           entity_id: sensor.0x54ef4410004c1707_action
           to: 'button_2_double'
-    ## Крутилка Moes
-        - platform: state
-          entity_id: sensor.0x70ac08fffe263e24_action
-          to: "rotate_left"
+    # ## Крутилка Moes
+    #     - platform: state
+    #       entity_id: sensor.0x70ac08fffe263e24_action
+    #       to: "rotate_left"
     ## 4 кнопка Aqara Opple
         - platform: state
           entity_id: sensor.0x04cf8cdf3c79360a_action
@@ -597,9 +601,9 @@ lr_light:
         - platform: state
           entity_id: sensor.0x00158d00013fc3bc_action
           to: 'single_right' 
-    ## Крутилка Moes
+    ## Sonoff button
         - platform: state
-          entity_id: sensor.0x70ac08fffe263e24_action
+          entity_id: sensor.0x84ba20fffed2331e_action
           to: "single"
     ## 2 кнопка Aqara Opple
         - platform: state

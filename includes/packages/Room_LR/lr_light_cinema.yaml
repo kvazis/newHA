@@ -75,9 +75,9 @@ lr_light_cinema:
         description: Гостиная, подсветка для ТВ
         initial_state: true
         trigger:
-    ## Крутилка Moes
+    ## Sonoff button
         - platform: state
-          entity_id: sensor.0x70ac08fffe263e24_action
+          entity_id: sensor.0x84ba20fffed2331e_action
           to: "double"
     ## 6 кнопка Aqara Opple
         - platform: state
